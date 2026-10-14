@@ -7,12 +7,12 @@ import { $, el, icon, ICONS, toast, cleanFileName, formatBytes, showDrawer, hide
 
 // Pinned CDN files with SHA-384 integrity hashes; nothing runs unless the hash matches.
 const CDN = {
-  pdf: { url: "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.4.299/build/pdf.min.mjs", sri: "sha384-QCvhu/UPp22U/TNLVbQNONL82ES2yY717GAiqP9VVu37Y7+m9VPKvadGx9XlFvcp" },
-  pdfWorker: { url: "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.4.299/build/pdf.worker.min.mjs", sri: "sha384-NfW/OTMWezITv4oaALvfH7MFLwzPxEvpySmDpoALa1mtTY8MC200l0ZNFD+SOlrM" },
-  transformers: { url: "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1/dist/transformers.min.js", sri: "sha384-AFNtlNOt2vbygtlRCUX2TDgkE+EyonjbCLxAfqezYwJJDVlozUhg+yKs4cPwyjHR" },
+  pdf: { url: "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.4.299/build/pdf.min.mjs", sri: "sha384-QCvhu/UPp22U/TNLVbQNONL82ES2yY717GAiqP9VVu37Y7+m9VPKvadGx9XlFvcp" }, // pragma: allowlist secret
+  pdfWorker: { url: "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.4.299/build/pdf.worker.min.mjs", sri: "sha384-NfW/OTMWezITv4oaALvfH7MFLwzPxEvpySmDpoALa1mtTY8MC200l0ZNFD+SOlrM" }, // pragma: allowlist secret
+  transformers: { url: "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1/dist/transformers.min.js", sri: "sha384-AFNtlNOt2vbygtlRCUX2TDgkE+EyonjbCLxAfqezYwJJDVlozUhg+yKs4cPwyjHR" }, // pragma: allowlist secret
   // ONNX Runtime loader and binary are hash-checked too, then handed to the runtime as blob URLs.
-  ortMjs: { url: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.0-dev.20260914-8d85527a0/dist/ort-wasm-simd-threaded.jsep.mjs", sri: "sha384-nvWLxdeiWbA+fFeE6qrofH8GNTzogS0wMzbtE+5FpSdY9eJVD9XAw02CuIR67LOV" },
-  ortWasm: { url: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.0-dev.20260914-8d85527a0/dist/ort-wasm-simd-threaded.jsep.wasm", sri: "sha384-M3enaJRpYo4Wu07MxfAZnkbeFbm4uWtNn6W27Taw+akrBXSqWBJ45eyQ+zqre5tC" },
+  ortMjs: { url: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.0-dev.20260914-8d85527a0/dist/ort-wasm-simd-threaded.jsep.mjs", sri: "sha384-nvWLxdeiWbA+fFeE6qrofH8GNTzogS0wMzbtE+5FpSdY9eJVD9XAw02CuIR67LOV" }, // pragma: allowlist secret
+  ortWasm: { url: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.0-dev.20260914-8d85527a0/dist/ort-wasm-simd-threaded.jsep.wasm", sri: "sha384-M3enaJRpYo4Wu07MxfAZnkbeFbm4uWtNn6W27Taw+akrBXSqWBJ45eyQ+zqre5tC" }, // pragma: allowlist secret
 };
 const MODEL = "Xenova/multilingual-e5-small";
 const MAX_BYTES = 50 * 1024 * 1024;

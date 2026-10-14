@@ -43,7 +43,7 @@ def _pipe() -> RagPipeline:
     pipe = RagPipeline(Settings(refusal_threshold=0.05, chunk_tokens=40, chunk_overlap=5))
     pipe.add_document(Document("bible", "Bible", ["The Lord is my shepherd; I shall not want. He maketh me to lie "
                                                   "down in green pastures."], "archive.org/details/x",
-                               "possible-copyright-status=NOT_IN_COPYRIGHT", "primary", "christianity", "1611"))
+                               "possible-copyright-status=NOT_IN_COPYRIGHT", "primary", "christianity", "1611"))  # pragma: allowlist secret
     pipe.add_document(Document("notes", "Notes on the Psalms", ["The shepherd image in the psalm describes care "
                                                                 "and guidance for the flock."], "", "",
                                "commentary", "christianity", "1880"))
