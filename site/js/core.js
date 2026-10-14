@@ -139,8 +139,14 @@ export function dot(a, b) {
   return s;
 }
 
-/** Brute-force cosine search. O(n d + n log k). */
-export function vectorSearch(chunks, qv, k = 10) {
+/**
+ * Cosine search. Brute force O(n d + n log k) up to `threshold` vectors, then the HNSW
+ * index from ann.js (expected O(ef M d log n) per query). Pass `ann` to inject the module.
+ */
+export function vectorSearch(chunks, qv, k = 10, { ann = vectorSearch.ann, threshold } = {}) {
+  if (ann && chunks.length > (threshold ?? ann.ANN_THRESHOLD)) {
+    return ann.indexFor(chunks).search(qv, k).map(([i, s]) => [chunks[i].chunkId, s]);
+  }
   return topK(chunks.map((c) => [c.chunkId, dot(c.vec, qv)]), k);
 }
 

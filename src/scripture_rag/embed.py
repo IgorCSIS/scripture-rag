@@ -10,7 +10,7 @@ import numpy as np
 
 from .text_utils import tokenize
 
-E5_MODELS: Final[frozenset[str]] = frozenset({"intfloat/multilingual-e5-small"})
+E5_MODELS: Final[frozenset[str]] = frozenset({"intfloat/multilingual-e5-small", "intfloat/multilingual-e5-base"})
 
 
 class Embedder(ABC):

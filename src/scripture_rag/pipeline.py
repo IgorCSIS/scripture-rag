@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -10,12 +11,16 @@ from .bm25 import BM25Index
 from .chunker import Chunk, Chunker
 from .config import REFUSAL_TEXT, Settings
 from .embed import Embedder, make_embedder
+from .gate import GatePolicy, IdfTable, support
 from .generate import ExtractiveGenerator, Generator, OllamaGenerator
 from .hybrid import HybridRetriever
 from .index import BruteForceIndex
 from .ingest import Document
+from .normalize import default_normalizer, expand_query
 from .rerank import Reranker, make_reranker
+from .translate import detect_language
 from .validate import CitationValidator
+from .verses import BIBLE_BOOKS, ReferenceAligner, parse_numbered, parse_suras, verse_chunks
 
 
 @dataclass
@@ -90,6 +95,11 @@ class RagPipeline:
         self.validator = CitationValidator()
         self.documents: dict[str, Document] = {}
         self.chunks: dict[str, Chunk] = {}
+        self.index_text: dict[str, str] = {}
+        self.gate = GatePolicy(s.thresholds(), s.refusal_threshold, s.min_support)
+        self._idf: IdfTable | None = None
+        self._translator = None
+        self._aligner: ReferenceAligner | None = None
 
     def __str__(self) -> str:
         """Return a short summary."""
@@ -115,18 +125,75 @@ class RagPipeline:
         while doc.book_id in self.documents:
             doc.book_id = f"{base}-{n}"
             n += 1
-        chunks = self.chunker.split(doc)
+        chunks = self.split(doc)
         if not chunks:
             return 0
         self.documents[doc.book_id] = doc
         ids = [c.chunk_id for c in chunks]
-        texts = [c.text for c in chunks]
+        norm = default_normalizer() if self.settings.normalize else None
+        texts = [norm.text(c.text) if norm else c.text for c in chunks]
         self.chunks.update(zip(ids, chunks))
+        self.index_text.update(zip(ids, texts))
+        self._idf = None
         if vectors is None or len(vectors) != len(chunks):
             vectors = self.embedder.encode(texts)
         self.vectors.add(ids, vectors)
         self.bm25.add(ids, texts)
         return len(chunks)
+
+    def split(self, doc: Document) -> list[Chunk]:
+        """Chunk with verse references when the layout allows it, else token windows.
+
+        Numbered editions (``21:24`` markers) and suras with ``SURA`` headings are
+        parsed directly; an unnumbered Bible is aligned to ``reference_path``.
+        Text the verse parsers skip (notes, front matter) is kept as windows.
+        """
+        if self.settings.chunker != "verse":
+            return self.chunker.split(doc)
+        text = "\n".join(doc.pages)
+        verses = []
+        if len(re.findall(r"(?<![\d:])\d{1,3}:\d{1,3}\s", text)) > 50:
+            verses = parse_numbered(text)
+        elif len(re.findall(r"(?m)^\s*SURA\s", text)) >= 3:
+            verses = parse_suras(doc)
+        elif self.settings.reference_path:
+            if self._aligner is None:
+                ref = parse_numbered(open(self.settings.reference_path, encoding="utf-8").read(), BIBLE_BOOKS)
+                self._aligner = ReferenceAligner(ref, default_normalizer())
+            verses = self._aligner.align(doc)
+            if len(verses) < 0.2 * max(1, len(text.split()) // 30):
+                verses = []  # not this work: alignment found too little
+        if not verses:
+            return self.chunker.split(doc)
+        chunks = verse_chunks(doc.book_id, verses, 80)
+        windows = self.chunker.split(Document(doc.book_id, doc.title, doc.pages))
+        if verses[0].book == "Sura":  # keep translator's notes searchable too
+            chunks += [Chunk(f"{doc.book_id}-n{i:04d}", doc.book_id, c.text, c.page_start, c.page_end,
+                             c.char_start, c.char_end) for i, c in enumerate(windows)]
+        return chunks
+
+    def _english(self, question: str, lang: str) -> str:
+        """Translate PT/ES questions when enabled."""
+        if not self.settings.translate or lang == "en":
+            return question
+        if self._translator is None:
+            from .translate import QueryTranslator
+
+            self._translator = QueryTranslator()
+        return self._translator.to_english(question)
+
+    def retrieve(self, question: str, q_en: str, k: int) -> list[str]:
+        """Weighted rank fusion of BM25 (expanded English query) and dense lists (original and English)."""
+        s = self.settings
+        q_bm = expand_query(q_en) if s.expand else q_en
+        lists = [(self.retriever.bm25_only(q_bm, k), 1.0 - s.dense_weight)]
+        for q in dict.fromkeys([question, q_en]):
+            lists.append((self.retriever.vector_only(q, k), s.dense_weight))
+        scores: dict[str, float] = {}
+        for ids, w in lists:
+            for r, cid in enumerate(ids, 1):
+                scores[cid] = scores.get(cid, 0.0) + w / (60 + r)
+        return [c for c, _ in sorted(scores.items(), key=lambda kv: -kv[1])][:k]
 
     def embeddings(self, books: set[str] | None = None) -> tuple[list[str], np.ndarray]:
         """Return chunk ids and vectors, optionally only for some books.
@@ -164,18 +231,27 @@ class RagPipeline:
         s = self.settings
         if not self.chunks or not question.strip():
             return Answer(question, REFUSAL_TEXT, True, 0.0, reason="no text loaded or empty question")
+        lang = detect_language(question)
+        q_en = self._english(question, lang)
         if books:
             # Over-fetch, then keep candidates from the selected books.
-            pool = self.retriever.retrieve(question, s.candidates_k * 4)
+            pool = self.retrieve(question, q_en, s.candidates_k * 4)
             cand_ids = [c for c in pool if self.chunks[c].book_id in books][: s.candidates_k]
         else:
-            cand_ids = self.retriever.retrieve(question, s.candidates_k)
-        ranked = self.reranker.rerank(question, [self.chunks[c] for c in cand_ids], s.top_n)
+            cand_ids = self.retrieve(question, q_en, s.candidates_k)
+        ranked = self.reranker.rerank(q_en, [self.chunks[c] for c in cand_ids], s.top_n)
         top = ranked[0][1] if ranked else 0.0
-        if top < s.refusal_threshold:
-            return Answer(question, REFUSAL_TEXT, True, top, reason="retrieval gate: score below threshold")
-        # Only passages that pass the gate are used as evidence.
-        context = [c for c, score in ranked if score >= s.refusal_threshold]
+        if self._idf is None:
+            self._idf = IdfTable(self.index_text.values())
+        sup = [support(q_en, self.index_text[c.chunk_id], self._idf) for c, _ in ranked]
+        t = self.gate.threshold(lang)
+        if top < t:
+            return Answer(question, REFUSAL_TEXT, True, top, reason=f"retrieval gate: score below threshold ({lang})")
+        if not self.gate.allow(lang, top, sup[0]):
+            return Answer(question, REFUSAL_TEXT, True, top,
+                          reason="support check: passage does not cover the question")
+        # Only passages that pass both checks are used as evidence.
+        context = [c for (c, score), sp in zip(ranked, sup) if score >= t and sp >= self.gate.min_support][:3]
         draft = self.generator.answer(question, context)
         if draft.strip() == REFUSAL_TEXT:
             return Answer(question, REFUSAL_TEXT, True, top, reason="generator refused")

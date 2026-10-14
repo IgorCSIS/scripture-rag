@@ -33,6 +33,25 @@ N = total characters in a book; n = number of chunks (or vectors); d = embedding
 | IndexedDB load all | O(n d + H) | O(n d + H) | Rebuilds BM25 in O(total tokens) |
 | History search | O(H x text length) | O(H) | Linear filter, fine for H in the hundreds |
 | Export / import JSON | O(n d + H) | O(n d + H) | Vectors serialized as arrays |
+| Verse parsing, numbered (`parse_numbered`) | O(N) | O(N) | One regex pass; book changes detected when chapter 1:1 recurs |
+| Sura parsing (`parse_suras`) | O(N) | O(N) | Line scan, heading regex, resync on printed verse multiples of 5 |
+| Reference alignment (`ReferenceAligner`) | O(S (c + w)) | O(R w) inverted index | S source sentences, R reference verses, c candidate verses touched via rare-term postings, w words per verse; monotonic prior keeps c small |
+| Verse chunking | O(number of verses) | O(N) | Greedy packing to about 80 words, 1 verse overlap |
+| Archaic normalization | O(N) | O(V) | Table lookups plus suffix rules per token |
+| Query translation (MarianMT) | O(T q d) | model weights | Only for PT/ES questions; cached per question |
+| Weighted RRF over 3 lists | O(k log k) | O(k) | BM25, dense(original), dense(English) |
+| Lexical support check | O(q + L) | O(V) IDF table | IDF built once per index change in O(total tokens) |
+| Gate policy | O(1) | O(languages) | Per-language threshold plus minimum support |
+| IA search request | O(1) client work plus network | O(rows) | 1 request per second, backoff 2^a seconds or Retry-After, LRU cache with TTL |
+| IA import | O(file size) | O(file size) | Size checked from metadata before download; capped stream read in the browser |
+| Hit clustering (TF-IDF k-means) | O(h K i V_h) | O(h V_h) | h hits (at most 100), sparse vectors |
+| Library centroid and related ranking | O(n d + h d) | O(d) | Mean of chunk vectors, cosine per hit |
+| Book auto-tags | O(n K) | O(B K) | Majority topic per book from cluster labels |
+| Outliers (z-score of centroid distance) | O(n d) | O(n) | Per-cluster mean and std of distances |
+| Compare by book or tradition | O(G (retrieval + rerank)) | O(G k) | G groups, one filtered query each |
+| Manifest export | O(B) | O(B) | JSON or CSV |
+| Browser HNSW (`ann.js`) build | expected O(n log n M d) | O(n (d + M)) | Built lazily, incrementally, when n > 20000 |
+| Browser HNSW query | expected O(ef M d log n) | O(ef) | ef = 64 |
 
 ## Browser storage layout (IndexedDB `scripture-rag`, version 1)
 

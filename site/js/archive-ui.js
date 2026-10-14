@@ -1,4 +1,5 @@
 // Internet Archive search panel, mounted into #archive-mount. Uses the hooks on globalThis.ScriptureRAG.
+import "./ann.js";
 import * as core from "./core.js";
 import * as ia from "./ia.js";
 import * as lib from "./library.js";
