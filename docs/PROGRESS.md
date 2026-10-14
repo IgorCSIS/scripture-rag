@@ -1,0 +1,12 @@
+# Progress log
+
+| Date | Phase | Done | Next | Blockers |
+|---|---|---|---|---|
+| 2026-10-14 | 0 Plan + scaffold | PLAN.md, build prompt, repo layout, pyproject, Makefile, CI (ruff, pytest, node tests, pip-audit, detect-secrets) and Pages workflow (manual) in `ci/workflows/`, pending activation | Confirm GPU VRAM, pick demo books | None |
+| 2026-10-14 | 1 Ingest + chunk | Sanitizer (allow-list, magic bytes, caps, timeout), PDF/TXT parsing, page-aware chunker + tests | | None |
+| 2026-10-14 | 2 Retrieval | BM25, brute force, FAISS HNSW, LanceDB, RRF, hybrid retriever + tests (HNSW recall@10 >= 0.9) | | None |
+| 2026-10-14 | 3 Answering | Lexical and cross-encoder rerankers, extractive and Ollama generators, citation validator, refusal gate, injection test | Calibrate threshold with real models | Real models not run in CI |
+| 2026-10-14 | 4 Eval + bench | Eval harness and fixture gold set; benchmark script run, PNGs committed | Real 50 item gold set (Igor reviews) | Demo books not chosen |
+| 2026-10-14 | 5 UI | Gradio local app, Streamlit extractive app, browser demo with IndexedDB history | Deploy Streamlit demo after review | Repo private; Igor reviews first |
+| 2026-10-14 | 6 Unsupervised | k-means + silhouette, PCA, TF-IDF labels, Plotly export, similar passages (Python and browser), BERTopic hook | Compare BERTopic vs k-means on real books | Needs real corpus |
+| 2026-10-14 | 7 Polish | README, website, logo, SVG diagrams | Screenshots/GIF with real books, enable Pages | Pages on a private repo needs a paid plan |

@@ -1,0 +1,12 @@
+{"question": "Who is my shepherd?", "answerable": true, "book_id": "kjv_sample", "page": 2}
+{"question": "What was created in the beginning?", "answerable": true, "book_id": "kjv_sample", "page": 1}
+{"question": "Who shall inherit the earth?", "answerable": true, "book_id": "kjv_sample", "page": 3}
+{"question": "What is the highest excellence like?", "answerable": true, "book_id": "tao_te_ching_legge", "page": 2}
+{"question": "How does hatred cease?", "answerable": true, "book_id": "dhammapada_muller", "page": 2}
+{"question": "What follows a man who acts with an evil thought?", "answerable": true, "book_id": "dhammapada_muller", "page": 1}
+{"question": "What is the Mother of all things?", "answerable": true, "book_id": "tao_te_ching_legge", "page": 1}
+{"question": "What is the capital of France?", "answerable": false, "book_id": null, "page": null}
+{"question": "How many moons does Jupiter have?", "answerable": false, "book_id": null, "page": null}
+{"question": "What programming language is fastest?", "answerable": false, "book_id": null, "page": null}
+{"question": "Who won the football world cup?", "answerable": false, "book_id": null, "page": null}
+{"question": "What is the price of bitcoin today?", "answerable": false, "book_id": null, "page": null}

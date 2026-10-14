@@ -1,0 +1,22 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: pip install -r requirements-dev.txt -e .
+      - run: ruff check .
+      - run: pytest --cov --cov-report=term-missing
+      - run: node --test site/tests/
+      - run: pip-audit -r requirements.txt
+      - run: detect-secrets scan --all-files --exclude-files '\.venv|docs/benchmarks/.*\.png|site/assets/.*\.png' > secrets.json && python -c "import json,sys; r=json.load(open('secrets.json'))['results']; sys.exit(1 if r else 0)"

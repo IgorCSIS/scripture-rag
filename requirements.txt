@@ -1,0 +1,14 @@
+# Core (pinned, verified installable on Python 3.11, 2026-10-14)
+numpy==2.4.6
+rank-bm25==0.2.2
+scikit-learn==1.9.1
+faiss-cpu==1.15.1
+pymupdf==1.28.2
+requests==2.34.2
+plotly==7.1.0
+matplotlib==3.11.2
+lancedb==0.40.0
+python-dotenv==1.2.4
+# UI
+gradio==6.30.0
+streamlit==1.66.0
