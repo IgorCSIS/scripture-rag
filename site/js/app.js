@@ -131,6 +131,21 @@ function rebuildIndex() {
   for (const list of state.byBook.values()) list.sort((a, b) => a.chunkId.localeCompare(b.chunkId));
 }
 
+// Checkbox list choosing which loaded books answers draw from (empty selection = all).
+function renderSearchBooks() {
+  const box = $("searchBooks");
+  if (!box) return;
+  state.searchIds = lib.keepLoaded(state.searchIds, state.books);
+  box.replaceChildren(...state.books.map((b) => {
+    const c = document.createElement("input");
+    c.type = "checkbox"; c.value = b.bookId; c.checked = state.searchIds.has(b.bookId);
+    c.onchange = () => { if (c.checked) state.searchIds.add(b.bookId); else state.searchIds.delete(b.bookId); };
+    const l = document.createElement("label");
+    l.className = "small"; l.append(c, ` ${b.title || b.bookId}`);
+    return l;
+  }));
+}
+
 async function refresh() {
   state.books = await db.getAll(state.db, "books");
   state.chunks = await db.getAll(state.db, "chunks");
@@ -139,6 +154,7 @@ async function refresh() {
   $("embedder").value = state.embedder;
   rebuildIndex();
   renderLibrary();
+  renderSearchBooks();
   await renderHistory();
   state.themes = null;
   if (!$("panel-themes").hidden) buildThemes();
@@ -294,7 +310,8 @@ async function ask() {
       cosRange: state.embedder === "hashing" ? null : [0.8, 0.9],
     };
     const scope = $("libRole").value;
-    const res = scope ? lib.answerIn(q, state.chunks, lib.selectBooks(state.books, { role: scope }), qv, opts)
+    const ids = lib.keepLoaded(state.searchIds, state.books);
+    const res = scope || ids.size ? lib.answerIn(q, state.chunks, lib.selectBooks(state.books, { role: scope || undefined, ids }), qv, opts)
       : core.answer(q, state.chunks, state.bm25, qv, opts);
     const wait = 260 - (performance.now() - started);
     if (wait > 0) await new Promise((r) => setTimeout(r, wait));
@@ -651,6 +668,8 @@ globalThis.ScriptureRAG = {
     setProgress("ingest", "", null);
     await refresh();
   },
+  embed: (texts, isQuery = false) => embed(texts, isQuery),
+  setSearchBooks(ids) { state.searchIds = lib.keepLoaded(new Set(ids), state.books); renderSearchBooks(); },
   cacheGet: async (k) => (await db.getAll(state.db, "meta")).find((m) => m.k === k),
   cachePut: (v) => db.put(state.db, "meta", v),
   toast,

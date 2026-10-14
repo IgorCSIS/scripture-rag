@@ -30,6 +30,12 @@ export function selectBooks(books, { role, tradition, ids } = {}) {
   return new Set(books.filter((b) => (!role || (b.role || "primary") === role) && (!tradition || b.tradition === tradition) && (!ids?.size || ids.has(b.bookId))).map((b) => b.bookId));
 }
 
+/** Drop selected ids whose book is no longer loaded. O(b + s). */
+export function keepLoaded(ids, books) {
+  const have = new Set(books.map((b) => b.bookId));
+  return new Set([...(ids || [])].filter((id) => have.has(id)));
+}
+
 /** Run core.answer over a subset of chunks with its own BM25. O(n_subset) build + ask. */
 export function answerIn(question, chunks, bookIds, qv, opts) {
   const pool = chunks.filter((c) => bookIds.has(c.bookId));

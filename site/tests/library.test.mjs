@@ -61,3 +61,13 @@ test("compare groups by role", () => {
   const r = lib.compare(q, books, chunks, core.hashEmbed(q), { by: "role" });
   assert.deepEqual(r.map((x) => x.group), ["commentary", "primary"]);
 });
+
+test("keepLoaded drops removed books and selectBooks honors the chosen ids", async () => {
+  const lib = await import("../js/library.js");
+  const books = [{ bookId: "a" }, { bookId: "b", role: "commentary" }];
+  const ids = lib.keepLoaded(new Set(["a", "gone"]), books);
+  assert.deepEqual([...ids], ["a"]);
+  assert.deepEqual([...lib.selectBooks(books, { ids })], ["a"]);
+  assert.deepEqual([...lib.selectBooks(books, { ids: new Set() })], ["a", "b"]);
+  assert.equal(lib.keepLoaded(undefined, books).size, 0);
+});

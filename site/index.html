@@ -86,6 +86,11 @@
           <label class="sr-only" for="libRole">Search scope by role</label>
           <select id="libRole" title="Answers and list use only books with this role"><option value="">All roles</option><option value="primary">Primary texts</option><option value="commentary">Commentary</option></select>
         </div>
+        <details class="settings" id="searchBooksBox">
+          <summary>Books to search</summary>
+          <p class="small muted">Answers use only the checked books. None checked means all books.</p>
+          <div id="searchBooks" role="group" aria-label="Books to search"></div>
+        </details>
         <ul id="library" class="booklist" aria-label="Loaded books"></ul>
 
         <details class="settings" id="manifestBox">
