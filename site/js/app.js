@@ -10,7 +10,9 @@ const CDN = {
   pdf: { url: "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.4.299/build/pdf.min.mjs", sri: "sha384-QCvhu/UPp22U/TNLVbQNONL82ES2yY717GAiqP9VVu37Y7+m9VPKvadGx9XlFvcp" },
   pdfWorker: { url: "https://cdn.jsdelivr.net/npm/pdfjs-dist@6.4.299/build/pdf.worker.min.mjs", sri: "sha384-NfW/OTMWezITv4oaALvfH7MFLwzPxEvpySmDpoALa1mtTY8MC200l0ZNFD+SOlrM" },
   transformers: { url: "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1/dist/transformers.min.js", sri: "sha384-AFNtlNOt2vbygtlRCUX2TDgkE+EyonjbCLxAfqezYwJJDVlozUhg+yKs4cPwyjHR" },
-  ortWasm: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.0-dev.20260914-8d85527a0/dist/",
+  // ONNX Runtime loader and binary are hash-checked too, then handed to the runtime as blob URLs.
+  ortMjs: { url: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.0-dev.20260914-8d85527a0/dist/ort-wasm-simd-threaded.jsep.mjs", sri: "sha384-nvWLxdeiWbA+fFeE6qrofH8GNTzogS0wMzbtE+5FpSdY9eJVD9XAw02CuIR67LOV" },
+  ortWasm: { url: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.0-dev.20260914-8d85527a0/dist/ort-wasm-simd-threaded.jsep.wasm", sri: "sha384-M3enaJRpYo4Wu07MxfAZnkbeFbm4uWtNn6W27Taw+akrBXSqWBJ45eyQ+zqre5tC" },
 };
 const MODEL = "Xenova/multilingual-e5-small";
 const MAX_BYTES = 50 * 1024 * 1024;
@@ -40,7 +42,12 @@ async function loadModel() {
   const files = new Map();
   try {
     const tf = await verifiedImport(CDN.transformers.url, CDN.transformers.sri);
-    if (tf.env?.backends?.onnx?.wasm) tf.env.backends.onnx.wasm.wasmPaths = CDN.ortWasm;
+    if (tf.env?.backends?.onnx?.wasm) {
+      tf.env.backends.onnx.wasm.wasmPaths = {
+        mjs: await verifiedBlobUrl(CDN.ortMjs.url, CDN.ortMjs.sri),
+        wasm: await verifiedBlobUrl(CDN.ortWasm.url, CDN.ortWasm.sri, "application/wasm"),
+      };
+    }
     state.model = await tf.pipeline("feature-extraction", MODEL, {
       progress_callback: (p) => {
         if (p.status === "progress" && p.total) {
@@ -157,7 +164,7 @@ function renderLibrary() {
   $("count").textContent = `${state.books.length} ${state.books.length === 1 ? "book" : "books"}`;
 }
 
-async function addBook(name, pages) {
+async function addBook(name, pages, extra = {}) {
   let bookId = core.safeBookId(name), i = 2;
   while (state.books.some((b) => b.bookId === bookId)) bookId = `${core.safeBookId(name)}-${i++}`;
   const clean = pages.map(core.stripControl);
@@ -166,7 +173,7 @@ async function addBook(name, pages) {
   setProgress("ingest", `Indexing ${name}, ${chunks.length} passages`, 85);
   const vecs = await embed(chunks.map((c) => c.text), false);
   chunks.forEach((c, k) => { c.vec = vecs[k]; });
-  await db.saveBook(state.db, { bookId, title: name.replace(/\.[^.]+$/, ""), pages: clean.length, addedAt: Date.now() }, chunks);
+  await db.saveBook(state.db, { bookId, title: name.replace(/\.[^.]+$/, ""), pages: clean.length, addedAt: Date.now(), ...extra }, chunks);
   state.books.push({ bookId });
 }
 
@@ -583,6 +590,16 @@ globalThis.ScriptureRAG = {
   manifest: () => lib.manifest(state.books, state.chunks),
   manifestCsv: () => lib.manifestCsv(lib.manifest(state.books, state.chunks)),
   roleOf: (bookId) => state.books.find((b) => b.bookId === bookId)?.role || "primary",
+  // Ingest hooks used by archive-ui.js: bytes -> pages -> indexed book with source metadata.
+  async importBytes(name, bytes, extra = {}) {
+    const pages = await readPages(new File([bytes], name, { type: name.endsWith(".pdf") ? "application/pdf" : "text/plain" }), name);
+    await addBook(name, pages, extra);
+    setProgress("ingest", "", null);
+    await refresh();
+  },
+  cacheGet: async (k) => (await db.getAll(state.db, "meta")).find((m) => m.k === k),
+  cachePut: (v) => db.put(state.db, "meta", v),
+  toast,
 };
 
-main().catch((e) => renderError(e.message));
+main().then(() => import("./archive-ui.js")).then((m) => m.mount(document.getElementById("archive-mount"))).catch((e) => renderError(e.message));

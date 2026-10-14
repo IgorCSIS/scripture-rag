@@ -98,12 +98,12 @@ async function sha384(buf) {
 }
 
 /** Fetch a pinned CDN file, check its Subresource Integrity hash, and return a blob URL. */
-export async function verifiedBlobUrl(url, integrity) {
+export async function verifiedBlobUrl(url, integrity, type = "text/javascript") {
   const res = await fetch(url, { integrity, credentials: "omit", referrerPolicy: "no-referrer" });
   if (!res.ok) throw new Error(`Could not download ${url}`);
   const buf = await res.arrayBuffer();
   if ((await sha384(buf)) !== integrity) throw new Error("Integrity check failed for a CDN script");
-  return URL.createObjectURL(new Blob([buf], { type: "text/javascript" }));
+  return URL.createObjectURL(new Blob([buf], { type }));
 }
 
 export async function verifiedImport(url, integrity) {

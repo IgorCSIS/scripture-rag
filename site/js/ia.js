@@ -56,7 +56,7 @@ export function parseHits(json) {
 
 /** Spaced, retrying fetch: min gap between calls, exponential backoff on 429/5xx, per call timeout. */
 export class PoliteFetcher {
-  constructor({ minIntervalMs = 1000, maxRetries = 3, timeoutMs = 20000, fetchFn = globalThis.fetch, sleep = (ms) => new Promise((r) => setTimeout(r, ms)), now = () => Date.now() } = {}) {
+  constructor({ minIntervalMs = 1000, maxRetries = 3, timeoutMs = 20000, fetchFn = (...a) => globalThis.fetch(...a), sleep = (ms) => new Promise((r) => setTimeout(r, ms)), now = () => Date.now() } = {}) {
     Object.assign(this, { minIntervalMs, maxRetries, timeoutMs, fetchFn, sleep, now, last: -1e12 });
   }
   async get(url, opts = {}) {
