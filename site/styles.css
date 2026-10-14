@@ -34,7 +34,7 @@ img, svg { max-width: 100%; }
 a { color: var(--primary); text-underline-offset: 3px; }
 a:hover { text-decoration-thickness: 2px; }
 h1, h2, h3 { line-height: 1.2; letter-spacing: -.015em; margin: 0 0 var(--sp-3); }
-h2 { font-size: var(--fs-xl); } h3 { font-size: var(--fs-lg); white-space: nowrap; }
+h2 { font-size: var(--fs-xl); } h3 { font-size: var(--fs-lg); }
 p { margin: 0 0 var(--sp-3); }
 code, kbd { font-family: var(--font-mono); font-size: .88em; }
 code { background: var(--surface-2); padding: .1em .35em; border-radius: 5px; }
