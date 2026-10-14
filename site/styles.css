@@ -34,7 +34,7 @@ img, svg { max-width: 100%; }
 a { color: var(--primary); text-underline-offset: 3px; }
 a:hover { text-decoration-thickness: 2px; }
 h1, h2, h3 { line-height: 1.2; letter-spacing: -.015em; margin: 0 0 var(--sp-3); }
-h2 { font-size: var(--fs-xl); } h3 { font-size: var(--fs-lg); }
+h2 { font-size: var(--fs-xl); } h3 { font-size: var(--fs-lg); white-space: nowrap; }
 p { margin: 0 0 var(--sp-3); }
 code, kbd { font-family: var(--font-mono); font-size: .88em; }
 code { background: var(--surface-2); padding: .1em .35em; border-radius: 5px; }
@@ -83,7 +83,7 @@ progress::-moz-progress-bar { background: var(--primary); }
 /* Header */
 .topbar { position: sticky; top: 0; z-index: 30; height: var(--header-h); background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: saturate(1.6) blur(12px); -webkit-backdrop-filter: saturate(1.6) blur(12px); border-bottom: 1px solid var(--line); }
 .topbar-inner { max-width: 1280px; height: 100%; margin: 0 auto; padding: 0 var(--sp-4); display: flex; align-items: center; gap: var(--sp-4); }
-.brand { display: flex; gap: var(--sp-2); align-items: center; font-weight: 750; color: var(--ink); text-decoration: none; font-size: var(--fs-lg); }
+.brand { display: flex; gap: var(--sp-2); align-items: center; font-weight: 750; color: var(--ink); text-decoration: none; font-size: var(--fs-lg); white-space: nowrap; }
 .mainnav { display: none; gap: var(--sp-1); margin-left: var(--sp-4); }
 .mainnav a { padding: var(--sp-2) var(--sp-3); border-radius: var(--r-sm); color: var(--muted); text-decoration: none; font-size: var(--fs-sm); font-weight: 600; transition: color var(--t-fast), background var(--t-fast); }
 .mainnav a:hover { color: var(--ink); background: var(--surface-2); }
@@ -115,15 +115,16 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 var(--sp-4); }
 .workspace { display: grid; gap: var(--sp-4); grid-template-columns: 1fr; padding-bottom: var(--sp-7); }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-1); padding: var(--sp-4); min-width: 0; }
 .panel-head { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-3); }
-.panel-head h2 { margin: 0; font-size: var(--fs-lg); }
+.panel-head h2 { margin: 0; font-size: var(--fs-lg); white-space: nowrap; }
 .panel-head .icon-btn { margin-left: auto; }
 .library { display: flex; flex-direction: column; gap: var(--sp-3); }
 .dropzone { display: grid; justify-items: center; gap: var(--sp-1); padding: var(--sp-5) var(--sp-3); text-align: center; border: 2px dashed var(--line-strong); border-radius: var(--r-md); cursor: pointer; transition: border-color var(--t-fast), background var(--t-fast), transform var(--t-fast) var(--ease); }
 .dropzone svg { width: 28px; height: 28px; fill: var(--primary); }
 .dropzone:hover, .dropzone.over { border-color: var(--primary); background: var(--primary-soft); }
 .dropzone.over { transform: scale(1.01); }
-.filters { display: grid; grid-template-columns: 1fr auto; gap: var(--sp-2); }
-.filters select { width: auto; }
+.library > * { flex-shrink: 0; }
+.filters { display: grid; grid-template-columns: minmax(0, 1fr) 7.5rem; gap: var(--sp-2); }
+
 .booklist, .historylist, .legend { list-style: none; margin: 0; padding: 0; }
 .booklist { display: grid; gap: var(--sp-2); max-height: 320px; overflow: auto; }
 .book { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-sm); animation: rise var(--t-med) var(--ease); }
@@ -149,7 +150,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 var(--sp-4); }
 /* Answer */
 .answer { display: grid; gap: var(--sp-3); }
 .answer-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-2); }
-.answer-head h3 { margin: 0; font-size: var(--fs-lg); }
+.answer-head h3 { margin: 0; font-size: var(--fs-lg); white-space: nowrap; }
 .quote-card { padding: var(--sp-4); border: 1px solid var(--line); border-left: 4px solid var(--primary); border-radius: var(--r-md); background: var(--surface); animation: rise var(--t-slow) var(--ease) both; }
 .quote-card:nth-child(3) { animation-delay: 60ms; } .quote-card:nth-child(4) { animation-delay: 120ms; }
 .quote-card p { font-family: var(--font-serif); font-size: var(--fs-lg); line-height: 1.65; margin-bottom: var(--sp-3); }

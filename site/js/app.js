@@ -1,6 +1,8 @@
 // Browser app UI: library, ask with cited passages, passage drawer, theme map, similar passages, history.
 import * as core from "./core.js";
 import * as db from "./db.js";
+import * as ia from "./ia.js";
+import * as lib from "./library.js";
 import { $, el, icon, ICONS, toast, cleanFileName, formatBytes, showDrawer, hideDrawer, drawerIsOpen, trapFocus, verifiedImport, verifiedBlobUrl } from "./ui.js";
 
 // Pinned CDN files with SHA-384 integrity hashes; nothing runs unless the hash matches.
@@ -194,6 +196,7 @@ async function loadSample() {
     await addBook("psalm23_kjv.txt", core.splitTxtPages(await res.text()));
     toast("Added Psalm 23 (KJV)");
   } catch (e) { toast(e.message, "error"); }
+  setProgress("ingest", "", null);
   await refresh();
 }
 
@@ -523,8 +526,8 @@ function wire() {
     await refresh();
   };
 
-  const lib = $("library-panel");
-  const openLib = () => { lib.classList.add("open"); $("scrim").hidden = false; showDrawer(lib, $("libraryToggle")); };
+  const libPanel = $("library-panel");
+  const openLib = () => { libPanel.classList.add("open"); $("scrim").hidden = false; showDrawer(libPanel, $("libraryToggle")); };
   $("libraryToggle").onclick = openLib;
   $("libraryClose").onclick = () => hideDrawer();
   $("historyToggle").onclick = (e) => showDrawer($("history-drawer"), e.currentTarget);
