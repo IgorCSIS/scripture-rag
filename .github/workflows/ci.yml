@@ -21,5 +21,5 @@ jobs:
       - run: pip-audit -r requirements.txt
       - name: Secret scan
         run: |
-          detect-secrets scan --all-files --exclude-files '\.venv|docs/benchmarks/.*\.png|site/assets/.*\.png' > secrets.json
+          detect-secrets scan --all-files --exclude-files '\.venv|\.git/|_cache/|docs/benchmarks/.*\.png|site/assets/.*\.png' > secrets.json
           python -c "import json,sys; r=json.load(open('secrets.json'))['results']; r.pop('secrets.json', None); print({f: [x['line_number'] for x in v] for f, v in r.items()}); sys.exit(1 if r else 0)"
