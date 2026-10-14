@@ -29,8 +29,12 @@ Readers of religious and philosophical texts want answers they can verify. Gener
 | FR-14 | Multilingual | 5 PT and 5 ES gold items retrieve the right passage in top 5 | Not yet: needs real model and gold items | Planned |
 | FR-15 | Browser history and persistence | Libraries (chunks + embeddings) and Q&A history stored in IndexedDB; search, re-open, export/import JSON, clear all; nothing sent to a server | Done | `site/js/db.js`, browser smoke test |
 | FR-16 | Browser theme map | k-means + PCA + TF-IDF labels in the browser; re-clusters when books change; click for cross-book neighbors | Done | `site/tests/core.test.mjs` |
+| FR-17 | Role-scoped answers | Primary and commentary books tagged by role; an answer filtered to one role cites only books with that role | Done | `site/tests/library.test.mjs` "answers by role never mix primary and commentary" |
+| FR-18 | Compare mode | Same question answered per tradition, book or role; each group cites only its own books and can refuse on its own | Done | `site/tests/library.test.mjs` "compare groups by tradition and by book", "compare groups by role" |
+| FR-19 | Outlier flags | Passages with centroid-distance z-score above 2.5 flagged on the theme map; a planted far point is flagged | Done | `site/tests/library.test.mjs` "outliers flag the far point" |
+| FR-20 | Library manifest | One row per book with source URL, license status, pages, passages; CSV and JSON export round-trip the fields | Done | `site/tests/library.test.mjs` "manifest rows and CSV" |
 
-MVP = FR-01, 03 to 08, 11 to 13. Stretch delivered: FR-02, 09, 10, 15, 16.
+MVP = FR-01, 03 to 08, 11 to 13. Stretch delivered: FR-02, 09, 10, 15 to 20.
 
 ## Non-functional
 - Offline except model downloads and the optional IA import.
