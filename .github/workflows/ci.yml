@@ -19,4 +19,4 @@ jobs:
       - run: pytest --cov --cov-report=term-missing
       - run: node --test site/tests/
       - run: pip-audit -r requirements.txt
-      - run: detect-secrets scan --all-files --exclude-files '\.venv|docs/benchmarks/.*\.png|site/assets/.*\.png' > secrets.json && python -c "import json,sys; r=json.load(open('secrets.json'))['results']; sys.exit(1 if r else 0)"
+      - run: detect-secrets scan --all-files --exclude-files '\.venv|docs/benchmarks/.*\.png|site/assets/.*\.png' > secrets.json && python -c "import json,sys; r=json.load(open('secrets.json'))['results']; r.pop('secrets.json', None); print({f: [x['line_number'] for x in v] for f, v in r.items()}); sys.exit(1 if r else 0)"
