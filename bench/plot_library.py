@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 d = json.load(open("docs/benchmarks/library_stages.json"))
 slopes = {}
 for key, sub, xl, title in [("library_stages", d, "passages n", "Browser library stages, 8 books"),
-                            ("ia_stages", d["ia"], "hits r (books B for the selector)", "Internet Archive panel stages")]:
+                            ("ia_stages", d["ia"], "hits r (books B, selector)", "Internet Archive panel stages")]:
     n = np.array(sub["sizes"])
     fig, ax = plt.subplots(figsize=(7, 4.5))
     for k, v in sub["stages"].items():
