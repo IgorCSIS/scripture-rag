@@ -33,7 +33,8 @@ Load public-domain books (PDF or TXT, including Internet Archive downloads), ask
 
 ### Feature notes
 
-- **Internet Archive ingest.** Search or paste an archive.org item; `licenseurl`, `rights`, `possible-copyright-status` and dates are shown before anything downloads. PDFs are parsed page by page (pypdf in Python, pdf.js in the browser) so every chunk keeps `page_start`/`page_end`.
+- **Internet Archive panel.** Search archive.org with client-side year, author, collection and public-domain filters; each hit shows a license label. Hits are clustered (k-means, K by silhouette, up to 5) with the active embedder and ranked by similarity to the centroid of the loaded library, so related books surface first. For any item, `licenseurl`, `rights`, `possible-copyright-status` and dates are shown before anything downloads. PDFs are parsed page by page (pypdf in Python, pdf.js in the browser) so every chunk keeps `page_start`/`page_end`.
+- **Book selector.** Choose which loaded books an answer may search; retrieval then runs on that subset only (subset BM25 plus filtered vectors).
 - **Hybrid retrieval.** BM25 (exact words, names, verse references) and `multilingual-e5-small` embeddings (meaning, cross-language) each return candidates; Reciprocal Rank Fusion merges the two rankings without score calibration. A cross-encoder reranker orders the final top 5.
 - **Support gate.** If the best reranked passage scores below the calibrated threshold (0.22 for the e5 + mMiniLM pair, see [stress results](docs/eval/stress_results.md)), the app refuses instead of answering, and no generator runs. A validator also refuses any draft whose citations do not resolve to supplied chunks.
 - **History.** Every question, answer and citation is stored in IndexedDB (`scripture-rag` database) with search, re-open, export/import JSON and clear all. Nothing leaves the browser.
@@ -227,6 +228,8 @@ Two Internet Archive books (KJV 1611 reprint, Rodwell Koran), `multilingual-e5-s
 | Compare by tradition | 22.92 | 23.48 | 24.97 | 34.66 | 137.83 |
 
 <p align="center"><img src="docs/benchmarks/library_stages.png" width="410" alt="Library stages"> <img src="docs/benchmarks/browser_ann.png" width="410" alt="Browser ANN"></p>
+
+> **TODO (benchmarks worker):** no measured benchmark yet for the IA panel stages (`filterHits`, `clusterHits`, `rankRelated`). Their predicted costs are in [docs/COMPLEXITY.md](docs/COMPLEXITY.md#internet-archive-panel-filters-book-selector-result-clustering). Embed the graph here once `docs/benchmarks/` has it.
 
 Server-side vector store comparison (NumPy, FAISS Flat/HNSW/IVF, LanceDB, Chroma): [docs/VECTOR_DB.md](docs/VECTOR_DB.md), raw data in [docs/benchmarks/vectordb.json](docs/benchmarks/vectordb.json).
 
