@@ -95,13 +95,16 @@ class RagPipeline:
         """Return a short summary."""
         return f"RagPipeline(books={len(self.documents)}, chunks={len(self.chunks)}, mode={self.settings.mode})"
 
-    def add_document(self, doc: Document) -> int:
+    def add_document(self, doc: Document, vectors: np.ndarray | None = None) -> int:
         """Chunk, embed and index a document.
 
         Parameters
         ----------
         doc : Document
             Parsed document. A duplicate book id gets a numeric suffix.
+        vectors : np.ndarray or None
+            Precomputed passage embeddings (one row per chunk, same chunker
+            settings and model); computed when None.
 
         Returns
         -------
@@ -119,7 +122,9 @@ class RagPipeline:
         ids = [c.chunk_id for c in chunks]
         texts = [c.text for c in chunks]
         self.chunks.update(zip(ids, chunks))
-        self.vectors.add(ids, self.embedder.encode(texts))
+        if vectors is None or len(vectors) != len(chunks):
+            vectors = self.embedder.encode(texts)
+        self.vectors.add(ids, vectors)
         self.bm25.add(ids, texts)
         return len(chunks)
 
@@ -154,7 +159,8 @@ class RagPipeline:
         top = ranked[0][1] if ranked else 0.0
         if top < s.refusal_threshold:
             return Answer(question, REFUSAL_TEXT, True, top, reason="retrieval gate: score below threshold")
-        context = [c for c, _ in ranked]
+        # Only passages that pass the gate are used as evidence.
+        context = [c for c, score in ranked if score >= s.refusal_threshold]
         draft = self.generator.answer(question, context)
         if draft.strip() == REFUSAL_TEXT:
             return Answer(question, REFUSAL_TEXT, True, top, reason="generator refused")

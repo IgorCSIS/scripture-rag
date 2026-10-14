@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import concurrent.futures as cf
+import io
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Final
@@ -61,7 +62,7 @@ def split_txt_pages(text: str) -> list[str]:
 
 
 def _pdf_pages(data: bytes, max_pages: int) -> list[str]:
-    """Extract per-page text from PDF bytes with PyMuPDF.
+    """Extract per-page text from PDF bytes with pypdf.
 
     Parameters
     ----------
@@ -78,19 +79,24 @@ def _pdf_pages(data: bytes, max_pages: int) -> list[str]:
     Raises
     ------
     UploadError
-        If the PDF has too many pages or cannot be opened.
+        If the PDF has too many pages, is encrypted, or cannot be read.
     """
-    import pymupdf  # imported lazily so TXT-only use needs no PDF library
+    from pypdf import PdfReader  # imported lazily so TXT-only use needs no PDF library
+    from pypdf.errors import PdfReadError
 
     try:
-        doc = pymupdf.open(stream=data, filetype="pdf")
-    except Exception as exc:  # PyMuPDF raises several error types
+        reader = PdfReader(io.BytesIO(data))
+        if reader.is_encrypted:
+            raise UploadError("Encrypted PDFs are not supported")
+        count = len(reader.pages)
+        if count > max_pages:
+            raise UploadError(f"PDF has {count} pages; limit is {max_pages}")
+        # extract_text reads only the text layer; scripts, links and forms are ignored.
+        return [page.extract_text() or "" for page in reader.pages]
+    except UploadError:
+        raise
+    except (PdfReadError, ValueError, KeyError, TypeError) as exc:
         raise UploadError("Could not open PDF") from exc
-    with doc:
-        if doc.page_count > max_pages:
-            raise UploadError(f"PDF has {doc.page_count} pages; limit is {max_pages}")
-        # get_text only extracts text; links, scripts and annotations are ignored.
-        return [page.get_text("text") for page in doc]
 
 
 def parse_bytes(

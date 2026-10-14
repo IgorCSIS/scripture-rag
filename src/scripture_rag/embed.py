@@ -97,7 +97,8 @@ class SentenceTransformerEmbedder(Embedder):
 
         self._name = model_name
         self._model = SentenceTransformer(model_name, device=device)
-        self.dim = int(self._model.get_sentence_embedding_dimension())
+        get_dim = getattr(self._model, "get_embedding_dimension", None) or self._model.get_sentence_embedding_dimension
+        self.dim = int(get_dim())
 
     def encode(self, texts: list[str], is_query: bool = False) -> np.ndarray:
         """Embed texts, adding E5 prefixes when the model needs them.
@@ -117,7 +118,9 @@ class SentenceTransformerEmbedder(Embedder):
         if self._name in E5_MODELS:
             prefix = "query: " if is_query else "passage: "
             texts = [prefix + t for t in texts]
-        vecs = self._model.encode(texts, normalize_embeddings=True, convert_to_numpy=True)
+        vecs = self._model.encode(
+            texts, batch_size=32, normalize_embeddings=True, convert_to_numpy=True, show_progress_bar=False
+        )
         return np.asarray(vecs, dtype=np.float32)
 
 

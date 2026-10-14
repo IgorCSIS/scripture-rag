@@ -2,7 +2,7 @@
 
 | Date | Phase | Done | Next | Blockers |
 |---|---|---|---|---|
-| 2026-10-14 | 0 Plan + scaffold | PLAN.md, build prompt, repo layout, pyproject, Makefile, CI (ruff, pytest, node tests, pip-audit, detect-secrets) and Pages workflow (manual) in `ci/workflows/`, pending activation | Confirm GPU VRAM, pick demo books | None |
+| 2026-10-14 | 0 Plan + scaffold | PLAN.md, build prompt, repo layout, pyproject, Makefile, CI (ruff, pytest, node tests, pip-audit, detect-secrets) and Pages workflow (manual) | Confirm GPU VRAM, pick demo books | None |
 | 2026-10-14 | 1 Ingest + chunk | Sanitizer (allow-list, magic bytes, caps, timeout), PDF/TXT parsing, page-aware chunker + tests | | None |
 | 2026-10-14 | 2 Retrieval | BM25, brute force, FAISS HNSW, LanceDB, RRF, hybrid retriever + tests (HNSW recall@10 >= 0.9) | | None |
 | 2026-10-14 | 3 Answering | Lexical and cross-encoder rerankers, extractive and Ollama generators, citation validator, refusal gate, injection test | Calibrate threshold with real models | Real models not run in CI |

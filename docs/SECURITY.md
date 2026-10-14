@@ -6,7 +6,7 @@ Defensive controls only. Threat model: untrusted uploaded documents (malformed f
 - Allow-list `.pdf`, `.txt`. Magic bytes checked: `%PDF-` for PDF; TXT must be valid UTF-8 and must not start with `%PDF-`.
 - Caps: 50 MB, 2000 pages (configurable). Empty files rejected.
 - PDF parsing runs with a timeout (thread based: the caller gets an error after `PARSE_TIMEOUT_S`; the worker thread cannot be force-killed, a known limitation; a subprocess would be stronger).
-- Only page text is extracted (PyMuPDF `get_text`, PDF.js `getTextContent` with `isEvalSupported: false`). Embedded JavaScript, links, forms and annotations are never executed or followed.
+- Only page text is extracted (pypdf `extract_text`, PDF.js `getTextContent` with `isEvalSupported: false`). Embedded JavaScript, links, forms and annotations are never executed or followed.
 - Control characters stripped. All document text is HTML-escaped (Gradio), shown with `st.text` (Streamlit) or inserted with `textContent` (browser). No document HTML is ever rendered.
 - Uploads go to Gradio temp files with random names, removed when the session ends; Streamlit keeps bytes in memory only.
 

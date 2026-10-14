@@ -188,7 +188,6 @@ docs/                PRD, architecture, complexity, evaluation, security, source
 
 ```
 README.md
-ci/README.md
 DEVELOPMENT.md
 CONTRIBUTING.md
 data/demo/README.md

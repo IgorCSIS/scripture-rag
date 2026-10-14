@@ -9,8 +9,38 @@ from .chunker import Chunk
 from .text_utils import tokenize
 
 
+def windows(text: str, size: int, stride: int) -> list[str]:
+    """Split a passage into overlapping word windows.
+
+    Parameters
+    ----------
+    text : str
+        Passage.
+    size : int
+        Words per window.
+    stride : int
+        Words between window starts.
+
+    Returns
+    -------
+    list[str]
+        At least one window.
+    """
+    words = text.split()
+    if len(words) <= size:
+        return [text]
+    return [" ".join(words[i : i + size]) for i in range(0, len(words) - size + stride, stride)]
+
+
 class Reranker(ABC):
-    """Interface for pairwise relevance scoring."""
+    """Interface for pairwise relevance scoring.
+
+    When ``window_words`` is set, each passage is scored as the maximum over
+    short overlapping windows, so one relevant verse inside a long, noisy OCR
+    chunk is not diluted by its neighbors.
+    """
+
+    window_words: int | None = None
 
     @abstractmethod
     def score(self, query: str, passages: list[str]) -> list[float]:
@@ -48,7 +78,16 @@ class Reranker(ABC):
         """
         if not chunks:
             return []
-        scores = self.score(query, [c.text for c in chunks])
+        if self.window_words:
+            size = self.window_words
+            spans = [windows(c.text, size, size // 2) for c in chunks]
+            flat = self.score(query, [w for span in spans for w in span])
+            scores, pos = [], 0
+            for span in spans:
+                scores.append(max(flat[pos : pos + len(span)]))
+                pos += len(span)
+        else:
+            scores = self.score(query, [c.text for c in chunks])
         ranked = sorted(zip(chunks, scores), key=lambda cs: cs[1], reverse=True)
         return ranked[:top_n]
 
@@ -75,8 +114,14 @@ class LexicalOverlapReranker(Reranker):
         return out
 
 
+MULTILINGUAL_RERANKER = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
+
+
 class CrossEncoderReranker(Reranker):
     """Cross-encoder reranker with a sigmoid to map logits to [0, 1].
+
+    ``cross-encoder/ms-marco-MiniLM-L-6-v2`` is English only; use
+    ``MULTILINGUAL_RERANKER`` for PT and ES questions.
 
     Parameters
     ----------
@@ -84,15 +129,30 @@ class CrossEncoderReranker(Reranker):
         Hugging Face model id.
     """
 
-    def __init__(self, model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2") -> None:
-        """Load the model (downloads on first use)."""
+    def __init__(self, model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2", window_words: int | None = 60) -> None:
+        """Load the model (downloads on first use).
+
+        Parameters
+        ----------
+        model_name : str
+            Hugging Face model id.
+        window_words : int or None
+            Window size for max-window scoring; None scores whole passages.
+        """
         from sentence_transformers import CrossEncoder
 
         self._model = CrossEncoder(model_name)
+        self.window_words = window_words
 
     def score(self, query: str, passages: list[str]) -> list[float]:
         """Score pairs with the cross-encoder (see ``Reranker.score``)."""
-        logits = self._model.predict([(query, p) for p in passages])
+        import torch
+
+        # Identity keeps raw logits whatever activation the model config sets, so the
+        # sigmoid below is applied exactly once.
+        logits = self._model.predict(
+            [(query, p) for p in passages], batch_size=16, show_progress_bar=False, activation_fn=torch.nn.Identity()
+        )
         return [1.0 / (1.0 + math.exp(-float(x))) for x in logits]
 
 

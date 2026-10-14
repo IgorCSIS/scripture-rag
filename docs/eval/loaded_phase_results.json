@@ -1,0 +1,429 @@
+{
+  "threshold": 0.22,
+  "corpus_added": [
+    {
+      "book_id": "talmud_rodkinson_v1",
+      "identifier": "neweditionofbaby01rodk",
+      "url": "https://archive.org/details/neweditionofbaby01rodk",
+      "file_url": "https://archive.org/download/neweditionofbaby01rodk/neweditionofbaby01rodk.pdf",
+      "possible-copyright-status": "NOT_IN_COPYRIGHT",
+      "date": "1896",
+      "publicdate": "2008-06-25 11:42:59"
+    },
+    {
+      "book_id": "quran_commentary_wherry_v1",
+      "identifier": "comprehensivecom01saleuoft",
+      "url": "https://archive.org/details/comprehensivecom01saleuoft",
+      "file_url": "https://archive.org/download/comprehensivecom01saleuoft/comprehensivecom01saleuoft.pdf",
+      "possible-copyright-status": "NOT_IN_COPYRIGHT",
+      "date": "1882-86",
+      "publicdate": "2007-03-30 09:41:49"
+    }
+  ],
+  "conditions": {
+    "not_loaded": [
+      {
+        "id": "S045",
+        "lang": "en",
+        "question": "What did Hillel tell the man who asked to be taught the whole Torah while standing on one foot?",
+        "expect": "refuse",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.0327,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "Shabbat 31a, Rodkinson vol. 1"
+      },
+      {
+        "id": "S046",
+        "lang": "en",
+        "question": "How many categories of creative labor does the Mishnah forbid on the Sabbath?",
+        "expect": "refuse",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.0075,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "Mishnah Shabbat 7:2, Rodkinson vol. 1"
+      },
+      {
+        "id": "S048",
+        "lang": "en",
+        "question": "Did the House of Hillel or the House of Shammai prevail on the order of lighting Hanukkah candles?",
+        "expect": "refuse",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.0366,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "Shabbat 21b, Rodkinson vol. 1"
+      },
+      {
+        "id": "S069",
+        "lang": "pt",
+        "question": "Quantas categorias de trabalho a Mishná proíbe no sábado?",
+        "expect": "refuse",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.066,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "PT variant of S046"
+      },
+      {
+        "id": "S047",
+        "lang": "en",
+        "question": "In the story of the oven of Akhnai, what miracles did Rabbi Eliezer call on to prove his ruling?",
+        "expect": "refuse",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.2177,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "Bava Metzia 59b is not in the loaded volume: must still abstain"
+      },
+      {
+        "id": "S049",
+        "lang": "en",
+        "question": "According to Pirkei Avot, on which three things does the world stand?",
+        "expect": "refuse",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.0331,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "Pirkei Avot is not in the loaded volume: must still abstain"
+      },
+      {
+        "id": "S050",
+        "lang": "en",
+        "question": "How does Ibn Kathir's tafsir explain the meaning of the disjointed letters Alif Lam Mim?",
+        "expect": "refuse",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.1744,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "Ibn Kathir is not loaded; abstaining or citing the loaded commentary's note on A.L.M. are both grounded"
+      },
+      {
+        "id": "S071",
+        "lang": "es",
+        "question": "¿Qué dice el tafsir de Ibn Kathir sobre las letras Alif Lam Mim?",
+        "expect": "refuse",
+        "ok": false,
+        "refused": false,
+        "top_score": 0.7196,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [
+          "koran_rodwell p.286 #koran_rodwell-0674",
+          "koran_rodwell p.209 #koran_rodwell-0470",
+          "koran_rodwell p.230 #koran_rodwell-0523"
+        ],
+        "answer": "been miminent when Muhammad could thus write. [koran_rodwell p.286 #koran_rodwell-0674] Lit. carry not. [koran_rodwell p.286 #koran_rodwell-0674] Comp. [koran_rodwell p.286 #koran_rodwell-0674] Matth. vi. [koran_rodwell p.286 #koran_rodwell-0674] 26; Luke xii. [koran_rodwell p.286 #koran_rodwell-0674] 24. [koran_rodwell p.286 #koran_rodwell-0674] Lokman 267 In our revelation they believe not, yet ",
+        "note": "ES variant of S050"
+      },
+      {
+        "id": "S051",
+        "lang": "en",
+        "question": "What does Ibn Kathir report about the wording of the Prophet's farewell sermon?",
+        "expect": "refuse",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.0686,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "farewell sermon is not in the loaded volume: must still abstain"
+      },
+      {
+        "id": "T001",
+        "lang": "en",
+        "question": "According to Baidhawi, why was the law of legacies to parents and relatives enacted?",
+        "expect": "refuse",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.0858,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "Wherry/Sale notes citing Baidhawi, Jalaluddin, Zamakhshari; absent from Rodwell"
+      },
+      {
+        "id": "T002",
+        "lang": "pt",
+        "question": "Segundo Baidhawi, por que foi promulgada a lei dos legados aos pais e parentes?",
+        "expect": "refuse",
+        "ok": false,
+        "refused": false,
+        "top_score": 0.4011,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [
+          "kjv_1611 p.305 #kjv_1611-0901"
+        ],
+        "answer": "them that gathered themselves together against the Lord in the company of Korah : but died in his owne sinne, and had no sonnes. [kjv_1611 p.305 #kjv_1611-0901] Why should the name of our father be done away from among his family, because he hath no sonne .^ Give 293 NUMBERS CHAPTER XXVII The law of inheritances. [kjv_1611 p.305 #kjv_1611-0901] Moses beeing told of his death, sueth for a successou",
+        "note": "Wherry/Sale notes citing Baidhawi, Jalaluddin, Zamakhshari; absent from Rodwell"
+      },
+      {
+        "id": "T003",
+        "lang": "en",
+        "question": "In the commentary on the opening sura, how does al Zamakhshari's reading of the negatives differ from the common exposition?",
+        "expect": "refuse",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.0083,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "Wherry/Sale notes citing Baidhawi, Jalaluddin, Zamakhshari; absent from Rodwell"
+      },
+      {
+        "id": "T004",
+        "lang": "es",
+        "question": "En el comentario de la primera sura, ¿en qué difiere la lectura de al Zamakhshari de la exposición común?",
+        "expect": "refuse",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.0414,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "Wherry/Sale notes citing Baidhawi, Jalaluddin, Zamakhshari; absent from Rodwell"
+      }
+    ],
+    "loaded": [
+      {
+        "id": "S045",
+        "lang": "en",
+        "question": "What did Hillel tell the man who asked to be taught the whole Torah while standing on one foot?",
+        "expect": "answer",
+        "ok": true,
+        "refused": false,
+        "top_score": 1.0,
+        "citations_valid": true,
+        "evidence_found": true,
+        "citations": [
+          "talmud_rodkinson_v1 p.93 #talmud_rodkinson_v1-0210",
+          "talmud_rodkinson_v1 p.92 #talmud_rodkinson_v1-0208",
+          "talmud_rodkinson_v1 p.93 #talmud_rodkinson_v1-0211"
+        ],
+        "answer": "must likewise repose confidence in the oral law (which appears at first sight different from the written law).\" Another Gentile came to Shamai saying : \" Convert me on the condition that thou teach me the whole Torah while I stand on one foot.\" Shamai pushed him away with the builders' measure he held in his hand. [talmud_rodkinson_v1 p.93 #talmud_rodkinson_v1-0210] He thereupon came to Hillel and",
+        "note": "Shabbat 31a, Rodkinson vol. 1"
+      },
+      {
+        "id": "S046",
+        "lang": "en",
+        "question": "How many categories of creative labor does the Mishnah forbid on the Sabbath?",
+        "expect": "answer",
+        "ok": false,
+        "refused": false,
+        "top_score": 0.8176,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [
+          "talmud_rodkinson_v1 p.27 #talmud_rodkinson_v1-0029",
+          "talmud_rodkinson_v1 p.173 #talmud_rodkinson_v1-0435",
+          "talmud_rodkinson_v1 p.136 #talmud_rodkinson_v1-0333"
+        ],
+        "answer": "due observance of the Sabbath is repeatedly ordained; in some instances merely mentioning the day as one to be kept inviolate and holy; and in others employing greater emphasis, referring to the history of creation, and establishing the obser- vance as a sign of the covenant between the Lord and Israel. [talmud_rodkinson_v1 p.27 #talmud_rodkinson_v1-0029] Such texts are Exod. xiii. [talmud_rodkins",
+        "note": "Mishnah Shabbat 7:2, Rodkinson vol. 1"
+      },
+      {
+        "id": "S048",
+        "lang": "en",
+        "question": "Did the House of Hillel or the House of Shammai prevail on the order of lighting Hanukkah candles?",
+        "expect": "answer",
+        "ok": true,
+        "refused": false,
+        "top_score": 0.9272,
+        "citations_valid": true,
+        "evidence_found": true,
+        "citations": [
+          "talmud_rodkinson_v1 p.76 #talmud_rodkinson_v1-0162",
+          "talmud_rodkinson_v1 p.80 #talmud_rodkinson_v1-0174",
+          "talmud_rodkinson_v1 p.79 #talmud_rodkinson_v1-0169"
+        ],
+        "answer": "in the best possible manner should light the first night eight flames and every fol- lowing night one flame less, says the school of Shamai. [talmud_rodkinson_v1 p.76 #talmud_rodkinson_v1-0162] Hillel's school holds that only one should be lit on the first night and be increased by one on each succeeding night. [talmud_rodkinson_v1 p.76 #talmud_rodkinson_v1-0162] Rabba-bar-bar-'Hanasaid in the nam",
+        "note": "Shabbat 21b, Rodkinson vol. 1"
+      },
+      {
+        "id": "S069",
+        "lang": "pt",
+        "question": "Quantas categorias de trabalho a Mishná proíbe no sábado?",
+        "expect": "answer",
+        "ok": true,
+        "refused": false,
+        "top_score": 0.5474,
+        "citations_valid": true,
+        "evidence_found": true,
+        "citations": [
+          "talmud_rodkinson_v1 p.40 #talmud_rodkinson_v1-0063",
+          "talmud_rodkinson_v1 p.27 #talmud_rodkinson_v1-0029",
+          "talmud_rodkinson_v1 p.175 #talmud_rodkinson_v1-0439"
+        ],
+        "answer": "labor may be distinguished. [talmud_rodkinson_v1 p.40 #talmud_rodkinson_v1-0063] Different instances of forgetfulness regarding Sabbath and the performance of labor on the Sabbath. [talmud_rodkinson_v1 p.40 #talmud_rodkinson_v1-0063] Instances of forgetfulness in dietary matters. [talmud_rodkinson_v1 p.40 #talmud_rodkinson_v1-0063] Instances of intentional and unintentional performance of labor, a",
+        "note": "PT variant of S046"
+      },
+      {
+        "id": "S047",
+        "lang": "en",
+        "question": "In the story of the oven of Akhnai, what miracles did Rabbi Eliezer call on to prove his ruling?",
+        "expect": "refuse",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.1265,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "Bava Metzia 59b is not in the loaded volume: must still abstain"
+      },
+      {
+        "id": "S049",
+        "lang": "en",
+        "question": "According to Pirkei Avot, on which three things does the world stand?",
+        "expect": "refuse",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.024,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "Pirkei Avot is not in the loaded volume: must still abstain"
+      },
+      {
+        "id": "S050",
+        "lang": "en",
+        "question": "How does Ibn Kathir's tafsir explain the meaning of the disjointed letters Alif Lam Mim?",
+        "expect": "refuse_or_correct",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.1744,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "Ibn Kathir is not loaded; abstaining or citing the loaded commentary's note on A.L.M. are both grounded"
+      },
+      {
+        "id": "S071",
+        "lang": "es",
+        "question": "¿Qué dice el tafsir de Ibn Kathir sobre las letras Alif Lam Mim?",
+        "expect": "refuse_or_correct",
+        "ok": false,
+        "refused": false,
+        "top_score": 0.7196,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [
+          "koran_rodwell p.286 #koran_rodwell-0674",
+          "koran_rodwell p.209 #koran_rodwell-0470",
+          "koran_rodwell p.230 #koran_rodwell-0523"
+        ],
+        "answer": "been miminent when Muhammad could thus write. [koran_rodwell p.286 #koran_rodwell-0674] Lit. carry not. [koran_rodwell p.286 #koran_rodwell-0674] Comp. [koran_rodwell p.286 #koran_rodwell-0674] Matth. vi. [koran_rodwell p.286 #koran_rodwell-0674] 26; Luke xii. [koran_rodwell p.286 #koran_rodwell-0674] 24. [koran_rodwell p.286 #koran_rodwell-0674] Lokman 267 In our revelation they believe not, yet ",
+        "note": "ES variant of S050"
+      },
+      {
+        "id": "S051",
+        "lang": "en",
+        "question": "What does Ibn Kathir report about the wording of the Prophet's farewell sermon?",
+        "expect": "refuse",
+        "ok": true,
+        "refused": true,
+        "top_score": 0.0715,
+        "citations_valid": true,
+        "evidence_found": false,
+        "citations": [],
+        "answer": "I could not find this in the loaded texts.",
+        "note": "farewell sermon is not in the loaded volume: must still abstain"
+      },
+      {
+        "id": "T001",
+        "lang": "en",
+        "question": "According to Baidhawi, why was the law of legacies to parents and relatives enacted?",
+        "expect": "answer",
+        "ok": true,
+        "refused": false,
+        "top_score": 0.9999,
+        "citations_valid": true,
+        "evidence_found": true,
+        "citations": [
+          "quran_commentary_wherry_v1 p.366 #quran_commentary_wherry_v1-0871"
+        ],
+        "answer": "change the legacy, after he hath heard it bequeathed by the dying person, surely the sin thereof shall be on those who change it, for GOD is he who heareth and knoweth. [quran_commentary_wherry_v1 p.366 #quran_commentary_wherry_v1-0871] (182) Howbeit he who apprehendeth from the testator any mistake or injustice, and shall compose the matter between them, that shall be no crime in him, for GOD is ",
+        "note": "Wherry/Sale notes citing Baidhawi, Jalaluddin, Zamakhshari; absent from Rodwell"
+      },
+      {
+        "id": "T002",
+        "lang": "pt",
+        "question": "Segundo Baidhawi, por que foi promulgada a lei dos legados aos pais e parentes?",
+        "expect": "answer",
+        "ok": true,
+        "refused": false,
+        "top_score": 0.9955,
+        "citations_valid": true,
+        "evidence_found": true,
+        "citations": [
+          "quran_commentary_wherry_v1 p.366 #quran_commentary_wherry_v1-0871"
+        ],
+        "answer": "change the legacy, after he hath heard it bequeathed by the dying person, surely the sin thereof shall be on those who change it, for GOD is he who heareth and knoweth. [quran_commentary_wherry_v1 p.366 #quran_commentary_wherry_v1-0871] (182) Howbeit he who apprehendeth from the testator any mistake or injustice, and shall compose the matter between them, that shall be no crime in him, for GOD is ",
+        "note": "Wherry/Sale notes citing Baidhawi, Jalaluddin, Zamakhshari; absent from Rodwell"
+      },
+      {
+        "id": "T003",
+        "lang": "en",
+        "question": "In the commentary on the opening sura, how does al Zamakhshari's reading of the negatives differ from the common exposition?",
+        "expect": "answer",
+        "ok": true,
+        "refused": false,
+        "top_score": 0.9988,
+        "citations_valid": true,
+        "evidence_found": true,
+        "citations": [
+          "quran_commentary_wherry_v1 p.302 #quran_commentary_wherry_v1-0677"
+        ],
+        "answer": "faithful who preceded Muhammad ; under which appellations are also compre- hended the Jews and Christians, such as they were in the times of their primitive purity, before they had deviated from their respective institutions ; not the way of the modern Jews, whose signal calamities are marks of the just anger of God against them for their obstinacy and disobedience; nor of the Christians of this a",
+        "note": "Wherry/Sale notes citing Baidhawi, Jalaluddin, Zamakhshari; absent from Rodwell"
+      },
+      {
+        "id": "T004",
+        "lang": "es",
+        "question": "En el comentario de la primera sura, ¿en qué difiere la lectura de al Zamakhshari de la exposición común?",
+        "expect": "answer",
+        "ok": true,
+        "refused": false,
+        "top_score": 0.9036,
+        "citations_valid": true,
+        "evidence_found": true,
+        "citations": [
+          "quran_commentary_wherry_v1 p.302 #quran_commentary_wherry_v1-0677",
+          "quran_commentary_wherry_v1 p.367 #quran_commentary_wherry_v1-0876",
+          "quran_commentary_wherry_v1 p.367 #quran_commentary_wherry_v1-0875"
+        ],
+        "answer": "faithful who preceded Muhammad ; under which appellations are also compre- hended the Jews and Christians, such as they were in the times of their primitive purity, before they had deviated from their respective institutions ; not the way of the modern Jews, whose signal calamities are marks of the just anger of God against them for their obstinacy and disobedience; nor of the Christians of this a",
+        "note": "Wherry/Sale notes citing Baidhawi, Jalaluddin, Zamakhshari; absent from Rodwell"
+      }
+    ]
+  }
+}

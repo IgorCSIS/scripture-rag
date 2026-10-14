@@ -14,3 +14,4 @@ data/demo/*
 !data/demo/README.md
 site/theme_map.html
 .DS_Store
+data/cache/

@@ -1,20 +1,15 @@
 """FR-03 parsing and page-aware chunking tests."""
 
-import pymupdf
 import pytest
 
 from scripture_rag.chunker import Chunker
 from scripture_rag.ingest import Document, parse_bytes, split_txt_pages
+from scripture_rag.pdfgen import text_pdf
 from scripture_rag.sanitize import UploadError
 
 
 def _pdf(pages: list[str]) -> bytes:
-    doc = pymupdf.open()
-    for text in pages:
-        doc.new_page().insert_text((72, 72), text)
-    data = doc.tobytes()
-    doc.close()
-    return data
+    return text_pdf(pages)
 
 
 def test_txt_pages_form_feed_and_virtual() -> None:
