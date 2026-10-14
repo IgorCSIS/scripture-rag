@@ -30,7 +30,7 @@ export function mount(root) {
   const results = el("div", { id: "iaResults", "aria-live": "polite" });
   root.replaceChildren(
     el("div", { class: "ia-search" }, q, go, rel),
-    el("div", { class: "ia-filters" }, field("Language", lang), field("Tradition", trad), field("Sort", sort), field("Creator", creator), field("Collection", coll), field("From year", from), field("To year", to)),
+    el("div", { class: "ia-filters" }, field("Language", lang), field("Tradition", trad), field("Sort", sort), field("Author", creator), field("Collection", coll), field("From year", from), field("To year", to)),
     el("div", { class: "ia-filters" }, pdf, pd, group),
     el("p", { class: "small muted" }, "License fields come from the uploader and are evidence, not proof. Results are cached in this browser for an hour, and requests are spaced one second apart."),
     results);
@@ -51,15 +51,18 @@ export function mount(root) {
     return el("li", { class: "ia-hit" },
       el("a", { href: h.preview, target: "_blank", rel: "noopener noreferrer" }, h.title || h.identifier),
       el("div", { class: "small muted" }, `${h.creator || "Unknown creator"}, ${h.date || "n.d."}${score != null ? `, similarity ${score.toFixed(2)}` : ""}, suggested role: ${role}`),
-      el("div", { class: "small" }, `Copyright status: ${h.copyrightStatus || "not stated"}. License: ${h.licenseUrl || "not stated"}.`),
+      el("div", { class: "small" }, `License: ${ia.licenseLabel(h)}. Copyright status: ${h.copyrightStatus || "not stated"}. License URL: ${h.licenseUrl || "not stated"}.`),
       el("label", { class: "small" }, ok, " I reviewed the license evidence"), btn);
   }
 
-  function render(hits, scores) {
+  // Embed with the app's active embedder so hits share a space with the loaded passages.
+  const embedHits = async (hits) => (api.embed ? api.embed(hits.map(ia.hitText)) : hits.map((h) => core.hashEmbed(ia.hitText(h))));
+
+  async function render(hits, scores) {
     results.replaceChildren();
     if (!hits.length) { results.append(el("p", { class: "muted" }, "No results.")); return; }
     if (group.querySelector("input").checked && hits.length >= 4 && !scores) {
-      const groups = ia.clusterHits(hits, hits.map((h) => core.hashEmbed(ia.hitText(h))));
+      const groups = ia.clusterHits(hits, await embedHits(hits));
       for (const g of groups) results.append(el("h4", {}, `${g.label} (${g.hits.length})`), el("ul", { class: "list" }, ...g.hits.map((h) => row(h))));
     } else {
       results.append(el("ul", { class: "list" }, ...hits.map((h, i) => row(h, scores?.[i]))));
@@ -67,7 +70,7 @@ export function mount(root) {
   }
 
   async function search() {
-    try { render(await ia.search(fetcher, cache, q.value, filters())); } catch (e) { api.toast(`Search failed: ${e.message}`, "error"); }
+    try { const f = filters(); await render(ia.filterHits(await ia.search(fetcher, cache, q.value, f), f)); } catch (e) { api.toast(`Search failed: ${e.message}`, "error"); }
   }
 
   async function related() {
@@ -75,10 +78,13 @@ export function mount(root) {
     if (!chunks.length) { api.toast("Load a book first", "error"); return; }
     try {
       const hits = await ia.search(fetcher, cache, ia.relatedQuery(chunks.map((c) => c.text)), { publicDomain: true }, { rows: 40 });
-      const cen = ia.centroid(chunks.map((c) => core.hashEmbed(c.text)));
+      if (!hits.length) { await render([]); return; }
+      const hv = await embedHits(hits);
+      const own = chunks.filter((c) => c.vec?.length === hv[0]?.length).map((c) => c.vec);
+      const cen = ia.centroid(own.length ? own : await api.embed(chunks.map((c) => c.text)));
       const loaded = new Set(api.state.books.map((b) => b.source).filter(Boolean));
-      const ranked = ia.rankRelated(hits, hits.map((h) => core.hashEmbed(ia.hitText(h))), cen, loaded);
-      render(ranked.map(([h]) => h), ranked.map(([, s]) => s));
+      const ranked = ia.rankRelated(hits, hv, cen, loaded);
+      await render(ranked.map(([h]) => h), ranked.map(([, s]) => s));
     } catch (e) { api.toast(`Search failed: ${e.message}`, "error"); }
   }
 
