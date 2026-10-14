@@ -1,7 +1,7 @@
 # Complexity, theory and benchmarks
 
 ## Symbols
-N = total characters in a book; n = number of chunks (or vectors); d = embedding dimension; L = tokens per chunk; q = query tokens; k = candidates kept; K = clusters; i = iterations; V = vocabulary size; M = HNSW neighbors per node; s = silhouette sample size; T = tokens produced by the LLM; C = LLM context length; H = history entries; B = number of books.
+N = total characters in a book; n = number of chunks (or vectors); d = embedding dimension; L = tokens per chunk; q = query tokens; k = candidates kept; K = clusters; i = iterations; V = vocabulary size; M = HNSW neighbors per node; s = silhouette sample size; H = history entries; B = number of books.
 
 ## Big-O table
 
@@ -21,7 +21,6 @@ N = total characters in a book; n = number of chunks (or vectors); d = embedding
 | Rerank, lexical | O(k (q + L)) | O(k) | Set intersection |
 | Rerank, cross-encoder | O(k (q+L)^2 d) | O(k) | Dominant query cost; keep k about 20 to 50 |
 | Citation validation | O(length of answer) | O(1) | One DFA pass (regex) |
-| LLM generation | about O(T C) | KV cache O(C) | Hardware bound |
 | k-means (Lloyd) | O(n K i d) | O(n + K d) | Plus k-means++ init O(n K d) |
 | Choosing K by silhouette | O(sum over K of (n K i d + s n d)) | O(n) | Browser samples s <= 300 points |
 | PCA to 2D | O(n d^2 + d^3) full, O(n d i) power iteration | O(n d) | sklearn chooses the solver by shape; browser uses power iteration |

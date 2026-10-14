@@ -27,7 +27,7 @@ Load public-domain books (PDF or TXT, including Internet Archive downloads), ask
 | | | |
 |---|---|---|
 | **Hybrid retrieval**<br>BM25 plus embeddings, fused with Reciprocal Rank Fusion (k = 60) | **Reranking**<br>Lexical reranker offline, cross-encoder optional | **Citations everywhere**<br>Every sentence cites a chunk; a regex validator rejects anything else |
-| **Refusal gate**<br>Low relevance means no answer and no LLM call | **Two modes**<br>`MODE=local` with Ollama, `MODE=extractive` with no LLM | **Theme map**<br>k-means, silhouette, PCA, TF-IDF topic labels, optional BERTopic |
+| **Refusal gate**<br>Low relevance means no answer | **Extractive answers**<br>Answers are quoted passages; there is no LLM generation step | **Theme map**<br>k-means, silhouette, PCA, TF-IDF topic labels, optional BERTopic |
 | **Similar passages**<br>Nearest neighbors from other books | **Browser demo**<br>Runs fully client side, history in IndexedDB | **Safe uploads**<br>Magic bytes, size and page caps, parse timeout, escaped output |
 | **Compare mode**<br>Same question answered per tradition, side by side | **Outlier flags**<br>Passages far from every cluster are marked on the theme map | **Library manifest**<br>Books, roles, traditions and licenses, exportable as CSV or JSON |
 
@@ -36,7 +36,7 @@ Load public-domain books (PDF or TXT, including Internet Archive downloads), ask
 - **Internet Archive panel.** Search archive.org with client-side year, author, collection and public-domain filters; each hit shows a license label. Hits are clustered (k-means, K by silhouette, up to 5) with the active embedder and ranked by similarity to the centroid of the loaded library, so related books surface first. For any item, `licenseurl`, `rights`, `possible-copyright-status` and dates are shown before anything downloads. PDFs are parsed page by page (pypdf in Python, pdf.js in the browser) so every chunk keeps `page_start`/`page_end`.
 - **Book selector.** Choose which loaded books an answer may search; retrieval then runs on that subset only (subset BM25 plus filtered vectors).
 - **Hybrid retrieval.** BM25 (exact words, names, verse references) and `multilingual-e5-small` embeddings (meaning, cross-language) each return candidates; Reciprocal Rank Fusion merges the two rankings without score calibration. A cross-encoder reranker orders the final top 5.
-- **Support gate.** If the best reranked passage scores below the calibrated threshold (0.22 for the e5 + mMiniLM pair, see [stress results](docs/eval/stress_results.md)), the app refuses instead of answering, and no generator runs. A validator also refuses any draft whose citations do not resolve to supplied chunks.
+- **Support gate.** If the best reranked passage scores below the calibrated threshold (0.22 for the e5 + mMiniLM pair, see [stress results](docs/eval/stress_results.md)), the app refuses instead of answering. A validator also refuses any draft whose citations do not resolve to supplied chunks.
 - **History.** Every question, answer and citation is stored in IndexedDB (`scripture-rag` database) with search, re-open, export/import JSON and clear all. Nothing leaves the browser.
 - **Theme map.** k-means (K by silhouette) on passage embeddings, PCA to 2D, class-based TF-IDF labels. Re-clusters when books change; click a point for nearest passages from other books.
 - **Compare mode.** Asks the same question once per group (tradition by default, or per book or role); each group's answer cites only its own books and can refuse independently.
@@ -64,15 +64,11 @@ python demo.py --corpus tests\fixtures\books
 python app_gradio.py
 ```
 
-Optional real models and local generation:
+Optional real models (embedder and cross-encoder reranker):
 
 ```powershell
 pip install -r requirements-models.txt          # sentence-transformers, BERTopic (downloads torch)
-nvidia-smi                                       # check VRAM: 8 GB fits qwen2.5:7b, 6 GB use llama3.2:3b
-# Install Ollama for Windows from https://ollama.com, then:
-ollama pull qwen2.5:7b
-ollama pull llama3.2:3b
-# In .env: MODE=local, EMBED_MODEL=intfloat/multilingual-e5-small, RERANK_MODEL=cross-encoder/ms-marco-MiniLM-L-6-v2
+# In .env: EMBED_MODEL=intfloat/multilingual-e5-small, RERANK_MODEL=cross-encoder/mmarco-mMiniLMv2-L12-H384-v1
 python app_gradio.py
 ```
 
@@ -121,15 +117,15 @@ sequenceDiagram
   participant U as User
   participant R as HybridRetriever
   participant RR as Reranker
-  participant G as Generator
+  participant E as Extractive answer
   participant V as Validator
   U->>R: question
   R->>RR: top 50 fused by RRF
   alt top score < threshold
     RR-->>U: I could not find this in the loaded texts.
   else
-    RR->>G: top 5 fenced passages
-    G->>V: draft with citations
+    RR->>E: top 5 passages
+    E->>V: quoted passages with citations
     V-->>U: cited answer, or refusal if any citation is invalid
   end
 ```
@@ -259,7 +255,7 @@ Server-side vector store comparison (NumPy, FAISS Flat/HNSW/IVF, LanceDB, Chroma
 ```
 src/scripture_rag/   config, sanitize, ingest, chunker, embed, index, bm25, hybrid, rerank,
                      generate, validate, pipeline, topics, similar, ia_import, eval, corpus
-app_gradio.py        local app (Ollama optional)
+app_gradio.py        local app (extractive answers)
 app_streamlit.py     extractive demo
 demo.py              command line demo
 bench/               complexity benchmarks
