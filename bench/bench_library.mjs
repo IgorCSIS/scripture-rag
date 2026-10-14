@@ -30,4 +30,21 @@ for (const n of [500, 1000, 2000, 4000, 8000]) {
   out.sizes.push(n);
   for (const [k, v] of Object.entries(r)) (out.stages[k] ||= []).push(Number(v.toFixed(3)));
 }
+// Internet Archive panel stages vs r hits, plus the book selector vs B books.
+out.ia = { sizes: [], stages: {} };
+for (const r of [25, 50, 100, 200, 400]) {
+  const hits = Array.from({ length: r }, (_, i) => ({ identifier: `id${i}`, title: text().slice(0, 40), subject: text().slice(0, 30), description: text(), creator: i % 3 ? "Rodwell" : "Sale", collection: "americana", date: String(1600 + (i % 300)), copyrightStatus: i % 4 ? "NOT_IN_COPYRIGHT" : "", licenseUrl: "" }));
+  const vecs = hits.map((h) => core.hashEmbed(ia.hitText(h)));
+  const c = ia.centroid(vecs);
+  const books = Array.from({ length: r }, (_, b) => ({ bookId: `b${b}`, role: b % 2 ? "commentary" : "primary", tradition: "islam" }));
+  const ids = new Set(books.filter((_, b) => b % 3 === 0).map((b) => b.bookId));
+  const t = {
+    filterHits: time(() => ia.filterHits(hits, { yearFrom: 1650, yearTo: 1800, creator: "rodwell", collection: "americana", publicDomain: true })),
+    clusterHits: time(() => ia.clusterHits(hits, vecs), 3),
+    rankRelated: time(() => ia.rankRelated(hits, vecs, c)),
+    book_selector: time(() => lib.selectBooks(books, { role: "primary", tradition: "islam", ids })),
+  };
+  out.ia.sizes.push(r);
+  for (const [k, v] of Object.entries(t)) (out.ia.stages[k] ||= []).push(Number(v.toFixed(4)));
+}
 console.log(JSON.stringify(out, null, 2));
