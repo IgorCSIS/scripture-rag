@@ -15,3 +15,4 @@ data/demo/*
 site/theme_map.html
 .DS_Store
 data/cache/
+data/ref/

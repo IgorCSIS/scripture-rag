@@ -31,6 +31,8 @@ class Chunk:
         Start offset within the page-joined document text.
     char_end : int
         End offset (exclusive).
+    ref : str
+        Verse reference such as ``Exodus 21:23-25``; empty for plain windows.
     """
 
     chunk_id: str
@@ -40,10 +42,16 @@ class Chunk:
     page_end: int
     char_start: int
     char_end: int
+    ref: str = ""
 
     def __str__(self) -> str:
         """Return the citation label."""
         return f"[{self.book_id} p.{self.page_start} #{self.chunk_id}]"
+
+    @property
+    def label(self) -> str:
+        """Human citation: ``Exodus 21:23-25, p.61`` or ``p.61``."""
+        return f"{self.ref}, p.{self.page_start}" if self.ref else f"p.{self.page_start}"
 
 
 class Chunker:

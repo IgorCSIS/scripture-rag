@@ -27,6 +27,12 @@ class Document:
         Page texts; index 0 is page 1.
     source : str
         Where the text came from (file name or IA identifier).
+    role : str
+        ``primary`` (scripture or source text) or ``commentary`` (notes, tafsir, scholarship).
+    tradition : str
+        Optional tradition label used for grouping, such as ``islam``.
+    date : str
+        Publication date as listed by the source.
     license_evidence : str
         Free text license evidence, if any.
     """
@@ -36,6 +42,9 @@ class Document:
     pages: list[str] = field(default_factory=list)
     source: str = ""
     license_evidence: str = ""
+    role: str = "primary"
+    tradition: str = ""
+    date: str = ""
 
     def __str__(self) -> str:
         """Return a short summary."""

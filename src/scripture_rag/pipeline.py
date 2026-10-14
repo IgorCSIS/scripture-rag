@@ -128,23 +128,33 @@ class RagPipeline:
         self.bm25.add(ids, texts)
         return len(chunks)
 
-    def embeddings(self) -> tuple[list[str], np.ndarray]:
-        """Return all chunk ids and vectors.
+    def embeddings(self, books: set[str] | None = None) -> tuple[list[str], np.ndarray]:
+        """Return chunk ids and vectors, optionally only for some books.
+
+        Parameters
+        ----------
+        books : set[str] or None
+            Book ids to keep; None keeps all. O(n) filter.
 
         Returns
         -------
         tuple[list[str], np.ndarray]
             Ids and an (n, d) matrix.
         """
-        return self.vectors.ids, self.vectors.matrix
+        if not books:
+            return self.vectors.ids, self.vectors.matrix
+        keep = [k for k, i in enumerate(self.vectors.ids) if self.chunks[i].book_id in books]
+        return [self.vectors.ids[k] for k in keep], self.vectors.matrix[keep]
 
-    def ask(self, question: str) -> Answer:
+    def ask(self, question: str, books: set[str] | None = None) -> Answer:
         """Answer from loaded text only, or refuse.
 
         Parameters
         ----------
         question : str
             User question.
+        books : set[str] or None
+            Restrict evidence to these book ids (None searches all).
 
         Returns
         -------
@@ -154,7 +164,12 @@ class RagPipeline:
         s = self.settings
         if not self.chunks or not question.strip():
             return Answer(question, REFUSAL_TEXT, True, 0.0, reason="no text loaded or empty question")
-        cand_ids = self.retriever.retrieve(question, s.candidates_k)
+        if books:
+            # Over-fetch, then keep candidates from the selected books.
+            pool = self.retriever.retrieve(question, s.candidates_k * 4)
+            cand_ids = [c for c in pool if self.chunks[c].book_id in books][: s.candidates_k]
+        else:
+            cand_ids = self.retriever.retrieve(question, s.candidates_k)
         ranked = self.reranker.rerank(question, [self.chunks[c] for c in cand_ids], s.top_n)
         top = ranked[0][1] if ranked else 0.0
         if top < s.refusal_threshold:

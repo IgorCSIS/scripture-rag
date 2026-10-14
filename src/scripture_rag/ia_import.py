@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Final
 
 import requests
@@ -31,12 +31,17 @@ class IAItem:
         License evidence fields (uploader supplied, not proof).
     file_name : str or None
         Chosen file, PDF preferred, else ``*_djvu.txt``.
+    files : list[dict]
+        Raw file list (name, size) from the metadata API.
     """
 
     identifier: str
     title: str
     license_fields: dict[str, str]
     file_name: str | None
+    files: list[dict[str, Any]] = field(default_factory=list)
+    subject: str = ""
+    date: str = ""
 
     def __str__(self) -> str:
         """Return a short summary."""
@@ -51,6 +56,11 @@ class IAItem:
             ``field=value`` pairs.
         """
         return "; ".join(f"{k}={v}" for k, v in self.license_fields.items())
+
+
+def _flat(v: Any) -> str:
+    """Join multi-valued metadata."""
+    return "; ".join(map(str, v)) if isinstance(v, list) else ("" if v is None else str(v))
 
 
 def choose_file(files: list[dict[str, Any]]) -> str | None:
@@ -106,7 +116,8 @@ def fetch_metadata(identifier: str, session: requests.Session | None = None) -> 
         raise ValueError(f"No item named {identifier}")
     meta = data["metadata"]
     fields = {k: str(meta[k]) for k in LICENSE_FIELDS if k in meta}
-    return IAItem(identifier, str(meta.get("title", identifier)), fields, choose_file(data.get("files", [])))
+    return IAItem(identifier, str(meta.get("title", identifier)), fields, choose_file(data.get("files", [])),
+                  data.get("files", []), _flat(meta.get("subject")), _flat(meta.get("date"))[:10])
 
 
 def import_item(
@@ -144,6 +155,9 @@ def import_item(
         raise ValueError("Item has no PDF or _djvu.txt file")
     if not confirm(item):
         return None
+    size = next((int(f.get("size") or 0) for f in item.files if f.get("name") == item.file_name), 0)
+    if size > max_mb * 1024 * 1024:
+        raise ValueError(f"File is {size / 1e6:.0f} MB, over the {max_mb} MB limit")
     resp = http.get(DOWNLOAD_URL.format(id=identifier, file=item.file_name), timeout=120)
     resp.raise_for_status()
     name = item.file_name if item.file_name.lower().endswith(".pdf") else f"{identifier}.txt"
@@ -151,4 +165,9 @@ def import_item(
     doc.title = item.title
     doc.source = f"archive.org/details/{identifier}"
     doc.license_evidence = item.evidence_text()
+    from .library import suggest_role, suggest_tradition
+
+    doc.role = suggest_role(item.title, item.subject)
+    doc.tradition = suggest_tradition(item.title, item.subject)
+    doc.date = item.date
     return doc

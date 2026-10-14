@@ -2,112 +2,257 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Scripture RAG: cited answers from the texts you load</title>
-  <meta name="description" content="Ask questions about public-domain books and get answers only from the text, with page citations, or an honest refusal.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' blob: https://cdn.jsdelivr.net 'wasm-unsafe-eval'; worker-src 'self' blob: https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net https://huggingface.co https://*.hf.co https://*.huggingface.co; img-src 'self' data: blob:; style-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'none'">
+  <meta name="description" content="Ask questions about public-domain books and get answers only from the text, with page citations, or an honest refusal. Runs entirely in your browser.">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f7f6f2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#111318" media="(prefers-color-scheme: dark)">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' blob: https://cdn.jsdelivr.net 'wasm-unsafe-eval'; worker-src 'self' blob:; connect-src 'self' https://archive.org https://*.archive.org https://cdn.jsdelivr.net https://huggingface.co https://*.hf.co https://*.huggingface.co https://archive.org https://*.archive.org; img-src 'self' data: blob:; style-src 'self'; font-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
+  <script src="js/theme-init.js"></script>
 </head>
 <body>
-<header class="nav">
-  <a class="brand" href="#top"><img src="assets/logo.svg" alt="" width="32" height="32"> Scripture RAG</a>
-  <nav><a href="#how">How it works</a><a href="#demo">Demo</a><a href="#themes">Theme map</a><a href="#bench">Benchmarks</a><a href="https://github.com/IgorCSIS/scripture-rag">GitHub</a></nav>
+<a class="skip" href="#ask">Skip to the question box</a>
+
+<header class="topbar" id="top">
+  <div class="topbar-inner">
+    <a class="brand" href="#top" aria-label="Scripture RAG home"><img src="assets/logo.svg" alt="" width="32" height="32"><span>Scripture RAG</span></a>
+    <nav class="mainnav" aria-label="Main">
+      <a href="#app">App</a><a href="#how">How it works</a><a href="#themes-about">Themes</a><a href="#bench">Benchmarks</a><a href="#privacy">Privacy</a><a href="https://github.com/IgorCSIS/scripture-rag" rel="noopener">GitHub</a>
+    </nav>
+    <div class="topbar-actions">
+      <button class="icon-btn only-mobile" id="libraryToggle" aria-controls="library-panel" aria-expanded="false" aria-label="Open library">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h4v14H4zM10 5h4v14h-4zM16.5 5.5l3.8 1-3.4 13-3.9-1z"/></svg>
+      </button>
+      <button class="icon-btn" id="historyToggle" aria-controls="history-drawer" aria-expanded="false" aria-label="Open history" title="History (H)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a8 8 0 1 1-7.4 5H2l3.3-3.3L8.6 9H6.7A6 6 0 1 0 12 6zm-1 3h2v5l4 2.3-1 1.7-5-3z"/></svg>
+      </button>
+      <button class="icon-btn" id="themeToggle" aria-label="Switch to dark mode" title="Toggle theme (T)">
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" stroke-width="2" stroke="currentColor" fill="none"/></svg>
+      </button>
+      <button class="icon-btn" id="helpBtn" aria-label="Show the getting started guide" title="Getting started">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 14.5a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 0 0 0-2.6zM12 6a3.6 3.6 0 0 0-3.6 3.4h2.1A1.5 1.5 0 1 1 12 11c-.8 0-1.1.6-1.1 1.2v2h2.1v-1.4A3.6 3.6 0 0 0 12 6z"/></svg>
+      </button>
+    </div>
+  </div>
 </header>
 
-<main id="top">
-  <section class="hero">
-    <img src="assets/logo.svg" alt="Three interlocking circles of light around an open page" width="120" height="120">
-    <h1>Answers only from the text.<br><span>With citations, or an honest refusal.</span></h1>
-    <p class="lead">Load public-domain books in PDF or TXT, ask in English, Portuguese or Spanish, and read the exact passages and pages behind every answer. Explore shared themes across traditions with unsupervised clustering.</p>
-    <div class="cta"><a class="btn primary" href="#demo">Try it in your browser</a><a class="btn" href="https://github.com/IgorCSIS/scripture-rag#quick-start">Run locally</a></div>
-    <p class="muted small">Private by design: the browser demo stores everything in your own browser (IndexedDB). Nothing is uploaded to a server.</p>
+<main>
+  <section class="hero" aria-labelledby="hero-title">
+    <img class="hero-logo" src="assets/logo.svg" alt="Three interlocking circles of light around an open page" width="88" height="88">
+    <h1 id="hero-title">Answers only from the text.<br><span class="grad">With citations, or an honest refusal.</span></h1>
+    <p class="lead">Load public-domain books in PDF or TXT, ask in English, Portuguese or Spanish, and open the exact passage and page behind every answer.</p>
+    <p class="privacy-pill"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z"/></svg>Everything stays on this device. No uploads, no trackers.</p>
   </section>
 
-  <section id="features" class="grid">
-    <article><h3>Grounded</h3><p>Hybrid BM25 plus embeddings, fused with Reciprocal Rank Fusion, then reranked.</p></article>
-    <article><h3>Cited</h3><p>Every sentence ends with <code>[book p.N #chunk]</code>, checked by a regular expression.</p></article>
-    <article><h3>Honest</h3><p>Below the score threshold it says: <em>I could not find this in the loaded texts.</em></p></article>
-    <article><h3>Themes</h3><p>k-means over passage embeddings, PCA map, TF-IDF topic labels, similar passages across books.</p></article>
-  </section>
+  <section id="app" class="app-section" aria-label="Scripture RAG app">
+    <div class="askbar" role="search">
+      <form id="askForm" class="askbar-inner" autocomplete="off">
+        <label for="ask" class="sr-only">Ask a question about your loaded texts</label>
+        <svg class="askbar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3a7 7 0 0 1 5.6 11.2l5 5-1.4 1.4-5-5A7 7 0 1 1 10 3zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>
+        <input id="ask" name="q" type="search" maxlength="500" enterkeyhint="search" placeholder="Ask the loaded texts, e.g. Who is my shepherd?" aria-describedby="askHint">
+        <kbd class="kbd" id="askHint" aria-label="Press slash to focus">/</kbd>
+        <button id="askBtn" class="btn primary" type="submit">Ask</button>
+      </form>
+    </div>
 
-  <section id="how">
-    <h2>How it works</h2>
-    <img class="figure" src="assets/pipeline.svg" alt="Ingest pipeline diagram">
-    <img class="figure" src="assets/retrieval.svg" alt="Retrieval flow diagram">
-    <img class="figure" src="assets/architecture.svg" alt="Architecture diagram">
-  </section>
+    <div class="workspace">
+      <div id="library-panel" class="panel library" role="region" aria-labelledby="lib-title">
+        <div class="panel-head">
+          <h2 id="lib-title">Library</h2>
+          <span id="count" class="badge" aria-live="polite"></span>
+          <button class="icon-btn only-mobile" id="libraryClose" aria-label="Close library"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6 10.6 12 5 6.4z"/></svg></button>
+        </div>
+        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-describedby="dropHelp">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 7 8h3.5v6h3V8H17zM5 16v3h14v-3h2v5H3v-5z"/></svg>
+          <strong>Add PDF or TXT</strong>
+          <span id="dropHelp" class="small muted">Drop files or click. Up to 10 files, 50 MB each.</span>
+        </div>
+        <input id="files" type="file" accept=".pdf,.txt,application/pdf,text/plain" multiple class="sr-only" tabindex="-1" aria-hidden="true">
+        <button id="sample" class="btn ghost block" type="button">Add sample: Psalm 23 (KJV)</button>
+        <div id="ingest" class="ingest" hidden>
+          <div class="small"><span id="ingestLabel">Reading</span> <span id="ingestPct" class="muted"></span></div>
+          <progress id="ingestBar" max="100" value="0" aria-labelledby="ingestLabel"></progress>
+        </div>
+        <div class="filters">
+          <label class="sr-only" for="libFilter">Filter books</label>
+          <input id="libFilter" type="search" placeholder="Filter books" maxlength="80">
+          <label class="sr-only" for="libSort">Sort books</label>
+          <select id="libSort"><option value="recent">Newest</option><option value="name">Name</option><option value="size">Most passages</option></select>
+        </div>
+        <ul id="library" class="booklist" aria-label="Loaded books"></ul>
 
-  <section id="demo">
-    <h2>In-browser demo</h2>
-    <p class="muted">Extractive mode: shows cited passages only, no language model. Default embeddings are an offline hashing model; switch to <code>multilingual-e5-small</code> (downloaded once from Hugging Face, about 120 MB) for semantic and cross-language search.</p>
-    <div class="app">
-      <aside class="card">
-        <h3>Library <span id="count" class="muted small"></span></h3>
-        <label class="btn primary file">Load PDF or TXT<input id="files" type="file" accept=".pdf,.txt" multiple hidden></label>
-        <button id="sample" class="btn">Add sample (Psalm 23, KJV)</button>
-        <ul id="library" class="list"></ul>
-        <details><summary>Settings</summary>
-          <label>Embeddings <select id="embedder"><option value="hashing">Offline hashing (instant)</option><option value="e5">multilingual-e5-small</option></select></label>
-          <label>Refusal threshold <input id="threshold" type="range" min="0.1" max="0.9" step="0.05" value="0.5"> <span id="thresholdVal">0.5</span></label>
-          <label>Chunk size (words) <input id="chunkSize" type="number" value="50" min="20" max="400"></label>
+        <details class="settings">
+          <summary>Retrieval settings</summary>
+          <label for="embedder">Embeddings</label>
+          <select id="embedder"><option value="hashing">Offline hashing (instant)</option><option value="e5">multilingual-e5-small (about 120 MB, once)</option></select>
+          <div id="modelProgress" class="model-progress" hidden>
+            <div class="small"><span id="modelLabel">Downloading model</span> <span id="modelPct" class="muted"></span></div>
+            <progress id="modelBar" max="100" aria-labelledby="modelLabel"></progress>
+          </div>
+          <label for="threshold">Refusal threshold <output id="thresholdVal" for="threshold">0.5</output></label>
+          <input id="threshold" type="range" min="0.1" max="0.9" step="0.05" value="0.5">
+          <label for="chunkSize">Chunk size (words)</label>
+          <input id="chunkSize" type="number" value="50" min="20" max="400" inputmode="numeric">
         </details>
-        <h3>Your data</h3>
-        <div class="row"><button id="export" class="btn">Export JSON</button><label class="btn file">Import JSON<input id="import" type="file" accept="application/json" hidden></label><button id="clear" class="btn danger">Clear all</button></div>
-        <p id="status" class="small" role="status"></p>
-      </aside>
-      <div class="card">
-        <div class="tabs" role="tablist">
-          <button data-tab="ask" role="tab">Ask</button><button data-tab="themes" role="tab">Theme map</button><button data-tab="similar" role="tab">Similar passages</button><button data-tab="history" role="tab">History</button>
+
+        <div class="data-box" id="privacy-box">
+          <h3>Your data</h3>
+          <p class="small muted">Books, passages and history live only in this browser (IndexedDB). Nothing is uploaded.</p>
+          <div class="row wrap">
+            <button id="export" class="btn sm" type="button">Export</button>
+            <label class="btn sm" for="import">Import<input id="import" type="file" accept=".json,application/json" class="sr-only"></label>
+            <button id="clear" class="btn sm danger" type="button">Clear all data</button>
+          </div>
         </div>
-        <div id="panel-ask" class="panel">
-          <div class="row"><input id="question" placeholder="Who is my shepherd?  /  Quem e o meu pastor?" aria-label="Question"><button id="askBtn" class="btn primary">Ask</button></div>
-          <div id="answer" class="answer"></div>
+      </div>
+
+      <div class="panel main-panel" role="region" aria-labelledby="results-title">
+        <h2 id="results-title" class="sr-only">Results</h2>
+        <div class="tabs" role="tablist" aria-label="Views">
+          <button role="tab" id="tab-ask" aria-controls="panel-ask" data-tab="ask">Answer</button>
+          <button role="tab" id="tab-themes" aria-controls="panel-themes" data-tab="themes">Theme map</button>
+          <button role="tab" id="tab-similar" aria-controls="panel-similar" data-tab="similar">Similar</button>
+          <button role="tab" id="tab-archive" aria-controls="panel-archive" data-tab="archive">Archive</button>
         </div>
-        <div id="panel-themes" class="panel" hidden>
-          <div class="row"><label>Max k <input id="maxK" type="number" value="8" min="2" max="20"></label><button id="recluster" class="btn">Re-cluster</button></div>
-          <p id="themeInfo" class="muted small"></p>
-          <svg id="themeMap" viewBox="0 0 600 400" role="img" aria-label="Theme map"></svg>
-          <p id="bookLegend" class="muted small"></p>
+        <div id="panel-ask" class="tabpanel" role="tabpanel" aria-labelledby="tab-ask" tabindex="0">
+          <div id="answer" class="answer" aria-live="polite" aria-busy="false"></div>
+        </div>
+        <div id="panel-themes" class="tabpanel" role="tabpanel" aria-labelledby="tab-themes" tabindex="0" hidden>
+          <div class="row wrap">
+            <label for="maxK" class="small">Max themes</label>
+            <input id="maxK" type="number" value="8" min="2" max="20" class="narrow">
+            <button id="recluster" class="btn sm" type="button">Re-cluster</button>
+          </div>
+          <p id="themeInfo" class="small muted"></p>
+          <div class="map-wrap"><svg id="themeMap" viewBox="0 0 600 400" role="group" aria-label="Theme map of passages"></svg></div>
+          <p id="bookLegend" class="small muted"></p>
           <ul id="themeLegend" class="legend"></ul>
-          <p class="muted small">Click a point to see similar passages from other books.</p>
+          <p class="small muted">Select a point (click, or Tab and Enter) to see similar passages from other books. Clusters are statistical similarity, not doctrinal claims.</p>
         </div>
-        <div id="panel-similar" class="panel" hidden><div id="similar"><p class="muted">Pick a point on the theme map.</p></div></div>
-        <div id="panel-history" class="panel" hidden>
-          <input id="historySearch" placeholder="Search questions and cited text" aria-label="Search history">
-          <ul id="history" class="list"></ul>
+        <div id="panel-similar" class="tabpanel" role="tabpanel" aria-labelledby="tab-similar" tabindex="0" hidden>
+          <div id="similar"></div>
+        </div>
+        <div id="panel-archive" class="tabpanel" role="tabpanel" aria-labelledby="tab-archive" tabindex="0" hidden>
+          <div id="archive-mount" class="archive-mount">
+            <div class="empty">
+              <img src="assets/logo.svg" alt="" width="56" height="56">
+              <h3>Internet Archive search</h3>
+              <p class="muted">Find public-domain texts by title, language and date, then load them into your library.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="themes">
-    <h2>Unsupervised theme discovery</h2>
-    <img class="figure" src="assets/clustering.svg" alt="Clustering diagram">
-    <p>Passages are embedded, clustered with k-means (k chosen by silhouette), projected to 2D with PCA and labeled with class-based TF-IDF keywords. The map re-clusters as you add books. The Python app also offers BERTopic (UMAP plus HDBSCAN) and exports an interactive Plotly map (<code>make demo</code>).</p>
-    <p class="muted small">Clusters are statistical similarity between words and passages, not theological or doctrinal claims.</p>
+  <section id="how" class="content">
+    <h2>How it works</h2>
+    <div class="grid4">
+      <article class="feature"><h3>Grounded</h3><p>Hybrid BM25 plus embeddings, fused with Reciprocal Rank Fusion, then reranked.</p></article>
+      <article class="feature"><h3>Cited</h3><p>Every passage carries <code>[book p.N #chunk]</code>; tap a chip to open it.</p></article>
+      <article class="feature"><h3>Honest</h3><p>Below the score threshold it says: <em>Not found in loaded texts.</em></p></article>
+      <article class="feature"><h3>Themes</h3><p>k-means over passage embeddings, PCA map, TF-IDF labels, similar passages across books.</p></article>
+    </div>
+    <img class="figure" src="assets/pipeline.svg" alt="Ingest pipeline: read pages, chunk, embed, index" loading="lazy">
+    <img class="figure" src="assets/retrieval.svg" alt="Retrieval flow: BM25 and vectors fused, reranked, gated, cited" loading="lazy">
+    <img class="figure" src="assets/architecture.svg" alt="Architecture diagram" loading="lazy">
   </section>
 
-  <section id="bench">
+  <section id="themes-about" class="content">
+    <h2>Unsupervised theme discovery</h2>
+    <img class="figure" src="assets/clustering.svg" alt="Clustering diagram" loading="lazy">
+    <p>Passages are embedded, clustered with k-means (k chosen by silhouette), projected to 2D with PCA and labeled with class-based TF-IDF keywords. The map re-clusters as you add books.</p>
+  </section>
+
+  <section id="bench" class="content">
     <h2>Measured complexity</h2>
     <p>Median of 5 runs on seeded synthetic data for n from 1,000 to 50,000. Dashed lines are the least squares fit of the predicted Big-O.</p>
     <div class="gallery">
-      <figure><img src="assets/benchmarks/overview.png" alt="Runtime overview"><figcaption>All operations, log-log</figcaption></figure>
-      <figure><img src="assets/benchmarks/brute_force_search.png" alt="Brute force search"><figcaption>Brute force O(n d)</figcaption></figure>
-      <figure><img src="assets/benchmarks/hnsw_search.png" alt="HNSW search"><figcaption>HNSW about O(d log n)</figcaption></figure>
-      <figure><img src="assets/benchmarks/bm25_query.png" alt="BM25 query"><figcaption>BM25 query</figcaption></figure>
-      <figure><img src="assets/benchmarks/kmeans.png" alt="k-means"><figcaption>k-means O(n K i d)</figcaption></figure>
-      <figure><img src="assets/benchmarks/pca_2d.png" alt="PCA"><figcaption>PCA to 2D</figcaption></figure>
-      <figure><img src="assets/benchmarks/chunking.png" alt="Chunking"><figcaption>Chunking O(N)</figcaption></figure>
+      <figure><img src="assets/benchmarks/overview.png" alt="Runtime overview chart" loading="lazy"><figcaption>All operations, log-log</figcaption></figure>
+      <figure><img src="assets/benchmarks/brute_force_search.png" alt="Brute force search runtime" loading="lazy"><figcaption>Brute force O(n d)</figcaption></figure>
+      <figure><img src="assets/benchmarks/hnsw_search.png" alt="HNSW search runtime" loading="lazy"><figcaption>HNSW about O(d log n)</figcaption></figure>
+      <figure><img src="assets/benchmarks/bm25_query.png" alt="BM25 query runtime" loading="lazy"><figcaption>BM25 query</figcaption></figure>
+      <figure><img src="assets/benchmarks/kmeans.png" alt="k-means runtime" loading="lazy"><figcaption>k-means O(n K i d)</figcaption></figure>
+      <figure><img src="assets/benchmarks/pca_2d.png" alt="PCA runtime" loading="lazy"><figcaption>PCA to 2D</figcaption></figure>
+      <figure><img src="assets/benchmarks/chunking.png" alt="Chunking runtime" loading="lazy"><figcaption>Chunking O(N)</figcaption></figure>
     </div>
   </section>
 
-  <section>
-    <h2>Run the full app</h2>
-    <p>The local Gradio app adds grounded generation with Ollama on your own GPU. A hosted Streamlit demo (extractive mode) can be deployed from the same repository. See the <a href="https://github.com/IgorCSIS/scripture-rag#quick-start">quick start</a>.</p>
+  <section id="privacy" class="content">
+    <h2>Privacy</h2>
+    <p>This page has no server side, no analytics and no third-party trackers. Files you load are parsed in your browser, and books, passages and history are stored only in this browser's IndexedDB. Network requests happen only when you choose the multilingual model (downloaded once from Hugging Face) or search the Internet Archive. PDF parsing and model code are fetched from a pinned CDN version and checked against a SHA-384 hash before running.</p>
+    <p>Use <strong>Clear all data</strong> in the library to delete everything at any time.</p>
   </section>
 </main>
-<footer><p>Igor Lima. MIT License. Bundled sample text is public domain (King James Version, 1611).</p></footer>
+
+<footer class="footer"><p>Igor Lima. MIT License. Bundled sample text is public domain (King James Version, 1611). Keyboard: <kbd class="kbd">/</kbd> ask, <kbd class="kbd">H</kbd> history, <kbd class="kbd">T</kbd> theme, <kbd class="kbd">Esc</kbd> close.</p></footer>
+
+<div id="scrim" class="scrim" hidden></div>
+
+<div id="passage-drawer" class="drawer right" role="dialog" aria-modal="true" aria-labelledby="pd-title" hidden>
+  <div class="drawer-head">
+    <div><p class="eyebrow" id="pd-book"></p><h2 id="pd-title">Passage</h2></div>
+    <button class="icon-btn" data-close aria-label="Close passage"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6 10.6 12 5 6.4z"/></svg></button>
+  </div>
+  <div class="drawer-body">
+    <p id="pd-prev" class="context"></p>
+    <blockquote id="pd-text" class="passage"></blockquote>
+    <p id="pd-next" class="context"></p>
+    <div class="row wrap">
+      <button id="pd-copy" class="btn sm" type="button">Copy citation</button>
+      <button id="pd-similar" class="btn sm" type="button">Similar passages</button>
+    </div>
+  </div>
+</div>
+
+<div id="history-drawer" class="drawer right" role="dialog" aria-modal="true" aria-labelledby="hd-title" hidden>
+  <div class="drawer-head">
+    <h2 id="hd-title">History</h2>
+    <button class="icon-btn" data-close aria-label="Close history"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6 10.6 12 5 6.4z"/></svg></button>
+  </div>
+  <div class="drawer-body">
+    <label for="historySearch" class="sr-only">Search history</label>
+    <input id="historySearch" type="search" placeholder="Search questions and cited text" maxlength="120">
+    <ul id="history" class="historylist" aria-label="Past questions"></ul>
+  </div>
+</div>
+
+<dialog id="confirmDlg" class="modal" aria-labelledby="cf-title" aria-describedby="cf-desc">
+  <h2 id="cf-title">Clear all data?</h2>
+  <p id="cf-desc">This deletes every book, passage, setting and history entry stored in this browser. It cannot be undone. Export first if you want a backup.</p>
+  <div class="row end">
+    <button class="btn" value="cancel" id="cf-cancel" type="button">Cancel</button>
+    <button class="btn danger solid" id="cf-ok" type="button">Delete everything</button>
+  </div>
+</dialog>
+
+<dialog id="onboard" class="modal onboard" aria-labelledby="ob-title">
+  <ol class="steps" aria-label="Progress"><li data-s="0"></li><li data-s="1"></li><li data-s="2"></li></ol>
+  <div class="ob-step" data-step="0">
+    <img src="assets/logo.svg" alt="" width="64" height="64">
+    <h2 id="ob-title">Welcome to Scripture RAG</h2>
+    <p>Ask questions of books you load and get only what the text says, with the page it came from.</p>
+  </div>
+  <div class="ob-step" data-step="1" hidden>
+    <h2>1. Load a text</h2>
+    <p>Drop a PDF or TXT into the library, or add the Psalm 23 sample. Files never leave your device.</p>
+  </div>
+  <div class="ob-step" data-step="2" hidden>
+    <h2>2. Ask and verify</h2>
+    <p>Press <kbd class="kbd">/</kbd> to ask. Tap a citation chip to read the exact passage. If the answer is not in your texts, you will see <strong>Not found in loaded texts</strong>.</p>
+  </div>
+  <div class="row between">
+    <button class="btn ghost" id="ob-skip" type="button">Skip</button>
+    <div class="row"><button class="btn" id="ob-back" type="button">Back</button><button class="btn primary" id="ob-next" type="button">Next</button></div>
+  </div>
+</dialog>
+
+<div id="toasts" class="toasts" role="status" aria-live="polite"></div>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>
