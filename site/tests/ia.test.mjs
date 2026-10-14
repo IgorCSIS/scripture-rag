@@ -78,3 +78,39 @@ test("clusterHits, rankRelated and bookTags", () => {
   assert.ok(ia.relatedQuery(["talmud talmud sabbath"]).startsWith("talmud"));
   assert.deepEqual(ia.bookTags([{ bookId: "t" }, { bookId: "t" }, { bookId: "k" }], [0, 0, 1], [["sabbath", "law"], ["sura", "mecca"]]), { t: ["sabbath / law"], k: ["sura / mecca"] });
 });
+
+test("filterHits enforces year range, author, collection and public domain", () => {
+  const hits = [
+    { identifier: "a", date: "1880-01-01", creator: "Rodkinson, Michael", collection: "americana", copyrightStatus: "NOT_IN_COPYRIGHT", licenseUrl: "" },
+    { identifier: "b", date: "1990", creator: "Someone", collection: "americana", copyrightStatus: "", licenseUrl: "http://creativecommons.org/licenses/by-nc/4.0/" },
+    { identifier: "c", date: "", creator: "Rodkinson", collection: "toronto", copyrightStatus: "", licenseUrl: "http://creativecommons.org/publicdomain/zero/1.0/" },
+  ];
+  const ids = (f) => ia.filterHits(hits, f).map((h) => h.identifier).join("");
+  assert.equal(ids({}), "abc");
+  assert.equal(ids({ yearFrom: 1800, yearTo: 1925 }), "a");
+  assert.equal(ids({ creator: "rodkinson" }), "ac");
+  assert.equal(ids({ collection: "Americana" }), "ab");
+  assert.equal(ids({ publicDomain: true }), "ac");
+});
+
+test("licenseLabel names the license shown with each hit", () => {
+  assert.equal(ia.licenseLabel({ licenseUrl: "http://creativecommons.org/publicdomain/mark/1.0/" }), "Public Domain Mark");
+  assert.equal(ia.licenseLabel({ licenseUrl: "http://creativecommons.org/publicdomain/zero/1.0/" }), "CC0");
+  assert.equal(ia.licenseLabel({ licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/" }), "CC BY-SA 3.0");
+  assert.equal(ia.licenseLabel({ copyrightStatus: "NOT_IN_COPYRIGHT" }), "Public domain (not in copyright)");
+  assert.equal(ia.licenseLabel({}), "License not stated");
+});
+
+test("clusterHits separates themes and rankRelated prefers the library topic", () => {
+  const mk = (t) => ({ identifier: t, title: t, subject: "", description: "" });
+  const texts = ["koran sura prophet", "koran sura mecca", "koran prophet mecca", "buddha sutra dharma", "buddha dharma monk", "sutra monk dharma"];
+  const hits = texts.map(mk), vecs = texts.map((t) => core.hashEmbed(t));
+  const groups = ia.clusterHits(hits, vecs, 3);
+  assert.ok(groups.length >= 2);
+  for (const g of groups) assert.ok(g.hits.every((h) => h.title.includes("koran")) || g.hits.every((h) => !h.title.includes("koran")));
+  const cen = ia.centroid([core.hashEmbed("koran sura prophet mecca")]);
+  const ranked = ia.rankRelated(hits, vecs, cen, new Set(["koran sura prophet"]), 2);
+  assert.ok(ranked.every(([h]) => h.title.includes("koran")));
+  assert.ok(!ranked.some(([h]) => h.identifier === "koran sura prophet"));
+  assert.ok(ia.parseHits({ response: { docs: [{ identifier: "x", language: ["eng"] }] } })[0].language === "eng");
+});

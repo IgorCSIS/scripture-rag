@@ -50,7 +50,7 @@ export function parseHits(json) {
     identifier: flat(d.identifier), title: flat(d.title), creator: flat(d.creator), date: flat(d.date).slice(0, 10),
     copyrightStatus: flat(d["possible-copyright-status"]), licenseUrl: flat(d.licenseurl),
     sizeMb: Math.round((Number(d.item_size) || 0) / 1e5) / 10, description: flat(d.description).slice(0, 500),
-    subject: flat(d.subject), collection: flat(d.collection), preview: `https://archive.org/details/${flat(d.identifier)}`,
+    language: flat(d.language), subject: flat(d.subject), collection: flat(d.collection), preview: `https://archive.org/details/${flat(d.identifier)}`,
   }));
 }
 
@@ -169,4 +169,36 @@ export function bookTags(chunks, labels, keywords, topN = 2) {
   const out = {};
   for (const [b, m] of per) out[b] = [...m.entries()].sort((x, y) => y[1] - x[1]).slice(0, topN).map(([k]) => (keywords[k] || []).slice(0, 2).join(" / "));
   return out;
+}
+
+/** Public domain per the uploader's fields: NOT_IN_COPYRIGHT status or a PD / CC0 license URL. */
+export function isPublicDomain(h) {
+  return h.copyrightStatus === "NOT_IN_COPYRIGHT" || /publicdomain|\/zero\//i.test(h.licenseUrl || "");
+}
+
+/** Short human license label shown next to every hit. */
+export function licenseLabel(h) {
+  const u = h.licenseUrl || "";
+  if (/publicdomain\/mark/i.test(u)) return "Public Domain Mark";
+  if (/\/zero\//i.test(u)) return "CC0";
+  const cc = u.match(/licenses\/([a-z-]+)\/([\d.]+)/i);
+  if (cc) return `CC ${cc[1].toUpperCase()} ${cc[2]}`;
+  if (h.copyrightStatus === "NOT_IN_COPYRIGHT") return "Public domain (not in copyright)";
+  return u ? "Other license" : "License not stated";
+}
+
+const year = (d) => { const m = String(d || "").match(/\d{4}/); return m ? Number(m[0]) : null; };
+const has = (hay, needle) => String(hay || "").toLowerCase().includes(String(needle).toLowerCase().trim());
+
+/** Client-side pass over returned hits so filters hold even when IA metadata is loose. O(r). */
+export function filterHits(hits, f = {}) {
+  return hits.filter((h) => {
+    const y = year(h.date);
+    if (f.yearFrom && (y == null || y < f.yearFrom)) return false;
+    if (f.yearTo && (y == null || y > f.yearTo)) return false;
+    if (clean(f.creator) && !has(h.creator, clean(f.creator))) return false;
+    if (clean(f.collection) && !has(h.collection, clean(f.collection))) return false;
+    if (f.publicDomain && !isPublicDomain(h)) return false;
+    return true;
+  });
 }
