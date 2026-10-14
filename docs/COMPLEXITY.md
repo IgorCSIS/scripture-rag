@@ -99,3 +99,18 @@ Results were measured on the build machine (Linux, CPU only); Windows numbers wi
 **Citations form a regular language.** The pattern `\[[a-z0-9._-]+ p\.\d+ #[a-z0-9._-]+\]` is a regular expression, so a finite automaton decides membership in time linear in the answer length. Checking that the cited id belongs to the provided context is a set lookup, outside the regular language but O(1) per citation.
 
 **Rank fusion as rank aggregation.** Combining BM25 and vector rankings is an instance of rank aggregation. Optimal Kemeny aggregation is NP-hard for four or more lists (Dwork et al., 2001; UNVERIFIED this session). Reciprocal Rank Fusion, score = sum of 1/(k + rank) with k = 60 (Cormack, Clarke and Buettcher, 2009; UNVERIFIED this session), is a simple O(k log k) approximation that needs no score calibration between systems.
+
+## Internet Archive panel: filters, book selector, result clustering
+
+Notation: r returned hits (r <= 50), d embedding dimension, K clusters (K <= 5), i Lloyd iterations, b loaded books, s selected book ids, n passages.
+
+| Operation | Cost | Notes |
+|---|---|---|
+| `buildQuery` + `searchUrl` | O(q) in query length | One HTTP request per search, cached for an hour |
+| `filterHits` (year, author, collection, public domain) | O(r) | Client-side pass after the server filter |
+| `licenseLabel` / `isPublicDomain` | O(1) per hit | Regex on a short URL |
+| `keepLoaded` + `selectBooks` (books to search) | O(b + s) | Set lookups; answering then filters chunks in O(n) and builds a subset BM25 |
+| Embed hits | r embedder calls | Uses the active embedder so hits share a space with loaded passages |
+| `clusterHits` (k-means, K by silhouette) | O(K_max r K i d + K_max r^2 d) | Silhouette dominates; tiny at r <= 50 |
+| Related books: centroid of stored passage vectors | O(n d), n capped at 2000 | Reuses `chunk.vec`; no re-embedding |
+| `rankRelated` | O(r d + r log r) | Cosine to the centroid, loaded items excluded |
