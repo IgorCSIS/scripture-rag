@@ -9,10 +9,10 @@
 ![Python 3.11](https://img.shields.io/badge/python-3.11-3b5bdb)
 ![License MIT](https://img.shields.io/badge/license-MIT-0ca678)
 ![Tests](https://img.shields.io/badge/tests-pytest%20%2B%20node-e8590c)
-![Coverage](https://img.shields.io/badge/coverage-94%25-0ca678)
+![Coverage](https://img.shields.io/badge/coverage-89%25-0ca678)
 ![Offline first](https://img.shields.io/badge/offline-first-495057)
 
-[Quick start](#quick-start) | [How it works](#how-it-works) | [Theme map](#unsupervised-theme-map) | [Complexity](#big-o-summary) | [Docs](#documentation)
+[Quick start](#quick-start) | [Diagrams](#diagrams) | [How it works](#how-it-works) | [Measured results](#measured-results) | [Theme map](#unsupervised-theme-map) | [Complexity](#big-o-summary) | [Docs](#documentation)
 
 </div>
 
@@ -29,6 +29,18 @@ Load public-domain books (PDF or TXT, including Internet Archive downloads), ask
 | **Hybrid retrieval**<br>BM25 plus embeddings, fused with Reciprocal Rank Fusion (k = 60) | **Reranking**<br>Lexical reranker offline, cross-encoder optional | **Citations everywhere**<br>Every sentence cites a chunk; a regex validator rejects anything else |
 | **Refusal gate**<br>Low relevance means no answer and no LLM call | **Two modes**<br>`MODE=local` with Ollama, `MODE=extractive` with no LLM | **Theme map**<br>k-means, silhouette, PCA, TF-IDF topic labels, optional BERTopic |
 | **Similar passages**<br>Nearest neighbors from other books | **Browser demo**<br>Runs fully client side, history in IndexedDB | **Safe uploads**<br>Magic bytes, size and page caps, parse timeout, escaped output |
+| **Compare mode**<br>Same question answered per tradition, side by side | **Outlier flags**<br>Passages far from every cluster are marked on the theme map | **Library manifest**<br>Books, auto-tags and roles, exportable as CSV or JSON |
+
+### Feature notes
+
+- **Internet Archive ingest.** Search or paste an archive.org item; `licenseurl`, `rights`, `possible-copyright-status` and dates are shown before anything downloads. PDFs are parsed page by page (pypdf in Python, pdf.js in the browser) so every chunk keeps `page_start`/`page_end`.
+- **Hybrid retrieval.** BM25 (exact words, names, verse references) and `multilingual-e5-small` embeddings (meaning, cross-language) each return candidates; Reciprocal Rank Fusion merges the two rankings without score calibration. A cross-encoder reranker orders the final top 5.
+- **Support gate.** If the best reranked passage scores below the calibrated threshold (0.22 for the e5 + mMiniLM pair, see [stress results](docs/eval/stress_results.md)), the app refuses instead of answering, and no generator runs. A validator also refuses any draft whose citations do not resolve to supplied chunks.
+- **History.** Every question, answer and citation is stored in IndexedDB (`scripture-rag` database) with search, re-open, export/import JSON and clear all. Nothing leaves the browser.
+- **Theme map.** k-means (K by silhouette) on passage embeddings, PCA to 2D, class-based TF-IDF labels. Re-clusters when books change; click a point for nearest passages from other books.
+- **Compare mode.** Runs the role-scoped answer once per tradition tag in the library and shows the cited answers in parallel columns, each with its own refusal.
+- **Outlier flags.** Passages with an unusually large distance to their centroid are highlighted, which tends to surface OCR noise, front matter and indexes.
+- **Library manifest.** One table of loaded books with source URL, license fields, chunk counts, auto-tags and role tags; export to CSV or JSON for audit.
 
 ## Quick start
 
@@ -89,6 +101,14 @@ python -m http.server 8000 --directory site   # then open http://localhost:8000
 ```
 
 Everything stays in your browser: libraries (chunks plus embeddings) and the Q&A history live in IndexedDB, with search, re-open, export/import JSON and clear all. Switch embeddings to `multilingual-e5-small` to download the model once from Hugging Face.
+
+## Diagrams
+
+<p align="center"><img src="docs/diagrams/architecture.svg" alt="Architecture" width="860"></p>
+<p align="center"><img src="docs/diagrams/data_flow.svg" alt="Data flow: ingest path and query path" width="860"></p>
+<p align="center"><img src="docs/diagrams/state.svg" alt="Query state machine" width="860"></p>
+
+Mermaid versions of all required diagrams (user story map, use case, architecture, sequence, data flow, ERD, state, class, GUI mockup) are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## How it works
 
@@ -160,7 +180,68 @@ Full table, theory (curse of dimensionality, NP-hardness of k-means, refusal as 
 | Answer rate (answerable) | 1.00 |
 | Refusal recall (unanswerable) | 1.00 |
 
-The fixture corpus is tiny, so these numbers validate the harness rather than quality. The real 50 item gold set is pending book selection. See [docs/EVALUATION.md](docs/EVALUATION.md).
+The fixture corpus is tiny, so these numbers validate the harness rather than quality. Real-book results are under [Measured results](#measured-results). See [docs/EVALUATION.md](docs/EVALUATION.md).
+
+## Measured results
+
+All numbers below are copied from files committed in the repo. Nothing is estimated.
+
+### PDF stress test ([docs/eval/stress_results.md](docs/eval/stress_results.md))
+
+Two Internet Archive books (KJV 1611 reprint, Rodwell Koran), `multilingual-e5-small` + `mmarco-mMiniLMv2-L12-H384-v1`, threshold 0.22, 81 items.
+
+| Metric | Value |
+|---|---|
+| Overall pass rate | 0.765 |
+| Answer accuracy (en / pt / es) | 0.682 (0.75 / 0.667 / 0.333) |
+| Citation validity | 1.0 |
+| Refusal recall / precision | 0.929 / 0.906 |
+| False refusals on answerable | 3 |
+| Trick / injection pass rate | 0.667 / 0.667 |
+| Latency p50 | 1972 ms |
+
+### Grounding: source not loaded vs loaded ([docs/eval/loaded_phase_results.md](docs/eval/loaded_phase_results.md))
+
+| Condition | Pass | Answered | Abstained |
+|---|---|---|---|
+| Source not loaded | 11/13 | 2 | 11 |
+| Source loaded | 11/13 | 9 | 4 |
+
+### Browser ANN ([docs/benchmarks/browser_ann.json](docs/benchmarks/browser_ann.json))
+
+| n | Brute p50 ms | HNSW p50 ms | HNSW build s | HNSW recall@10 |
+|---|---|---|---|---|
+| 1,000 | 0.63 | 0.42 | 0.97 | 1.00 |
+| 5,000 | 3.10 | 0.27 | 3.92 | 0.85 |
+| 20,000 | 15.42 | 0.78 | 20.82 | 0.79 |
+| 50,000 | 47.02 | 1.29 | 73.28 | 0.94 |
+
+### Browser library stages, ms ([docs/benchmarks/library_stages.json](docs/benchmarks/library_stages.json))
+
+| Stage | n=500 | 1,000 | 2,000 | 4,000 | 8,000 |
+|---|---|---|---|---|---|
+| Outliers | 14.57 | 23.27 | 15.90 | 19.09 | 62.57 |
+| Auto-tags | 0.16 | 0.07 | 0.12 | 0.24 | 0.53 |
+| Manifest CSV | 0.06 | 0.12 | 0.08 | 0.16 | 0.32 |
+| Role-scoped answer | 13.77 | 11.37 | 23.40 | 24.84 | 89.91 |
+| Compare by tradition | 22.92 | 23.48 | 24.97 | 34.66 | 137.83 |
+
+<p align="center"><img src="docs/benchmarks/library_stages.png" width="410" alt="Library stages"> <img src="docs/benchmarks/browser_ann.png" width="410" alt="Browser ANN"></p>
+
+Server-side vector store comparison (NumPy, FAISS Flat/HNSW/IVF, LanceDB, Chroma): [docs/VECTOR_DB.md](docs/VECTOR_DB.md), raw data in [docs/benchmarks/vectordb.json](docs/benchmarks/vectordb.json).
+
+### Final scorecard
+
+> **PLACEHOLDER, owned by the eval worker. Do not fill by hand.** Values come from the final run of the full gold set in [docs/eval/eval_set.jsonl](docs/eval/eval_set.jsonl).
+
+| Metric | Value |
+|---|---|
+| Items | `TBD (eval worker)` |
+| Recall@10 hybrid + rerank | `TBD (eval worker)` |
+| Answer accuracy (en / pt / es) | `TBD (eval worker)` |
+| Citation validity | `TBD (eval worker)` |
+| Refusal recall / precision | `TBD (eval worker)` |
+| Latency p50 / p95 | `TBD (eval worker)` |
 
 ## Limitations
 
@@ -186,6 +267,23 @@ docs/                PRD, architecture, complexity, evaluation, security, source
 
 ## Documentation
 
+| Document | Contents |
+|---|---|
+| [docs/PRD.md](docs/PRD.md) | Requirements FR-01 to FR-16 with acceptance criteria and evidence |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | All mermaid diagrams |
+| [docs/COMPLEXITY.md](docs/COMPLEXITY.md) | Big-O table, computational theory, benchmark plots |
+| [docs/COURSE_MAPPING.md](docs/COURSE_MAPPING.md) | Feature to course module mapping |
+| [docs/EVALUATION.md](docs/EVALUATION.md) | Eval harness and smoke results |
+| [docs/eval/](docs/eval/) | Stress and grounding eval sets and results |
+| [docs/benchmarks/](docs/benchmarks/) | Benchmark JSON and PNGs |
+| [docs/VECTOR_DB.md](docs/VECTOR_DB.md) | Vector index choice |
+| [docs/SECURITY.md](docs/SECURITY.md) | Uploads, prompt injection, storage, secrets |
+| [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) | Text and model license evidence |
+| [docs/PROGRESS.md](docs/PROGRESS.md) | Phase progress log |
+| [docs/LAUNCH_CHECKLIST.md](docs/LAUNCH_CHECKLIST.md) | Steps to go public and enable Pages |
+
+Every `.md` file in the repo:
+
 ```
 README.md
 DEVELOPMENT.md
@@ -195,11 +293,15 @@ data/gold/README.md
 docs/PRD.md
 docs/ARCHITECTURE.md
 docs/COMPLEXITY.md
-docs/EVALUATION.md
 docs/COURSE_MAPPING.md
-docs/SECURITY.md
 docs/DATA_SOURCES.md
+docs/EVALUATION.md
+docs/LAUNCH_CHECKLIST.md
 docs/PROGRESS.md
+docs/SECURITY.md
+docs/VECTOR_DB.md
+docs/eval/loaded_phase_results.md
+docs/eval/stress_results.md
 ```
 
 ## License
