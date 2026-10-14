@@ -162,16 +162,42 @@ def ref_covers(chunk_ref: str, gold: str) -> bool:
     return lo <= int(g.group(3)) <= hi
 
 
+_GOLD: dict[str, set[str]] = {}
+_WORD_RE = re.compile(r"[a-z]{4,}")
+
+
+def gold_words(ref: str) -> set[str]:
+    """Content words of the gold verse in the numbered reference KJV (modern spelling)."""
+    if not _GOLD:
+        for v in reference():
+            _GOLD[v.ref] = set(_WORD_RE.findall(v.text.lower()))
+    return _GOLD.get(ref, set())
+
+
 def has_evidence(item: dict[str, Any], chunks: list[Chunk], snippets: dict[str, str]) -> bool:
+    """True when the cited passages hold the gold answer.
+
+    Accepted evidence: a gold phrase; a chunk whose verse range covers the gold ref; the first words
+    of the aligned gold verse; or at least 60% of the gold verse's content words (from the numbered
+    reference edition, compared after archaic normalization). The last rule makes grading robust to
+    OCR noise and to alignment errors in the chunk's own label.
+    """
     text = " ".join(norm(c.text) for c in chunks)
     if any(e in text for e in item.get("evidence") or []):
         return True
+    normz = default_normalizer()
     for r in item.get("refs") or []:
         if any(ref_covers(c.ref, r) for c in chunks):
             return True
         s = snippets.get(r)
         if s and s in text:
             return True
+        g = gold_words(r)
+        if g:
+            for c in chunks:
+                words = set(_WORD_RE.findall(normz.text(c.text).lower()))
+                if len(g & words) >= 0.6 * len(g):
+                    return True
     return False
 
 
@@ -380,9 +406,11 @@ def card(rows: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def objective(c: dict[str, Any]) -> tuple:
-    """Fewest unsupported answers first, then accuracy (macro over languages), then refusal recall."""
+    """No answers to unanswerable questions first; then accuracy (plus macro over languages) with each
+    wrong-evidence answer costing 0.02; then refusal recall."""
     macro = np.nanmean([c[f"acc_{lg}"] for lg in LANGS])
-    return (-c["unsupported_answers"], round(c["answer_accuracy"] + macro, 4), c["refusal_recall"])
+    wrong = c["unsupported_answers"] - c["adversarial_answered"]
+    return (-c["adversarial_answered"], round(c["answer_accuracy"] + macro - 0.02 * wrong, 4), c["refusal_recall"])
 
 
 GRID = [round(x, 2) for x in np.arange(0.02, 0.99, 0.02)]
