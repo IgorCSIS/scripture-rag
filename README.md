@@ -29,7 +29,7 @@ Load public-domain books (PDF or TXT, including Internet Archive downloads), ask
 | **Hybrid retrieval**<br>BM25 plus embeddings, fused with Reciprocal Rank Fusion (k = 60) | **Reranking**<br>Lexical reranker offline, cross-encoder optional | **Citations everywhere**<br>Every sentence cites a chunk; a regex validator rejects anything else |
 | **Refusal gate**<br>Low relevance means no answer and no LLM call | **Two modes**<br>`MODE=local` with Ollama, `MODE=extractive` with no LLM | **Theme map**<br>k-means, silhouette, PCA, TF-IDF topic labels, optional BERTopic |
 | **Similar passages**<br>Nearest neighbors from other books | **Browser demo**<br>Runs fully client side, history in IndexedDB | **Safe uploads**<br>Magic bytes, size and page caps, parse timeout, escaped output |
-| **Compare mode**<br>Same question answered per tradition, side by side | **Outlier flags**<br>Passages far from every cluster are marked on the theme map | **Library manifest**<br>Books, auto-tags and roles, exportable as CSV or JSON |
+| **Compare mode**<br>Same question answered per tradition, side by side | **Outlier flags**<br>Passages far from every cluster are marked on the theme map | **Library manifest**<br>Books, roles, traditions and licenses, exportable as CSV or JSON |
 
 ### Feature notes
 
@@ -38,9 +38,9 @@ Load public-domain books (PDF or TXT, including Internet Archive downloads), ask
 - **Support gate.** If the best reranked passage scores below the calibrated threshold (0.22 for the e5 + mMiniLM pair, see [stress results](docs/eval/stress_results.md)), the app refuses instead of answering, and no generator runs. A validator also refuses any draft whose citations do not resolve to supplied chunks.
 - **History.** Every question, answer and citation is stored in IndexedDB (`scripture-rag` database) with search, re-open, export/import JSON and clear all. Nothing leaves the browser.
 - **Theme map.** k-means (K by silhouette) on passage embeddings, PCA to 2D, class-based TF-IDF labels. Re-clusters when books change; click a point for nearest passages from other books.
-- **Compare mode.** Runs the role-scoped answer once per tradition tag in the library and shows the cited answers in parallel columns, each with its own refusal.
-- **Outlier flags.** Passages with an unusually large distance to their centroid are highlighted, which tends to surface OCR noise, front matter and indexes.
-- **Library manifest.** One table of loaded books with source URL, license fields, chunk counts, auto-tags and role tags; export to CSV or JSON for audit.
+- **Compare mode.** Asks the same question once per group (tradition by default, or per book or role); each group's answer cites only its own books and can refuse independently.
+- **Outlier flags.** Passages whose distance to their cluster centroid has a z-score above 2.5 are flagged, which tends to surface OCR noise, front matter and indexes.
+- **Library manifest.** One row per loaded book: id, title, role, tradition, date, source URL, license status, pages, passages, added date; export to CSV or JSON for audit.
 
 ## Quick start
 
