@@ -21,7 +21,7 @@ const MAX_PAGES = 2000;
 const NOT_FOUND = "Not found in loaded texts";
 const SUGGESTIONS = ["Who is my shepherd?", "Quem e o meu pastor?", "What restores the soul?"];
 
-const state = { db: null, chunks: [], books: [], byBook: new Map(), bm25: new core.BM25(), embedder: "hashing", model: null, themes: null, busy: false, current: null };
+const state = { db: null, chunks: [], books: [], byBook: new Map(), bm25: new core.BM25(), tags: {}, roleScope: "", embedder: "hashing", model: null, themes: null, busy: false, current: null };
 
 // ---------- Status, progress ----------
 function setProgress(prefix, label, pct) {
@@ -142,6 +142,7 @@ async function refresh() {
   await renderHistory();
   state.themes = null;
   if (!$("panel-themes").hidden) buildThemes();
+  else if (state.chunks.length >= 3) setTimeout(() => { if (!state.themes) buildThemes(); }, 50);
   if (!state.current) renderEmpty();
 }
 
@@ -150,7 +151,8 @@ function renderLibrary() {
   const q = $("libFilter").value.trim().toLowerCase();
   const sort = $("libSort").value;
   const count = (b) => state.byBook.get(b.bookId)?.length || 0;
-  let books = state.books.filter((b) => !q || b.title.toLowerCase().includes(q));
+  const scope = $("libRole").value;
+  let books = state.books.filter((b) => (!q || b.title.toLowerCase().includes(q)) && (!scope || (b.role || "primary") === scope));
   books.sort(sort === "name" ? (a, b) => a.title.localeCompare(b.title) : sort === "size" ? (a, b) => count(b) - count(a) : (a, b) => (b.addedAt || 0) - (a.addedAt || 0));
   list.replaceChildren();
   if (!state.books.length) list.append(el("li", { class: "small muted" }, "No books yet. Add a file or the sample to begin."));
@@ -158,9 +160,16 @@ function renderLibrary() {
   for (const b of books) {
     const rm = el("button", { class: "icon-btn", type: "button", "aria-label": `Remove ${b.title}`, title: "Remove" }, icon(ICONS.trash));
     rm.onclick = async () => { await db.deleteBook(state.db, b.bookId); toast(`Removed ${b.title}`); await refresh(); };
+    const role = el("select", { class: "role-select", "aria-label": `Role of ${b.title}` },
+      ...lib.ROLES.map((r) => { const o = el("option", { value: r }, r === "primary" ? "Primary" : "Commentary"); o.selected = (b.role || "primary") === r; return o; }));
+    role.onchange = () => api().setRole(b.bookId, role.value).then(() => toast(`${b.title}: ${role.value}`));
+    const tags = (state.tags[b.bookId] || []).filter(Boolean);
     list.append(el("li", { class: "book" },
-      el("div", {}, el("div", { class: "book-title" }, b.title), el("div", { class: "book-meta" }, `${b.pages} pages, ${count(b)} passages`)), rm));
+      el("div", {}, el("div", { class: "book-title" }, b.title),
+        el("div", { class: "book-meta" }, `${b.pages} pages, ${count(b)} passages${b.tradition ? `, ${b.tradition}` : ""}`),
+        el("div", { class: "row wrap tag-row" }, role, ...tags.map((t) => el("span", { class: "tag", title: "Auto-tag from the theme clusters" }, t)))), rm));
   }
+  renderManifest();
   $("count").textContent = `${state.books.length} ${state.books.length === 1 ? "book" : "books"}`;
 }
 
@@ -209,6 +218,8 @@ async function loadSample() {
 
 // ---------- Answer states ----------
 const pageLabel = (c) => `p.${c.pageStart}${c.pageEnd !== c.pageStart ? "-" + c.pageEnd : ""}`;
+const roleOf = (id) => state.books.find((b) => b.bookId === id)?.role || "primary";
+const api = () => globalThis.ScriptureRAG;
 const bookTitle = (id) => state.books.find((b) => b.bookId === id)?.title || id;
 
 function suggestionButtons() {
@@ -239,7 +250,7 @@ function renderSkeleton() {
 }
 
 function chip(c) {
-  const b = el("button", { class: "chip", type: "button", "aria-label": `Open passage from ${bookTitle(c.bookId)}, page ${c.pageStart}` }, icon(ICONS.book), `${c.bookId} ${pageLabel(c)} #${c.chunkId.split("-").pop()}`);
+  const b = el("button", { class: "chip", type: "button", "aria-label": `Open passage from ${bookTitle(c.bookId)}, page ${c.pageStart}` }, icon(ICONS.book), `${c.bookId} ${pageLabel(c)} #${c.chunkId.split("-").pop()}`, el("span", { class: `role-tag ${roleOf(c.bookId)}` }, roleOf(c.bookId)));
   b.onclick = () => openPassage(c, b);
   return b;
 }
@@ -277,11 +288,14 @@ async function ask() {
   try {
     const started = performance.now();
     const [qv] = await embed([q], true);
-    const res = core.answer(q, state.chunks, state.bm25, qv, {
+    const opts = {
       threshold: Number($("threshold").value),
       // Uncalibrated starting range for e5 cosine; tune on a gold set.
       cosRange: state.embedder === "hashing" ? null : [0.8, 0.9],
-    });
+    };
+    const scope = $("libRole").value;
+    const res = scope ? lib.answerIn(q, state.chunks, lib.selectBooks(state.books, { role: scope }), qv, opts)
+      : core.answer(q, state.chunks, state.bm25, qv, opts);
     const wait = 260 - (performance.now() - started);
     if (wait > 0) await new Promise((r) => setTimeout(r, wait));
     state.current = { q, res };
@@ -360,6 +374,9 @@ function buildThemes() {
   const coords = core.pca2d(vecs);
   const keywords = core.clusterKeywords(sample.map((c) => c.text), labels);
   state.themes = { sample, labels, coords, keywords };
+  state.tags = ia.bookTags(sample, labels, keywords);
+  state.outliers = new Set(lib.outliers(vecs, labels).slice(0, 12).map((o) => o.index));
+  renderLibrary();
   info.textContent = `${k} themes from ${sample.length} passages, silhouette ${silhouette.toFixed(3)}, ${Math.round(performance.now() - t0)} ms.`;
   $("themeLegend").replaceChildren(...keywords.map((kw, i) => el("li", {}, el("span", { class: `dot c${i % 10}`, "aria-hidden": "true" }), `T${i}: ${kw.join(", ")}`)));
   drawMap();
@@ -380,10 +397,11 @@ function drawMap() {
     let node;
     if (shape === 0) { node = document.createElementNS(NS, "circle"); node.setAttribute("cx", x); node.setAttribute("cy", y); node.setAttribute("r", 6); }
     else { node = document.createElementNS(NS, "rect"); node.setAttribute("x", x - 5); node.setAttribute("y", y - 5); node.setAttribute("width", 10); node.setAttribute("height", 10); if (shape === 2) node.setAttribute("transform", `rotate(45 ${x} ${y})`); }
-    node.setAttribute("class", `pt c${labels[i] % 10}`);
+    const odd = state.outliers?.has(i);
+    node.setAttribute("class", `pt c${labels[i] % 10}${odd ? " outlier" : ""}`);
     node.setAttribute("tabindex", sample.length <= 300 ? "0" : "-1");
     node.setAttribute("role", "button");
-    node.setAttribute("aria-label", `${c.bookId} page ${c.pageStart}, theme ${labels[i]}`);
+    node.setAttribute("aria-label", `${c.bookId} page ${c.pageStart}, theme ${labels[i]}${odd ? ", outlier" : ""}`);
     const title = document.createElementNS(NS, "title");
     title.textContent = `${c.bookId} p.${c.pageStart} T${labels[i]}: ${c.text.slice(0, 140)}`;
     node.append(title);
@@ -391,6 +409,9 @@ function drawMap() {
     node.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); showSimilar(c); } });
     svg.append(node);
   });
+  const outs = [...(state.outliers || [])];
+  $("outlierBox").replaceChildren(...(outs.length ? [el("h3", { class: "small" }, `Outliers (${outs.length}): passages far from their theme centre`),
+    el("ul", { class: "list" }, ...outs.map((i) => { const b = el("button", { class: "linkish", type: "button" }, `${sample[i].bookId} ${pageLabel(sample[i])}, T${labels[i]}: ${sample[i].text.slice(0, 90)}`); b.onclick = () => showSimilar(sample[i]); return el("li", { class: "small" }, el("span", { class: "flag", "aria-hidden": "true" }, "!"), " ", b); }))] : []));
   $("bookLegend").textContent = "Shapes: " + books.map((b, i) => `${["circle", "square", "diamond"][i % 3]} = ${b}`).join(", ");
 }
 
@@ -410,8 +431,37 @@ function renderSimilarEmpty() {
   $("similar").append(el("div", { class: "empty" }, el("h3", {}, "Pick a passage"), el("p", { class: "muted" }, "Choose a point on the theme map or open a citation and select Similar passages.")));
 }
 
+// ---------- Compare, manifest ----------
+async function runCompare() {
+  const q = $("ask").value.trim().slice(0, 500);
+  const out = $("compareOut");
+  if (!q) { toast("Type a question first", "error"); $("ask").focus(); return; }
+  if (state.books.length < 2) { out.replaceChildren(el("div", { class: "empty" }, el("h3", {}, "Nothing to compare yet"), el("p", { class: "muted" }, "Load a second book to compare across texts."))); return; }
+  const cols = await api().compare(q, $("compareBy").value);
+  out.replaceChildren(...cols.map(({ group, result }) => el("section", { class: "compare-col" },
+    el("h3", {}, group, " ", el("span", { class: "badge" }, result.refused ? "abstains" : `${result.citations.length} cited`)),
+    ...(result.refused ? [el("p", { class: "muted small" }, `${NOT_FOUND} for this group (best score ${result.topScore.toFixed(2)}).`)]
+      : result.citations.slice(0, 3).map((c) => el("article", { class: "quote-card" }, el("p", {}, c.text.slice(0, 400)), chip(c)))))));
+}
+
+function renderManifest() {
+  const rows = lib.manifest(state.books, state.chunks);
+  const t = $("manifestTable");
+  if (!t) return;
+  const cols = ["title", "role", "tradition", "date", "licenseStatus", "passages"];
+  t.replaceChildren(el("thead", {}, el("tr", {}, ...cols.map((c) => el("th", { scope: "col" }, c)))),
+    el("tbody", {}, ...(rows.length ? rows.map((r) => el("tr", {}, ...cols.map((c) => el("td", {}, String(r[c] ?? ""))))) : [el("tr", {}, el("td", { colspan: String(cols.length), class: "muted" }, "No books yet."))])));
+}
+
+function download(name, text, type) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = el("a", { href: url, download: name });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 // ---------- Tabs ----------
-const TABS = ["ask", "themes", "similar", "archive"];
+const TABS = ["ask", "themes", "similar", "compare", "archive"];
 function showTab(name) {
   for (const t of TABS) {
     const on = t === name;
@@ -480,6 +530,10 @@ function wire() {
   $("sample").onclick = loadSample;
   $("libFilter").oninput = renderLibrary;
   $("libSort").onchange = renderLibrary;
+  $("libRole").onchange = renderLibrary;
+  $("compareGo").onclick = () => runCompare().catch((e) => toast(`Compare failed: ${e.message}`, "error"));
+  $("manifestCsv").onclick = () => download("library-manifest.csv", lib.manifestCsv(lib.manifest(state.books, state.chunks)), "text/csv");
+  $("manifestJson").onclick = () => download("library-manifest.json", JSON.stringify(lib.manifest(state.books, state.chunks), null, 2), "application/json");
   $("historySearch").oninput = renderHistory;
   $("recluster").onclick = () => { state.themes = null; buildThemes(); };
   $("threshold").oninput = () => { $("thresholdVal").textContent = $("threshold").value; };

@@ -83,8 +83,20 @@
           <input id="libFilter" type="search" placeholder="Filter books" maxlength="80">
           <label class="sr-only" for="libSort">Sort books</label>
           <select id="libSort"><option value="recent">Newest</option><option value="name">Name</option><option value="size">Most passages</option></select>
+          <label class="sr-only" for="libRole">Search scope by role</label>
+          <select id="libRole" title="Answers and list use only books with this role"><option value="">All roles</option><option value="primary">Primary texts</option><option value="commentary">Commentary</option></select>
         </div>
         <ul id="library" class="booklist" aria-label="Loaded books"></ul>
+
+        <details class="settings" id="manifestBox">
+          <summary>Library manifest</summary>
+          <p class="small muted">One audit row per book: role, tradition, source and license evidence.</p>
+          <div class="manifest-wrap"><table id="manifestTable" class="manifest"></table></div>
+          <div class="row wrap">
+            <button id="manifestCsv" class="btn sm" type="button">Export CSV</button>
+            <button id="manifestJson" class="btn sm" type="button">Export JSON</button>
+          </div>
+        </details>
 
         <details class="settings">
           <summary>Retrieval settings</summary>
@@ -117,6 +129,7 @@
           <button role="tab" id="tab-ask" aria-controls="panel-ask" data-tab="ask">Answer</button>
           <button role="tab" id="tab-themes" aria-controls="panel-themes" data-tab="themes">Theme map</button>
           <button role="tab" id="tab-similar" aria-controls="panel-similar" data-tab="similar">Similar</button>
+          <button role="tab" id="tab-compare" aria-controls="panel-compare" data-tab="compare">Compare</button>
           <button role="tab" id="tab-archive" aria-controls="panel-archive" data-tab="archive">Archive</button>
         </div>
         <div id="panel-ask" class="tabpanel" role="tabpanel" aria-labelledby="tab-ask" tabindex="0">
@@ -132,10 +145,20 @@
           <div class="map-wrap"><svg id="themeMap" viewBox="0 0 600 400" role="group" aria-label="Theme map of passages"></svg></div>
           <p id="bookLegend" class="small muted"></p>
           <ul id="themeLegend" class="legend"></ul>
+          <div id="outlierBox"></div>
           <p class="small muted">Select a point (click, or Tab and Enter) to see similar passages from other books. Clusters are statistical similarity, not doctrinal claims.</p>
         </div>
         <div id="panel-similar" class="tabpanel" role="tabpanel" aria-labelledby="tab-similar" tabindex="0" hidden>
           <div id="similar"></div>
+        </div>
+        <div id="panel-compare" class="tabpanel" role="tabpanel" aria-labelledby="tab-compare" tabindex="0" hidden>
+          <div class="row wrap">
+            <label for="compareBy" class="small">Side by side per</label>
+            <select id="compareBy"><option value="tradition">Tradition</option><option value="book">Book</option><option value="role">Role</option></select>
+            <button id="compareGo" class="btn sm primary" type="button">Compare the current question</button>
+          </div>
+          <p class="small muted">Each column answers only from its own group and cites only its own passages. A column can abstain while another answers.</p>
+          <div id="compareOut" class="compare-grid" aria-live="polite"></div>
         </div>
         <div id="panel-archive" class="tabpanel" role="tabpanel" aria-labelledby="tab-archive" tabindex="0" hidden>
           <div id="archive-mount" class="archive-mount">

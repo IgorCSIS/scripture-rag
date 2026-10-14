@@ -49,7 +49,7 @@ export function answerByRole(question, books, chunks, qv, opts) {
 export function compare(question, books, chunks, qv, { by = "tradition", ...opts } = {}) {
   const groups = new Map();
   for (const b of books) {
-    const key = by === "book" ? b.bookId : b.tradition || "unlabeled";
+    const key = by === "book" ? b.bookId : by === "role" ? b.role || "primary" : b.tradition || "unlabeled";
     if (!groups.has(key)) groups.set(key, new Set());
     groups.get(key).add(b.bookId);
   }

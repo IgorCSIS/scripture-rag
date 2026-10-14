@@ -55,3 +55,9 @@ test("manifest rows and CSV", () => {
   assert.ok(csv[0].startsWith("bookId,title,role"));
   assert.equal(csv.length, 4);
 });
+
+test("compare groups by role", () => {
+  const q = "Who is my shepherd?";
+  const r = lib.compare(q, books, chunks, core.hashEmbed(q), { by: "role" });
+  assert.deepEqual(r.map((x) => x.group), ["commentary", "primary"]);
+});
