@@ -89,7 +89,7 @@ Results were measured on the build machine (Linux, CPU only); Windows numbers wi
 
 ## Measured browser stages (final code)
 
-`node bench/bench_library.mjs > docs/benchmarks/library_stages.json && python bench/plot_library.py`. Node 20, seeded synthetic data, median ms of 3 to 5 runs.
+`node bench/bench_library.mjs > docs/benchmarks/library_stages.json && python bench/plot_benchmarks.py`. Node 20, seeded synthetic data, median ms of 3 to 5 runs.
 
 Library stages, 8 books, n passages:
 
