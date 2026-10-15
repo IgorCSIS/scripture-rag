@@ -21,10 +21,10 @@
     }
   },
   "passage_cosine_min": 0.9604619693153209,
-  "decision_agree": 246,
-  "context_agree": 238,
-  "translation_identical": 50,
-  "translated": 69,
+  "decision_agree": 248,
+  "context_agree": 242,
+  "translation_identical": 24,
+  "translated": 34,
   "by_split": {
     "tune": {
       "n": 110,
@@ -32,27 +32,10 @@
     },
     "heldout": {
       "n": 138,
-      "agree": 136
+      "agree": 138
     }
   },
   "disagreements": [
-    {
-      "id": "S038",
-      "python_answered": true,
-      "browser_answered": true,
-      "python": [
-        "koran_rodwell-0939",
-        "koran_rodwell-0938",
-        "koran_rodwell-n0677"
-      ],
-      "browser": [
-        "koran_rodwell-0939"
-      ],
-      "q_en_python": "What did Lokman advise your son?",
-      "q_en_browser": "What did Lokman take away from your son?",
-      "top_browser": 0.8205416726214508,
-      "top_python": 0.997768516583753
-    },
     {
       "id": "S039",
       "python_answered": true,
@@ -90,53 +73,6 @@
       "q_en_browser": "What did Moses' staff become when he threw it away?",
       "top_browser": 0.8743232300960497,
       "top_python": 0.955531433597033
-    },
-    {
-      "id": "P11",
-      "python_answered": true,
-      "browser_answered": false,
-      "python": [
-        "koran_rodwell-0150",
-        "koran_rodwell-n0201"
-      ],
-      "browser": [],
-      "q_en_python": "What happened to Jonas when he ran off to the loaded ship?",
-      "q_en_browser": "What happened to the Jasons when you ran off to the loaded ship?",
-      "top_browser": 0.05582305317052007,
-      "top_python": 0.9625411247931245
-    },
-    {
-      "id": "P12",
-      "python_answered": true,
-      "browser_answered": true,
-      "python": [
-        "koran_rodwell-0537",
-        "koran_rodwell-n0745",
-        "koran_rodwell-1062"
-      ],
-      "browser": [
-        "koran_rodwell-n0875",
-        "koran_rodwell-n0874",
-        "koran_rodwell-0207"
-      ],
-      "q_en_python": "Who refused to prostrate before Adam?",
-      "q_en_browser": "Who refused to bow down before Adam?",
-      "top_browser": 0.9740754394504951,
-      "top_python": 0.917484367064892
-    },
-    {
-      "id": "P14",
-      "python_answered": true,
-      "browser_answered": false,
-      "python": [
-        "koran_rodwell-n0431",
-        "koran_rodwell-0493"
-      ],
-      "browser": [],
-      "q_en_python": "Which bird was absent when Solomon reviewed the birds?",
-      "q_en_browser": "Which bird was absent when Solomon passed the birds in magazine?",
-      "top_browser": 0.15557003946298315,
-      "top_python": 0.8802583572376883
     },
     {
       "id": "E01",
@@ -215,6 +151,6 @@
   "median_ms": {
     "translate": 0,
     "retrieve": 26,
-    "rerank": 2078
+    "rerank": 1892
   }
 }
