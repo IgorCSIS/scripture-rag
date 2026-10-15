@@ -65,6 +65,8 @@ def main() -> None:
     lines += table([(s["step"], s["tune"]) for s in cur["steps"]])
     lines += ["", "## All steps, held-out split (reported, never used for selection)", ""]
     lines += table([(s["step"], s["heldout"]) for s in cur["steps"]])
+    notes = EVAL / "scorecard_notes.md"
+    lines += ["", notes.read_text(encoding="utf-8").rstrip()] if notes.exists() else []
     lines += [""]
     (EVAL / "SCORECARD.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
