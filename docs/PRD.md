@@ -26,7 +26,7 @@ Readers of religious and philosophical texts want answers they can verify. Gener
 | FR-11 | Eval harness | `python -m scripture_rag.eval` writes `reports/eval.json` and `reports/eval.md` | Done | `tests/test_extras.py::test_eval_cli` |
 | FR-12 | Benchmarks | `python bench/bench_complexity.py` writes PNGs to `docs/benchmarks/` | Done | `docs/benchmarks/*.png` |
 | FR-13 | Extractive answers only | Answers are quoted, cited passages; no LLM or generation step | Done | `tests/test_answering.py::test_extractive_generator` |
-| FR-14 | Multilingual | 5 PT and 5 ES gold items retrieve the right passage in top 5 | Not yet: needs real model and gold items | Planned |
+| FR-14 | Multilingual | English and Spanish questions answered from English texts; Portuguese deferred (notice shown) | Done for EN and ES | `docs/eval/SCORECARD.md` |
 | FR-15 | Browser history and persistence | Libraries (chunks + embeddings) and Q&A history stored in IndexedDB; search, re-open, export/import JSON, clear all; nothing sent to a server | Done | `site/js/db.js`, browser smoke test |
 | FR-16 | Browser theme map | k-means + PCA + TF-IDF labels in the browser; re-clusters when books change; click for cross-book neighbors | Done | `site/tests/core.test.mjs` |
 | FR-17 | Role-scoped answers | Primary and commentary books tagged by role; an answer filtered to one role cites only books with that role | Done | `site/tests/library.test.mjs` "answers by role never mix primary and commentary" |

@@ -4,14 +4,14 @@
 
 Answers are extractive: every answer is a set of quoted verses with citations, or a refusal. There is no LLM or text generation step anywhere in the pipeline.
 
-Modules (`src/scripture_rag/`): `config` (env settings), `sanitize` (upload checks), `ingest` (PDF/TXT to pages), `verses` (verse parsing and verse chunks), `chunker` (fallback token windows), `normalize` (archaic normalization and query expansion), `text_utils` (tokenizer, `clean_query`), `translate` (language detection, PT/ES to EN MarianMT), `embed`, `index` (brute force, FAISS HNSW, LanceDB), `bm25`, `hybrid` (weighted RRF), `rerank` (cross-encoder, lexical fallback), `gate` (per-language score gate, lexical support), `generate` (extractive answer builder), `validate` (citation check), `pipeline` (ask flow), `topics`, `similar`, `library` (manifest), `ia_search`, `ia_import`, `discover`, `pdfgen`, `eval`, `corpus`.
+Modules (`src/scripture_rag/`): `config` (env settings), `sanitize` (upload checks), `ingest` (PDF/TXT to pages), `verses` (verse parsing and verse chunks), `chunker` (fallback token windows), `normalize` (archaic normalization and query expansion), `text_utils` (tokenizer, `clean_query`), `translate` (language detection, ES to EN MarianMT; PT not supported yet), `embed`, `index` (brute force, FAISS HNSW, LanceDB), `bm25`, `hybrid` (weighted RRF), `rerank` (cross-encoder, lexical fallback), `gate` (per-language score gate, lexical support), `generate` (extractive answer builder), `validate` (citation check), `pipeline` (ask flow), `topics`, `similar`, `library` (manifest), `ia_search`, `ia_import`, `discover`, `pdfgen`, `eval`, `corpus`.
 
 The browser app (`site/js/`) runs the same pipeline with the same defaults: `rag.js` (pipeline), `models.js` (transformers.js models), `ann.js` (HNSW above 20k passages), `core.js` (BM25, k-means, PCA, TF-IDF labels), `library.js` (manifest, roles, compare), `ia.js` and `archive-ui.js` (Internet Archive panel), `db.js` (IndexedDB), `app.js` and `ui.js` (UI). Browser and Python make identical answer/refuse decisions and citations on the eval set ([docs/eval/parity.json](eval/parity.json)).
 
 ## User story map
 ```mermaid
 flowchart TB
-  A[As a reader I load a book] --> B[I ask a question in EN, PT or ES]
+  A[As a reader I load a book] --> B[I ask a question in English or Spanish]
   B --> C[I get cited verse quotes or an honest refusal]
   C --> D[I open the quoted passage]
   A --> E[I explore the theme map]
@@ -47,7 +47,7 @@ flowchart TB
   end
   subgraph Query
     direction LR
-    Q[Question] --> CQ[clean_query] --> LD[Detect language] --> TR[Translate PT/ES to EN] --> EX[Normalize + expand]
+    Q[Question] --> CQ[clean_query] --> LD[Detect language] --> TR[Translate ES to EN] --> EX[Normalize + expand]
   end
   subgraph Rank
     direction LR
@@ -73,7 +73,7 @@ sequenceDiagram
   participant G as Gates
   U->>P: question
   P->>P: clean_query, detect language
-  P->>T: PT/ES question
+  P->>T: Spanish question
   T-->>P: English query
   P->>R: expanded query + original query
   R-->>P: top 50 fused by weighted RRF

@@ -18,7 +18,7 @@
 
 ---
 
-Load public-domain books (PDF or TXT, including Internet Archive downloads), ask in English, Portuguese or Spanish, and get the exact verses behind each answer as `[book p.N #chunk_id]`. Answers are extractive: the app quotes your texts and never generates prose, and there is no LLM anywhere in the pipeline. When the text does not support an answer the app says `I could not find this in the loaded texts.`
+Load public-domain books (PDF or TXT, including Internet Archive downloads), ask in English or Spanish, and get the exact verses behind each answer as `[book p.N #chunk_id]`. Answers are extractive: the app quotes your texts and never generates prose, and there is no LLM anywhere in the pipeline. When the text does not support an answer the app says `I could not find this in the loaded texts.`
 
 <p align="center">
 <picture>
@@ -33,7 +33,7 @@ Load public-domain books (PDF or TXT, including Internet Archive downloads), ask
 |---|---|---|
 | **Hybrid retrieval**<br>BM25 on the translated and original query plus `multilingual-e5-small`, fused with weighted Reciprocal Rank Fusion | **Reranking**<br>`mmarco-mMiniLMv2-L12` cross-encoder reranks the top 50 (browser default; Python default is an offline lexical reranker) | **Citations everywhere**<br>Every quote carries `[book p.N #chunk_id]`; a validator rejects anything else |
 | **Two refusal gates**<br>Per-language score threshold plus lexical support >= 0.3 | **Extractive answers**<br>Answers are quoted verses; there is no LLM or generation step | **Theme map**<br>k-means, silhouette, PCA, TF-IDF topic labels, optional BERTopic |
-| **Three languages**<br>PT and ES questions are translated to EN with MarianMT before search | **Verse-aware chunks**<br>About 80 words, 1 verse overlap; 200/40 token windows when no verses are found | **Archaic normalization**<br>`thee`, `saith`, `-eth` forms normalized; queries expanded with synonyms |
+| **English and Spanish**<br>ES questions are translated to EN with MarianMT before search; Portuguese is not supported yet | **Verse-aware chunks**<br>About 80 words, 1 verse overlap; 200/40 token windows when no verses are found | **Archaic normalization**<br>`thee`, `saith`, `-eth` forms normalized; queries expanded with synonyms |
 | **Similar passages**<br>Nearest neighbors from other books | **Browser demo**<br>Runs fully client side, history in IndexedDB | **Safe uploads**<br>Magic bytes, size and page caps, parse timeout, escaped output |
 | **Compare mode**<br>Same question answered per tradition, side by side | **Outlier flags**<br>Passages far from every cluster are marked on the theme map | **Library manifest**<br>Books, roles, traditions and licenses, exportable as CSV or JSON |
 
@@ -41,10 +41,10 @@ Load public-domain books (PDF or TXT, including Internet Archive downloads), ask
 
 - **Internet Archive panel.** Search archive.org with client-side year, author, collection and public-domain filters; each hit shows a license label. Hits are clustered (k-means, K by silhouette, up to 5) with the active embedder and ranked by similarity to the centroid of the loaded library, so related books surface first. For any item, `licenseurl`, `rights`, `possible-copyright-status` and dates are shown before anything downloads. PDFs are parsed page by page (pypdf in Python, pdf.js in the browser) so every chunk keeps `page_start`/`page_end`.
 - **Book selector.** Choose which loaded books an answer may search; retrieval then runs on that subset only (subset BM25 plus filtered vectors).
-- **Query preparation.** `clean_query` tidies the raw question, the language is detected (en / pt / es), PT and ES questions are translated to English with MarianMT, then archaic normalization and query expansion are applied.
+- **Query preparation.** `clean_query` tidies the raw question, the language is detected (English and Spanish are supported; a Portuguese question gets a "not supported yet, ask in English or Spanish" notice), Spanish questions are translated to English with MarianMT, then archaic normalization and query expansion are applied.
 - **Hybrid retrieval.** BM25 (exact words, names, verse references; run on both the translated and the original query) and `multilingual-e5-small` embeddings (meaning, cross-language) each return candidates; weighted Reciprocal Rank Fusion merges the rankings without score calibration. The `mmarco-mMiniLMv2-L12-H384-v1` cross-encoder reranks the top 50 fused candidates, and the top 3 passages that pass both gates are quoted.
-- **Two gates.** The best reranked passage must clear a per-language threshold (en 0.12, pt 0.72, es 0.16) and have lexical support of at least 0.3 against the question; otherwise the app refuses. Values and how they were chosen: [docs/eval/SCORECARD.md](docs/eval/SCORECARD.md).
-- **Browser and Python parity.** The browser pipeline (`site/js/rag.js`) and the Python one make identical answer/refuse decisions and citations on the eval set ([docs/eval/parity.json](docs/eval/parity.json)). Above 20,000 passages the browser switches from brute-force search to an HNSW index.
+- **Two gates.** The best reranked passage must clear a per-language threshold (en 0.12, es 0.16) and have lexical support of at least 0.3 against the question; otherwise the app refuses. Values and how they were chosen: [docs/eval/SCORECARD.md](docs/eval/SCORECARD.md).
+- **Browser and Python parity.** The browser pipeline (`site/js/rag.js`) and the Python one make identical answer/refuse decisions and citations on the eval set when fed the same model outputs ([docs/eval/parity.json](docs/eval/parity.json)); with the browser models themselves 246 of 248 decisions agree ([parity_models.json](docs/eval/parity_models.json)). Above 20,000 passages the browser switches from brute-force search to an HNSW index.
 - **History.** Every question, answer and citation is stored in IndexedDB (`scripture-rag` database) with search, re-open, export/import JSON and clear all. Nothing leaves the browser.
 - **Theme map.** k-means (K by silhouette) on passage embeddings, PCA to 2D, class-based TF-IDF labels. Re-clusters when books change; click a point for nearest passages from other books.
 - **Compare mode.** Asks the same question once per group (tradition by default, or per book or role); each group's answer cites only its own books and can refuse independently.
@@ -127,7 +127,7 @@ sequenceDiagram
   participant R as HybridRetriever
   participant RR as Reranker
   U->>P: question
-  P->>P: clean_query, detect language, translate PT/ES to EN, expand
+  P->>P: clean_query, detect language, translate ES to EN, expand
   P->>R: expanded query + original query
   R-->>P: top 50 fused by weighted RRF
   P->>RR: rerank 50 candidates
@@ -255,7 +255,7 @@ Server-side vector store comparison (NumPy, FAISS Flat/HNSW/IVF, LanceDB, Chroma
 
 ### Final scorecard
 
-From the strict tune / held-out run of [docs/eval/eval_set.jsonl](docs/eval/eval_set.jsonl), shipped configuration, copied from [docs/eval/SCORECARD.md](docs/eval/SCORECARD.md) at commit f05db61. Every choice was made on the tune split and a synthetic dev set; held-out was scored once.
+From the strict tune / held-out run of [docs/eval/eval_set.jsonl](docs/eval/eval_set.jsonl), shipped configuration, copied from [docs/eval/SCORECARD.md](docs/eval/SCORECARD.md) at commit f05db61. Tuning used the tune split and a synthetic dev set. The shipped gate is the round 1 policy, restored after the round 2 held-out result was seen, so these held-out numbers are not an untouched estimate (details in the scorecard).
 
 | Metric | Value |
 |---|---|
@@ -264,7 +264,8 @@ From the strict tune / held-out run of [docs/eval/eval_set.jsonl](docs/eval/eval
 | Citation validity | 1.0 (extractive quotes, valid by construction) |
 | Refusal recall / precision | 0.900 / 0.707; 3 adversarial answered, 12 unsupported answers (incl. adversarial); injection pass 1.000 |
 | Retrieval recall | not reported; accuracy is graded on cited evidence instead |
-| Latency | not measured for the shipped configuration (the eval reuses cached model outputs); the only timed run is the previous config above (1,972 ms p50 on CPU) |
+| Browser parity | Python model outputs: 248/248 decisions and citations (eval), 175/175 (dev); browser models (transformers.js in Node): 246/248 decisions ([parity_models.json](docs/eval/parity_models.json)) |
+| Browser stage latency, median | translate 0 ms, retrieve 26 ms, rerank 2,078 ms (browser models in Node, [parity_models.json](docs/eval/parity_models.json)) |
 
 ## Limitations
 
@@ -272,7 +273,7 @@ From the strict tune / held-out run of [docs/eval/eval_set.jsonl](docs/eval/eval
 - Citations use the PDF page index, which can differ from the printed page number.
 - A chunk spanning two pages is cited by its first page; the Sources view shows the full range.
 - The browser full-pipeline mode ships `multilingual-e5-small`, MarianMT and the mMiniLM cross-encoder. The Python defaults (`EMBED_MODEL=hashing`, `RERANK_MODEL=lexical`) are offline and match words, not meaning; install the real models for semantic and cross-language questions. The gate thresholds are calibrated for the e5 + mMiniLM pair.
-- Portuguese accuracy trails English and Spanish (see the scorecard); MarianMT paraphrases often push lexical support just under 0.3.
+- Portuguese is not supported at launch: its held-out accuracy was too low, so PT questions get a notice asking for English or Spanish.
 - Clusters are statistical, not doctrinal.
 
 ## Project layout

@@ -37,7 +37,7 @@ N = total characters in a book; n = number of chunks (or vectors); d = embedding
 | Reference alignment (`ReferenceAligner`) | O(S (c + w)) | O(R w) inverted index | S source sentences, R reference verses, c candidate verses touched via rare-term postings, w words per verse; monotonic prior keeps c small |
 | Verse chunking | O(number of verses) | O(N) | Greedy packing to about 80 words, 1 verse overlap |
 | Archaic normalization | O(N) | O(V) | Table lookups plus suffix rules per token |
-| Query translation (MarianMT) | O(T q d) | model weights | Only for PT/ES questions; cached per question |
+| Query translation (MarianMT) | O(T q d) | model weights | Only for ES questions; cached per question |
 | Weighted RRF over 3 lists | O(k log k) | O(k) | BM25, dense(original), dense(English) |
 | Lexical support check | O(q + L) | O(V) IDF table | IDF built once per index change in O(total tokens) |
 | Gate policy | O(1) | O(languages) | Per-language threshold plus minimum support |
