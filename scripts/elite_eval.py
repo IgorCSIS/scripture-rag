@@ -550,7 +550,8 @@ def main() -> None:
         if may_select and objective(r2["tune"]) >= objective(res["tune"]):
             cfg, res, best_rows, _runs = replace(cfg, **change), r2, rows2, runs2
     out = {"items": len(items), "dropped": [d["id"] for d in dropped], "language_detection_accuracy": lang_acc,
-           "final_config": cfg.__dict__, "final_label": cfg.label(), "final_policy": res["policy"], "steps": steps, "final_rows": best_rows}
+           "final_config": cfg.__dict__,
+           "final_label": cfg.label(), "final_policy": res["policy"], "steps": steps, "final_rows": best_rows}
     text = json.dumps(out, indent=2, ensure_ascii=False, default=_jsonable)
     (EVAL / "ablation.json").write_text(text, encoding="utf-8")
     print("FINAL", cfg.label(), res["policy"], flush=True)

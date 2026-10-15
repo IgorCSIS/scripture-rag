@@ -71,12 +71,12 @@ Command: `python bench/bench_complexity.py` (seeded, 5 repeats, median). Synthet
 
 | Operation | Predicted | Measured log-log slope | Reading |
 |---|---|---|---|
-| Chunking | O(N), slope 1 | 1.06 | Matches linear |
-| Brute-force search | O(n d), slope 1 | 0.85 | Linear once the matrix leaves cache; small n is dominated by fixed overhead and BLAS threading |
-| HNSW search | O(d log n), slope near 0 | 0.39 | Sub-linear as expected; above 0 because more graph levels and cache misses appear as n grows |
-| BM25 query | O(postings), slope 1 here | 1.15 | rank_bm25 scores every document (O(n q)) plus allocation; slightly super-linear from memory effects |
-| k-means | O(n K i d), slope 1 | 0.65 | Below 1 at small n because thread start-up and fixed overhead dominate; approaches linear at large n |
-| PCA 2D | O(n d^2), slope 1 | -0.07 | Deviates: sklearn switches solvers by matrix shape and the d^2 term plus overhead dominate in this range, so the curve is flat and noisy. Treat as a known deviation |
+| Chunking | O(N), slope 1 | 1.05 | Matches linear |
+| Brute-force search | O(n d), slope 1 | 1.05 | Linear once the matrix leaves cache; small n is dominated by fixed overhead and BLAS threading |
+| HNSW search | O(d log n), slope near 0 | 0.38 | Sub-linear as expected; above 0 because more graph levels and cache misses appear as n grows |
+| BM25 query | O(postings), slope 1 here | 1.21 | rank_bm25 scores every document (O(n q)) plus allocation; slightly super-linear from memory effects |
+| k-means | O(n K i d), slope 1 | 0.62 | Below 1 at small n because thread start-up and fixed overhead dominate; approaches linear at large n |
+| PCA 2D | O(n d^2), slope 1 | 0.25 | Deviates: sklearn switches solvers by matrix shape and the d^2 term plus overhead dominate in this range, so the curve is flat and noisy. Treat as a known deviation |
 
 ![brute force](benchmarks/brute_force_search.png)
 ![hnsw](benchmarks/hnsw_search.png)
@@ -95,22 +95,22 @@ Library stages, 8 books, n passages:
 
 | Stage | Predicted, slope | 500 | 1,000 | 2,000 | 4,000 | 8,000 | Measured slope |
 |---|---|---|---|---|---|---|---|
-| Outliers (z-score) | O(n d), 1 | 6.826 | 11.516 | 7.306 | 14.847 | 36.013 | 0.52 |
-| Book auto-tags | O(n), 1 | 0.096 | 0.071 | 0.124 | 0.504 | 0.403 | 0.70 |
-| Manifest CSV | O(B + n), 1 | 0.078 | 0.107 | 0.082 | 0.158 | 0.285 | 0.43 |
-| Role-scoped answer | O(n_s), 1 | 4.232 | 4.446 | 8.159 | 16.373 | 32.778 | 0.78 |
-| Compare by tradition | O(G n_g), 1 | 6.164 | 9.604 | 14.042 | 34.312 | 74.668 | 0.90 |
+| Outliers (z-score) | O(n d), 1 | 7.300 | 11.115 | 7.388 | 18.000 | 35.461 | 0.53 |
+| Book auto-tags | O(n), 1 | 0.108 | 0.071 | 0.107 | 0.525 | 0.453 | 0.70 |
+| Manifest CSV | O(B + n), 1 | 0.072 | 0.106 | 0.070 | 0.131 | 0.280 | 0.42 |
+| Role-scoped answer | O(n_s), 1 | 3.465 | 4.539 | 7.799 | 18.353 | 34.212 | 0.86 |
+| Compare by tradition | O(G n_g), 1 | 7.361 | 10.543 | 15.446 | 36.885 | 69.600 | 0.83 |
 
 Internet Archive panel stages, r hits (B books for the selector):
 
 | Stage | Predicted, slope | 25 | 50 | 100 | 200 | 400 | Measured slope |
 |---|---|---|---|---|---|---|---|
-| filterHits | O(r), 1 | 0.005 | 0.011 | 0.042 | 0.127 | 0.106 | 1.22 |
-| clusterHits | O(r^2 d) silhouette, 2 | 13.133 | 32.446 | 121.617 | 464.163 | 1810.689 | 1.81 |
-| rankRelated | O(r d + r log r), 1 | 0.020 | 0.039 | 0.072 | 0.161 | 0.281 | 0.97 |
-| Book selector (selectBooks) | O(B + s), 1 | 0.003 | 0.006 | 0.007 | 0.014 | 0.031 | 0.78 |
+| filterHits | O(r), 1 | 0.008 | 0.011 | 0.040 | 0.219 | 0.089 | 1.14 |
+| clusterHits | O(r^2 d) silhouette, 2 | 12.389 | 34.572 | 130.509 | 494.891 | 2038.200 | 1.86 |
+| rankRelated | O(r d + r log r), 1 | 0.020 | 0.035 | 0.078 | 0.135 | 0.386 | 1.04 |
+| Book selector (selectBooks) | O(B + s), 1 | 0.004 | 0.005 | 0.008 | 0.012 | 0.031 | 0.72 |
 
-Reading: `clusterHits` grows as r^2 (slope 1.81) because the silhouette search dominates; real searches return at most 50 hits, where it costs about 32 ms. The other stages are linear or below: slopes under 1 come from fixed overhead at small sizes, and sub-millisecond stages (`filterHits`, auto-tags) are noisy, so their slopes are not reliable exponents. At 8,000 passages the slowest library stage, compare by tradition, takes 75 ms.
+Reading: `clusterHits` grows as r^2 (slope 1.86) because the silhouette search dominates; real searches return at most 50 hits, where it costs about 35 ms. The other stages are linear or below: slopes under 1 come from fixed overhead at small sizes, and sub-millisecond stages (`filterHits`, auto-tags) are noisy, so their slopes are not reliable exponents. At 8,000 passages the slowest library stage, compare by tradition, takes 70 ms.
 
 ![Library stages](benchmarks/library_stages.png)
 ![IA stages](benchmarks/ia_stages.png)

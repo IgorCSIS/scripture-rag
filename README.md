@@ -147,21 +147,21 @@ n = chunks, d = embedding dim, k = candidates, K = clusters, i = iterations, L =
 
 | Operation | Time | Measured slope |
 |---|---|---|
-| Chunking | O(N) | 1.06 |
-| Brute-force search | O(n d + n log k) | 0.85 |
-| HNSW search | about O(d log n) | 0.39 |
-| BM25 query | O(postings), O(n q) in rank_bm25 | 1.15 |
+| Chunking | O(N) | 1.05 |
+| Brute-force search | O(n d + n log k) | 1.05 |
+| HNSW search | about O(d log n) | 0.38 |
+| BM25 query | O(postings), O(n q) in rank_bm25 | 1.21 |
 | RRF | O(k log k) | |
 | Cross-encoder rerank | O(k (q+L)^2 d) | |
-| k-means | O(n K i d) | 0.65 |
-| PCA to 2D | O(n d^2) | -0.07 (solver switching, see docs) |
-| Outliers (z-score) | O(n d) | 0.52 |
-| Role-scoped answer | O(n_s) | 0.78 |
-| Compare by tradition | O(G n_g) | 0.90 |
-| filterHits | O(r) | 1.22 |
-| clusterHits | O(r^2 d) silhouette | 1.81 |
-| rankRelated | O(r d + r log r) | 0.97 |
-| Book selector (selectBooks) | O(B + s) | 0.78 |
+| k-means | O(n K i d) | 0.62 |
+| PCA to 2D | O(n d^2) | 0.25 (solver switching, see docs) |
+| Outliers (z-score) | O(n d) | 0.53 |
+| Role-scoped answer | O(n_s) | 0.86 |
+| Compare by tradition | O(G n_g) | 0.83 |
+| filterHits | O(r) | 1.14 |
+| clusterHits | O(r^2 d) silhouette | 1.86 |
+| rankRelated | O(r d + r log r) | 1.04 |
+| Book selector (selectBooks) | O(B + s) | 0.72 |
 
 <p align="center"><img src="docs/benchmarks/overview.png" alt="Runtime vs n, log-log" width="560"></p>
 
@@ -215,20 +215,20 @@ Two Internet Archive books (KJV 1611 reprint, Rodwell Koran), `multilingual-e5-s
 
 | n | Brute p50 ms | HNSW p50 ms | HNSW build s | HNSW recall@10 |
 |---|---|---|---|---|
-| 1,000 | 0.63 | 0.42 | 0.97 | 1.00 |
-| 5,000 | 3.10 | 0.27 | 3.92 | 0.85 |
-| 20,000 | 15.42 | 0.78 | 20.82 | 0.79 |
-| 50,000 | 47.02 | 1.29 | 73.28 | 0.94 |
+| 1,000 | 0.62 | 0.39 | 0.94 | 1.00 |
+| 5,000 | 3.19 | 0.28 | 3.90 | 0.85 |
+| 20,000 | 15.97 | 0.82 | 20.54 | 0.79 |
+| 50,000 | 43.86 | 1.31 | 73.64 | 0.94 |
 
 ### Browser library stages, ms ([docs/benchmarks/library_stages.json](docs/benchmarks/library_stages.json))
 
 | Stage | n=500 | 1,000 | 2,000 | 4,000 | 8,000 |
 |---|---|---|---|---|---|
-| Outliers (z-score) | 6.83 | 11.52 | 7.31 | 14.85 | 36.01 |
-| Book auto-tags | 0.10 | 0.07 | 0.12 | 0.50 | 0.40 |
-| Manifest CSV | 0.08 | 0.11 | 0.08 | 0.16 | 0.28 |
-| Role-scoped answer | 4.23 | 4.45 | 8.16 | 16.37 | 32.78 |
-| Compare by tradition | 6.16 | 9.60 | 14.04 | 34.31 | 74.67 |
+| Outliers (z-score) | 7.30 | 11.12 | 7.39 | 18.00 | 35.46 |
+| Book auto-tags | 0.11 | 0.07 | 0.11 | 0.53 | 0.45 |
+| Manifest CSV | 0.07 | 0.11 | 0.07 | 0.13 | 0.28 |
+| Role-scoped answer | 3.46 | 4.54 | 7.80 | 18.35 | 34.21 |
+| Compare by tradition | 7.36 | 10.54 | 15.45 | 36.88 | 69.60 |
 
 <p align="center"><img src="docs/benchmarks/library_stages.png" width="410" alt="Library stages"> <img src="docs/benchmarks/browser_ann.png" width="410" alt="Browser ANN"></p>
 
@@ -236,10 +236,10 @@ IA panel stages, ms by r hits:
 
 | Stage | r=25 | 50 | 100 | 200 | 400 | Slope |
 |---|---|---|---|---|---|---|
-| filterHits | 0.005 | 0.011 | 0.042 | 0.127 | 0.106 | 1.22 |
-| clusterHits | 13.133 | 32.446 | 121.617 | 464.163 | 1810.689 | 1.81 |
-| rankRelated | 0.020 | 0.039 | 0.072 | 0.161 | 0.281 | 0.97 |
-| Book selector (selectBooks) | 0.003 | 0.006 | 0.007 | 0.014 | 0.031 | 0.78 |
+| filterHits | 0.008 | 0.011 | 0.040 | 0.219 | 0.089 | 1.14 |
+| clusterHits | 12.389 | 34.572 | 130.509 | 494.891 | 2038.200 | 1.86 |
+| rankRelated | 0.020 | 0.035 | 0.078 | 0.135 | 0.386 | 1.04 |
+| Book selector (selectBooks) | 0.004 | 0.005 | 0.008 | 0.012 | 0.031 | 0.72 |
 
 <p align="center"><img src="docs/benchmarks/ia_stages.png" width="560" alt="IA panel stages"></p>
 
@@ -253,9 +253,9 @@ From the strict tune / held-out run of [docs/eval/eval_set.jsonl](docs/eval/eval
 |---|---|
 | Items | 245 scored (109 tune, 136 held-out); numbers below are held-out |
 | Recall@10 hybrid + rerank | not reported by the ablation; accuracy is graded on cited evidence instead |
-| Answer accuracy (en / pt / es) | 0.758 (0.815 / 0.529 / 0.769); target 0.90, not met |
+| Answer accuracy (en / pt / es) | 0.800 (0.862 / 0.529 / 0.846); target 0.90, not met |
 | Citation validity | 1.0 |
-| Refusal recall / precision | 0.933 / 0.696; 2 adversarial answered, 11 wrong-evidence answers |
+| Refusal recall / precision | 0.900 / 0.725; 3 adversarial answered, 9 wrong-evidence answers; injection pass 1.000 |
 | Latency p50 / p95 | 1,972 ms p50 end to end on CPU (first stress run); the ablation reuses cached model outputs, so it does not time stages; p95 not recorded |
 
 ## Limitations
