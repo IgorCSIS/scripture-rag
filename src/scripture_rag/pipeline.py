@@ -184,10 +184,14 @@ class RagPipeline:
         return self._translator.to_english(question)
 
     def retrieve(self, question: str, q_en: str, k: int) -> list[str]:
-        """Weighted rank fusion of BM25 (expanded English query) and dense lists (original and English)."""
+        """Weighted rank fusion of BM25 (expanded English query, plus the original query when it was
+        translated) and dense lists (original and English)."""
         s = self.settings
         q_bm = expand_query(q_en) if s.expand else q_en
         lists = [(self.retriever.bm25_only(q_bm, k), 1.0 - s.dense_weight)]
+        if q_en != question:
+            # Names and loan words survive in the original; guards against MT errors such as Gabaon -> Gabon.
+            lists.append((self.retriever.bm25_only(question, k), 1.0 - s.dense_weight))
         for q in dict.fromkeys([question, q_en]):
             lists.append((self.retriever.vector_only(q, k), s.dense_weight))
         scores: dict[str, float] = {}
