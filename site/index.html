@@ -106,15 +106,15 @@
         <details class="settings">
           <summary>Retrieval settings</summary>
           <label for="embedder">Embeddings</label>
-          <select id="embedder"><option value="hashing">Offline hashing (instant)</option><option value="e5">multilingual-e5-small (about 120 MB, once)</option></select>
+          <select id="embedder"><option value="hashing">Offline hashing (instant)</option><option value="e5">Full pipeline: e5-small, reranker, PT/ES translation (scored; large download, once)</option></select>
           <div id="modelProgress" class="model-progress" hidden>
             <div class="small"><span id="modelLabel">Downloading model</span> <span id="modelPct" class="muted"></span></div>
             <progress id="modelBar" max="100" aria-labelledby="modelLabel"></progress>
           </div>
-          <label for="threshold">Refusal threshold <output id="thresholdVal" for="threshold">0.5</output></label>
+          <label for="threshold">Refusal threshold, offline mode <output id="thresholdVal" for="threshold">0.5</output></label>
           <input id="threshold" type="range" min="0.1" max="0.9" step="0.05" value="0.5">
           <label for="chunkSize">Chunk size (words)</label>
-          <input id="chunkSize" type="number" value="50" min="20" max="400" inputmode="numeric">
+          <input id="chunkSize" type="number" value="200" min="20" max="400" inputmode="numeric">
         </details>
 
         <div class="data-box" id="privacy-box">

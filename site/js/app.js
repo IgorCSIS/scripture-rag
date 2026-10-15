@@ -3,6 +3,8 @@ import * as core from "./core.js";
 import * as db from "./db.js";
 import * as ia from "./ia.js";
 import * as lib from "./library.js";
+import * as rag from "./rag.js";
+import { MODELS } from "./models.js";
 import { $, el, icon, ICONS, toast, cleanFileName, formatBytes, showDrawer, hideDrawer, drawerIsOpen, trapFocus, verifiedImport, verifiedBlobUrl } from "./ui.js";
 
 // Pinned CDN files with SHA-384 integrity hashes; nothing runs unless the hash matches.
@@ -14,14 +16,14 @@ const CDN = {
   ortMjs: { url: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.0-dev.20260914-8d85527a0/dist/ort-wasm-simd-threaded.jsep.mjs", sri: "sha384-nvWLxdeiWbA+fFeE6qrofH8GNTzogS0wMzbtE+5FpSdY9eJVD9XAw02CuIR67LOV" }, // pragma: allowlist secret
   ortWasm: { url: "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.0-dev.20260914-8d85527a0/dist/ort-wasm-simd-threaded.jsep.wasm", sri: "sha384-M3enaJRpYo4Wu07MxfAZnkbeFbm4uWtNn6W27Taw+akrBXSqWBJ45eyQ+zqre5tC" }, // pragma: allowlist secret
 };
-const MODEL = "Xenova/multilingual-e5-small";
+const MODEL = MODELS.embed.id;
 const MAX_BYTES = 50 * 1024 * 1024;
 const MAX_FILES = 10;
 const MAX_PAGES = 2000;
 const NOT_FOUND = "Not found in loaded texts";
 const SUGGESTIONS = ["Who is my shepherd?", "Quem e o meu pastor?", "What restores the soul?"];
 
-const state = { db: null, chunks: [], books: [], byBook: new Map(), bm25: new core.BM25(), tags: {}, roleScope: "", embedder: "hashing", model: null, themes: null, busy: false, current: null };
+const state = { db: null, chunks: [], books: [], byBook: new Map(), bm25: new core.BM25(), tags: {}, roleScope: "", embedder: "hashing", model: null, rag: null, norm: null, aligner: null, reranker: null, translator: null, themes: null, busy: false, current: null };
 
 // ---------- Status, progress ----------
 function setProgress(prefix, label, pct) {
@@ -48,7 +50,9 @@ async function loadModel() {
         wasm: await verifiedBlobUrl(CDN.ortWasm.url, CDN.ortWasm.sri, "application/wasm"),
       };
     }
+    state.tf = tf;
     state.model = await tf.pipeline("feature-extraction", MODEL, {
+      dtype: MODELS.embed.dtype,
       progress_callback: (p) => {
         if (p.status === "progress" && p.total) {
           files.set(p.file, [p.loaded, p.total]);
@@ -65,6 +69,64 @@ async function loadModel() {
     setProgress("model", "", null);
     throw new Error(`Model download failed: ${e.message}`);
   }
+}
+
+// Reranker and PT/ES translator of the full pipeline, loaded on first use (same weights as Python).
+async function loadExtra(key, label, make) {
+  if (state[key]) return state[key];
+  await loadModel();
+  setProgress("model", `Downloading the ${label} (first time only)`, NaN);
+  try {
+    state[key] = await make(state.tf);
+    return state[key];
+  } catch (e) {
+    throw new Error(`${label} download failed: ${e.message}`);
+  } finally {
+    setProgress("model", "", null);
+  }
+}
+
+const pipelineModels = {
+  embedQuery: async (t) => (await embed([t], true))[0],
+  translate: async (q) => {
+    const mt = await loadExtra("translator", "translation model", (tf) => tf.pipeline("translation", MODELS.translate.id, { dtype: MODELS.translate.dtype }));
+    return (await mt(q, MODELS.translate.generate))[0].translation_text;
+  },
+  rerank: async (q, texts) => {
+    const r = await loadExtra("reranker", "reranker", async (tf) => ({
+      tok: await tf.AutoTokenizer.from_pretrained(MODELS.rerank.id),
+      model: await tf.AutoModelForSequenceClassification.from_pretrained(MODELS.rerank.id, { dtype: MODELS.rerank.dtype, model_file_name: MODELS.rerank.file }),
+    }));
+    const out = [];
+    for (let i = 0; i < texts.length; i += 16) {
+      const part = texts.slice(i, i + 16);
+      const { logits } = await r.model(r.tok(part.map(() => q), { text_pair: part, padding: true, truncation: true }));
+      for (const x of logits.data) out.push(1 / (1 + Math.exp(-x)));
+    }
+    return out;
+  },
+};
+
+// Archaic spelling normalizer and the numbered reference used to align unnumbered Bibles.
+async function getNormalizer() {
+  if (!state.norm) state.norm = new rag.ArchaicNormalizer((await (await fetch("assets/modern_vocab.txt")).text()).split(/\s+/).filter(Boolean));
+  return state.norm;
+}
+async function getAligner() {
+  if (!state.aligner) {
+    const ref = (await (await fetch("assets/kjv_ref_genesis_joshua.json")).json()).map(([book, chapter, verse, text]) => ({ book, chapter, verse, text, page: 1 }));
+    state.aligner = new rag.ReferenceAligner(ref, await getNormalizer());
+  }
+  return state.aligner;
+}
+
+async function ragIndex() {
+  if (!state.rag) {
+    const idx = new rag.RagIndex(await getNormalizer());
+    idx.add(state.chunks, state.chunks.map((c) => c.vec));
+    state.rag = idx;
+  }
+  return state.rag;
 }
 
 async function embed(texts, isQuery) {
@@ -121,6 +183,7 @@ async function readPages(file, name) {
 
 // ---------- Library ----------
 function rebuildIndex() {
+  state.rag = null;
   state.bm25 = new core.BM25();
   state.byBook = new Map();
   for (const c of state.chunks) {
@@ -193,10 +256,13 @@ async function addBook(name, pages, extra = {}) {
   let bookId = core.safeBookId(name), i = 2;
   while (state.books.some((b) => b.bookId === bookId)) bookId = `${core.safeBookId(name)}-${i++}`;
   const clean = pages.map(core.stripControl);
-  const chunks = core.chunkPages(bookId, clean, Number($("chunkSize").value) || 50, 10);
+  // Same chunking as Python: verse-aware when the layout allows it, else windows.
+  const chunks = rag.chunkDocument(bookId, clean, { aligner: await getAligner(), windowTokens: Number($("chunkSize").value) || rag.DEFAULTS.windowTokens });
   if (!chunks.length) throw new Error("No text found (scanned PDFs need OCR first)");
   setProgress("ingest", `Indexing ${name}, ${chunks.length} passages`, 85);
-  const vecs = await embed(chunks.map((c) => c.text), false);
+  const norm = await getNormalizer();
+  chunks.forEach((c) => { c.indexText = norm.text(c.text); });
+  const vecs = await embed(chunks.map((c) => c.indexText), false);
   chunks.forEach((c, k) => { c.vec = vecs[k]; });
   await db.saveBook(state.db, { bookId, title: name.replace(/\.[^.]+$/, ""), pages: clean.length, addedAt: Date.now(), ...extra }, chunks);
   state.books.push({ bookId });
@@ -275,8 +341,10 @@ function renderAnswer(res, q) {
   const box = $("answer");
   if (res.refused) {
     box.replaceChildren(el("div", { class: "state refusal", role: "alert" }, icon(ICONS.warn), el("h3", {}, NOT_FOUND),
-      el("p", {}, `No passage in your library answers "${q}" well enough (best score ${res.topScore.toFixed(2)}, threshold ${$("threshold").value}).`),
-      el("p", { class: "small" }, "Try different wording, add more texts, or lower the refusal threshold in settings.")));
+      el("p", {}, res.trace
+        ? `No passage in your library answers "${q}" well enough (best score ${res.topScore.toFixed(2)}, ${res.lang.toUpperCase()} threshold ${res.trace.threshold}; ${res.reason}).`
+        : `No passage in your library answers "${q}" well enough (best score ${res.topScore.toFixed(2)}, threshold ${$("threshold").value}).`),
+      el("p", { class: "small" }, res.trace ? "Try different wording or add more texts." : "Try different wording, add more texts, or lower the refusal threshold in settings.")));
     return;
   }
   box.replaceChildren(el("div", { class: "answer-head" }, el("h3", {}, "From your texts"), el("span", { class: "badge" }, `${res.citations.length} cited ${res.citations.length === 1 ? "passage" : "passages"}`)),
@@ -303,16 +371,20 @@ async function ask() {
   renderSkeleton();
   try {
     const started = performance.now();
-    const [qv] = await embed([q], true);
-    const opts = {
-      threshold: Number($("threshold").value),
-      // Uncalibrated starting range for e5 cosine; tune on a gold set.
-      cosRange: state.embedder === "hashing" ? null : [0.8, 0.9],
-    };
     const scope = $("libRole").value;
     const ids = lib.keepLoaded(state.searchIds, state.books);
-    const res = scope || ids.size ? lib.answerIn(q, state.chunks, lib.selectBooks(state.books, { role: scope || undefined, ids }), qv, opts)
-      : core.answer(q, state.chunks, state.bm25, qv, opts);
+    let res;
+    if (state.embedder !== "hashing") {
+      // Full pipeline with the built-in defaults scored in docs/eval/SCORECARD.md.
+      const books = scope || ids.size ? lib.selectBooks(state.books, { role: scope || undefined, ids }) : null;
+      res = await rag.ragAnswer(q, await ragIndex(), pipelineModels, books ? { books } : {});
+    } else {
+      // Offline hashing mode: lexical coverage gate with the threshold slider.
+      const [qv] = await embed([q], true);
+      const opts = { threshold: Number($("threshold").value), cosRange: null };
+      res = scope || ids.size ? lib.answerIn(q, state.chunks, lib.selectBooks(state.books, { role: scope || undefined, ids }), qv, opts)
+        : core.answer(q, state.chunks, state.bm25, qv, opts);
+    }
     const wait = 260 - (performance.now() - started);
     if (wait > 0) await new Promise((r) => setTimeout(r, wait));
     state.current = { q, res };
@@ -560,7 +632,8 @@ function wire() {
     state.embedder = e.target.value;
     try {
       setProgress("ingest", "Re-embedding stored passages", NaN);
-      const vecs = await embed(state.chunks.map((c) => c.text), false);
+      const norm = await getNormalizer();
+      const vecs = await embed(state.chunks.map((c) => (c.indexText ??= norm.text(c.text))), false);
       state.chunks.forEach((c, i) => { c.vec = vecs[i]; });
       for (const b of state.books) await db.saveBook(state.db, b, state.byBook.get(b.bookId) || []);
       await db.put(state.db, "meta", { k: "embedder", v: state.embedder });
@@ -640,7 +713,7 @@ async function main() {
 
 // Data and API hooks for the interface layer (compare, roles, outliers, manifest).
 globalThis.ScriptureRAG = {
-  core, ia, lib, state,
+  core, ia, lib, rag, state,
   async setRole(bookId, role) {
     if (!lib.ROLES.includes(role)) throw new Error("Unknown role");
     const b = state.books.find((x) => x.bookId === bookId);
