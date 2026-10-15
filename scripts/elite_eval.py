@@ -529,7 +529,8 @@ def main() -> None:
     steps.append(res)
     out = {"items": len(items), "dropped": [d["id"] for d in dropped], "language_detection_accuracy": lang_acc,
            "final_config": cfg.__dict__, "final_policy": res["policy"], "steps": steps, "final_rows": best_rows}
-    (EVAL / "ablation.json").write_text(json.dumps(out, indent=2, ensure_ascii=False, default=_jsonable), encoding="utf-8")
+    text = json.dumps(out, indent=2, ensure_ascii=False, default=_jsonable)
+    (EVAL / "ablation.json").write_text(text, encoding="utf-8")
     print("FINAL", cfg.label(), res["policy"], flush=True)
 
 
