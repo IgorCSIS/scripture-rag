@@ -1,0 +1,11 @@
+{
+  "outliers": 0.52,
+  "auto_tags": 0.7,
+  "manifest_csv": 0.43,
+  "role_scoped_answer": 0.78,
+  "compare_by_tradition": 0.9,
+  "filterHits": 1.22,
+  "clusterHits": 1.81,
+  "rankRelated": 0.97,
+  "book_selector": 0.78
+}

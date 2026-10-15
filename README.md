@@ -147,14 +147,21 @@ n = chunks, d = embedding dim, k = candidates, K = clusters, i = iterations, L =
 
 | Operation | Time | Measured slope |
 |---|---|---|
-| Chunking | O(N) | 0.95 |
-| Brute-force search | O(n d + n log k) | 0.92 |
-| HNSW search | about O(d log n) | 0.42 |
+| Chunking | O(N) | 1.06 |
+| Brute-force search | O(n d + n log k) | 0.85 |
+| HNSW search | about O(d log n) | 0.39 |
 | BM25 query | O(postings), O(n q) in rank_bm25 | 1.15 |
 | RRF | O(k log k) | |
 | Cross-encoder rerank | O(k (q+L)^2 d) | |
-| k-means | O(n K i d) | 0.63 |
-| PCA to 2D | O(n d^2) | -0.04 (solver switching, see docs) |
+| k-means | O(n K i d) | 0.65 |
+| PCA to 2D | O(n d^2) | -0.07 (solver switching, see docs) |
+| Outliers (z-score) | O(n d) | 0.52 |
+| Role-scoped answer | O(n_s) | 0.78 |
+| Compare by tradition | O(G n_g) | 0.90 |
+| filterHits | O(r) | 1.22 |
+| clusterHits | O(r^2 d) silhouette | 1.81 |
+| rankRelated | O(r d + r log r) | 0.97 |
+| Book selector (selectBooks) | O(B + s) | 0.78 |
 
 <p align="center"><img src="docs/benchmarks/overview.png" alt="Runtime vs n, log-log" width="560"></p>
 
@@ -217,30 +224,39 @@ Two Internet Archive books (KJV 1611 reprint, Rodwell Koran), `multilingual-e5-s
 
 | Stage | n=500 | 1,000 | 2,000 | 4,000 | 8,000 |
 |---|---|---|---|---|---|
-| Outliers | 14.57 | 23.27 | 15.90 | 19.09 | 62.57 |
-| Auto-tags | 0.16 | 0.07 | 0.12 | 0.24 | 0.53 |
-| Manifest CSV | 0.06 | 0.12 | 0.08 | 0.16 | 0.32 |
-| Role-scoped answer | 13.77 | 11.37 | 23.40 | 24.84 | 89.91 |
-| Compare by tradition | 22.92 | 23.48 | 24.97 | 34.66 | 137.83 |
+| Outliers (z-score) | 6.83 | 11.52 | 7.31 | 14.85 | 36.01 |
+| Book auto-tags | 0.10 | 0.07 | 0.12 | 0.50 | 0.40 |
+| Manifest CSV | 0.08 | 0.11 | 0.08 | 0.16 | 0.28 |
+| Role-scoped answer | 4.23 | 4.45 | 8.16 | 16.37 | 32.78 |
+| Compare by tradition | 6.16 | 9.60 | 14.04 | 34.31 | 74.67 |
 
 <p align="center"><img src="docs/benchmarks/library_stages.png" width="410" alt="Library stages"> <img src="docs/benchmarks/browser_ann.png" width="410" alt="Browser ANN"></p>
 
-> **TODO (benchmarks worker):** no measured benchmark yet for the IA panel stages (`filterHits`, `clusterHits`, `rankRelated`). Their predicted costs are in [docs/COMPLEXITY.md](docs/COMPLEXITY.md#internet-archive-panel-filters-book-selector-result-clustering). Embed the graph here once `docs/benchmarks/` has it.
+IA panel stages, ms by r hits:
+
+| Stage | r=25 | 50 | 100 | 200 | 400 | Slope |
+|---|---|---|---|---|---|---|
+| filterHits | 0.005 | 0.011 | 0.042 | 0.127 | 0.106 | 1.22 |
+| clusterHits | 13.133 | 32.446 | 121.617 | 464.163 | 1810.689 | 1.81 |
+| rankRelated | 0.020 | 0.039 | 0.072 | 0.161 | 0.281 | 0.97 |
+| Book selector (selectBooks) | 0.003 | 0.006 | 0.007 | 0.014 | 0.031 | 0.78 |
+
+<p align="center"><img src="docs/benchmarks/ia_stages.png" width="560" alt="IA panel stages"></p>
 
 Server-side vector store comparison (NumPy, FAISS Flat/HNSW/IVF, LanceDB, Chroma): [docs/VECTOR_DB.md](docs/VECTOR_DB.md), raw data in [docs/benchmarks/vectordb.json](docs/benchmarks/vectordb.json).
 
 ### Final scorecard
 
-> **PLACEHOLDER, owned by the eval worker. Do not fill by hand.** Values come from the final run of the full gold set in [docs/eval/eval_set.jsonl](docs/eval/eval_set.jsonl).
+From the strict tune / held-out run of [docs/eval/eval_set.jsonl](docs/eval/eval_set.jsonl). Full before/after and per-configuration tables: [docs/eval/SCORECARD.md](docs/eval/SCORECARD.md).
 
 | Metric | Value |
 |---|---|
-| Items | `TBD (eval worker)` |
-| Recall@10 hybrid + rerank | `TBD (eval worker)` |
-| Answer accuracy (en / pt / es) | `TBD (eval worker)` |
-| Citation validity | `TBD (eval worker)` |
-| Refusal recall / precision | `TBD (eval worker)` |
-| Latency p50 / p95 | `TBD (eval worker)` |
+| Items | 245 scored (109 tune, 136 held-out); numbers below are held-out |
+| Recall@10 hybrid + rerank | not reported by the ablation; accuracy is graded on cited evidence instead |
+| Answer accuracy (en / pt / es) | 0.758 (0.815 / 0.529 / 0.769); target 0.90, not met |
+| Citation validity | 1.0 |
+| Refusal recall / precision | 0.933 / 0.696; 2 adversarial answered, 11 wrong-evidence answers |
+| Latency p50 / p95 | 1,972 ms p50 end to end on CPU (first stress run); the ablation reuses cached model outputs, so it does not time stages; p95 not recorded |
 
 ## Limitations
 

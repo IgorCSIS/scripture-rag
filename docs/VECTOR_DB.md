@@ -63,10 +63,10 @@ ships a small dependency-free HNSW (`site/js/ann.js`, M 16, efConstruction 100, 
 
 | n | brute p50 ms | HNSW p50 ms | HNSW build s | recall@10 |
 |---|---|---|---|---|
-| 1,000 | 0.63 | 0.42 | 1.0 | 1.000 |
-| 5,000 | 3.10 | 0.27 | 3.9 | 0.850 |
-| 20,000 | 15.42 | 0.78 | 20.8 | 0.794 |
-| 50,000 | 47.02 | 1.29 | 73.3 | 0.942 |
+| 1,000 | 0.95 | 0.64 | 1.2 | 1.000 |
+| 5,000 | 3.01 | 0.26 | 4.5 | 0.850 |
+| 20,000 | 13.42 | 0.69 | 18.6 | 0.794 |
+| 50,000 | 47.26 | 1.33 | 70.0 | 0.942 |
 
 Graph: `docs/benchmarks/browser_ann.png`. The build is incremental and lazy (first query after a large import),
 and its cost is paid once per session. Recall below 1 is acceptable here because the 50 dense candidates are fused
