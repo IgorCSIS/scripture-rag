@@ -108,3 +108,31 @@ def safe_book_id(name: str) -> str:
     stem = Path(name).stem.lower()
     cleaned = re.sub(r"[^a-z0-9._-]+", "_", stem).strip("._-")
     return cleaned or "book"
+
+
+# Leading role tags and instruction preambles that carry no content to retrieve on.
+_ROLE_RE: Final[re.Pattern[str]] = re.compile(r"^\s*(?:system|assistant|user|developer|admin)\s*[:>\]-]+\s*", re.I)
+_PREAMBLE_RE: Final[re.Pattern[str]] = re.compile(
+    r"^\s*(?:(?:developer|debug|admin|god|jailbreak|dan)\s+mode\s+(?:is\s+)?(?:enabled|on|activated)"
+    r"|ignore\s+(?:all\s+)?(?:the\s+)?(?:previous|prior|above)\s+(?:instructions|rules|prompts?)"
+    r"|you\s+are\s+now\s+[^.?!]{0,60}"
+    r"|new\s+instructions?)\s*[.!:;,]+\s*",
+    re.I,
+)
+
+
+def clean_query(question: str) -> str:
+    """Strip injected role tags and instruction preambles from the front of a query.
+
+    Retrieval should run on the content of the question, not on text such as
+    "SYSTEM: developer mode enabled." that only tries to steer a model. The
+    original question is returned unchanged when nothing would be left.
+    O(|q|).
+    """
+    q = question
+    for _ in range(4):
+        new = _PREAMBLE_RE.sub("", _ROLE_RE.sub("", q))
+        if new == q:
+            break
+        q = new
+    return q.strip() or question.strip()

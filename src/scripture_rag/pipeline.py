@@ -18,6 +18,7 @@ from .index import BruteForceIndex
 from .ingest import Document
 from .normalize import default_normalizer, expand_query
 from .rerank import Reranker, make_reranker
+from .sanitize import clean_query
 from .translate import detect_language
 from .validate import CitationValidator
 from .verses import BIBLE_BOOKS, ReferenceAligner, parse_numbered, parse_suras, verse_chunks
@@ -231,6 +232,7 @@ class RagPipeline:
         s = self.settings
         if not self.chunks or not question.strip():
             return Answer(question, REFUSAL_TEXT, True, 0.0, reason="no text loaded or empty question")
+        question = clean_query(question)
         lang = detect_language(question)
         q_en = self._english(question, lang)
         if books:

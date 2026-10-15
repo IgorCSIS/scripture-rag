@@ -42,6 +42,7 @@ from scripture_rag.chunker import Chunk, Chunker  # noqa: E402
 from scripture_rag.gate import IdfTable, support  # noqa: E402
 from scripture_rag.ingest import Document  # noqa: E402
 from scripture_rag.normalize import default_normalizer, expand_query  # noqa: E402
+from scripture_rag.sanitize import clean_query  # noqa: E402
 from scripture_rag.translate import detect_language  # noqa: E402
 from scripture_rag.verses import BIBLE_BOOKS, ReferenceAligner, Verse, parse_numbered, parse_suras, verse_chunks  # noqa: E402
 
@@ -320,7 +321,7 @@ def run_config(cfg: Config, corpus: Corpus, items: list[dict[str, Any]], models:
     mat = cache[mkey]
     out = []
     for it in items:
-        q = it["question"]
+        q = clean_query(it["question"])
         lang = detect_language(q)
         t0 = time.perf_counter()
         q_en = models.translate(q) if cfg.translate and lang != "en" else q
