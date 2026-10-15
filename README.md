@@ -44,7 +44,7 @@ Load public-domain books (PDF or TXT, including Internet Archive downloads), ask
 - **Query preparation.** `clean_query` tidies the raw question, the language is detected (English and Spanish are supported; a Portuguese question gets a "not supported yet, ask in English or Spanish" notice), Spanish questions are translated to English with MarianMT, then archaic normalization and query expansion are applied.
 - **Hybrid retrieval.** BM25 (exact words, names, verse references; run on both the translated and the original query) and `multilingual-e5-small` embeddings (meaning, cross-language) each return candidates; weighted Reciprocal Rank Fusion merges the rankings without score calibration. The `mmarco-mMiniLMv2-L12-H384-v1` cross-encoder reranks the top 50 fused candidates, and the top 3 passages that pass both gates are quoted.
 - **Two gates.** The best reranked passage must clear a per-language threshold (en 0.12, es 0.16) and have lexical support of at least 0.3 against the question; otherwise the app refuses. Values and how they were chosen: [docs/eval/SCORECARD.md](docs/eval/SCORECARD.md).
-- **Browser and Python parity.** The browser pipeline (`site/js/rag.js`) and the Python one make identical answer/refuse decisions and citations on the eval set when fed the same model outputs ([docs/eval/parity.json](docs/eval/parity.json)); with the browser models themselves 246 of 248 decisions agree ([parity_models.json](docs/eval/parity_models.json)). Above 20,000 passages the browser switches from brute-force search to an HNSW index.
+- **Browser and Python parity.** The browser pipeline (`site/js/rag.js`) and the Python one make identical answer/refuse decisions and citations on the eval set when fed the same model outputs ([docs/eval/parity.json](docs/eval/parity.json)); with the browser models themselves 248 of 248 decisions agree ([parity_models.json](docs/eval/parity_models.json)). Above 20,000 passages the browser switches from brute-force search to an HNSW index.
 - **History.** Every question, answer and citation is stored in IndexedDB (`scripture-rag` database) with search, re-open, export/import JSON and clear all. Nothing leaves the browser.
 - **Theme map.** k-means (K by silhouette) on passage embeddings, PCA to 2D, class-based TF-IDF labels. Re-clusters when books change; click a point for nearest passages from other books.
 - **Compare mode.** Asks the same question once per group (tradition by default, or per book or role); each group's answer cites only its own books and can refuse independently.
@@ -255,17 +255,17 @@ Server-side vector store comparison (NumPy, FAISS Flat/HNSW/IVF, LanceDB, Chroma
 
 ### Final scorecard
 
-From the strict tune / held-out run of [docs/eval/eval_set.jsonl](docs/eval/eval_set.jsonl), shipped configuration, copied from [docs/eval/SCORECARD.md](docs/eval/SCORECARD.md) at commit f05db61. Tuning used the tune split and a synthetic dev set. The shipped gate is the round 1 policy, restored after the round 2 held-out result was seen, so these held-out numbers are not an untouched estimate (details in the scorecard).
+From the strict tune / held-out run of [docs/eval/eval_set.jsonl](docs/eval/eval_set.jsonl), shipped configuration, copied from [docs/eval/SCORECARD.md](docs/eval/SCORECARD.md) at commit df4a640. Tuning used the tune split and a synthetic dev set. The shipped gate is the round 1 policy, restored after the round 2 held-out result was seen, and Portuguese was then removed for launch; held-out was re-scored once on English and Spanish items only, so these numbers are not an untouched estimate (details in the scorecard).
 
 | Metric | Value |
 |---|---|
-| Items | 245 scored (109 tune, 136 held-out); numbers below are held-out |
-| Answer accuracy (en / pt / es) | 0.789 (0.862 / 0.471 / 0.846); target 0.90, not met |
+| Items | English and Spanish: 96 tune, 114 held-out (Portuguese items excluded); numbers below are held-out |
+| Answer accuracy (en / es) | 0.859 (0.862 / 0.846); target 0.90, not met |
 | Citation validity | 1.0 (extractive quotes, valid by construction) |
-| Refusal recall / precision | 0.900 / 0.707; 3 adversarial answered, 12 unsupported answers (incl. adversarial); injection pass 1.000 |
+| Refusal recall / precision | 0.885 / 0.833; 3 adversarial answered, 10 unsupported answers (incl. adversarial); injection pass 1.000 |
 | Retrieval recall | not reported; accuracy is graded on cited evidence instead |
-| Browser parity | Python model outputs: 248/248 decisions and citations (eval), 175/175 (dev); browser models (transformers.js in Node): 246/248 decisions ([parity_models.json](docs/eval/parity_models.json)) |
-| Browser stage latency, median | translate 0 ms, retrieve 26 ms, rerank 2,078 ms (browser models in Node, [parity_models.json](docs/eval/parity_models.json)) |
+| Browser parity | Python model outputs: 248/248 decisions and citations (eval), 175/175 (dev); browser models (transformers.js in Node): 248/248 decisions, 242/248 identical quoted contexts ([parity_models.json](docs/eval/parity_models.json)) |
+| Browser stage latency, median | translate 0 ms, retrieve 26 ms, rerank 1,892 ms (browser models in Node, [parity_models.json](docs/eval/parity_models.json)) |
 
 ## Limitations
 
