@@ -86,7 +86,8 @@ def complexity():
         save(fig, name)
     fig, ax = plt.subplots(figsize=(9, 5))
     for i, (name, secs) in enumerate(r["seconds"].items()):
-        ax.plot(n, np.asarray(secs) * 1000, "o-", color=COLORS[i], label=f"{TITLES[name]} (slope {r['loglog_slopes'][name]:.2f})")
+        lab = f"{TITLES[name]} (slope {r['loglog_slopes'][name]:.2f})"
+        ax.plot(n, np.asarray(secs) * 1000, "o-", color=COLORS[i], label=lab)
     loglog_axes(ax, n)
     ax.set_xlabel("n (chunks; characters for chunking)")
     ax.set_ylabel("median latency (ms)")
@@ -100,7 +101,8 @@ def library():
     slopes = {}
     for key, sub, xl, title in [
         ("library_stages", d, "n (passages, 8 books)", "Browser library stages, log-log"),
-        ("ia_stages", d["ia"], "r (search hits; B = r books for the selector)", "Internet Archive panel stages, log-log"),
+        ("ia_stages", d["ia"], "r (search hits; B = r books for the selector)",
+         "Internet Archive panel stages, log-log"),
     ]:
         n = np.asarray(sub["sizes"], float)
         fig, ax = plt.subplots(figsize=(9, 4.8))
