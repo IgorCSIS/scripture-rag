@@ -162,7 +162,7 @@ class RagPipeline:
                 ref = parse_numbered(open(self.settings.reference_path, encoding="utf-8").read(), BIBLE_BOOKS)
                 self._aligner = ReferenceAligner(ref, default_normalizer())
             verses = self._aligner.align(doc)
-            if len(verses) < 0.2 * max(1, len(text.split()) // 30):
+            if len(verses) < max(50, 0.2 * max(1, len(text.split()) // 30)):
                 verses = []  # not this work: alignment found too little
         if not verses:
             return self.chunker.split(doc)

@@ -201,7 +201,8 @@ class ReferenceAligner:
         """Best reference index and its score in [0, 1] for one sentence."""
         text = self.norm.text(sentence) if self.norm else sentence
         terms = set(tokenize(text))
-        known = [t for t in terms if t in self.idf]
+        # Sorted so ties and float sums do not depend on set order (the browser port matches this).
+        known = sorted(t for t in terms if t in self.idf)
         denom = sum(self.idf[t] for t in known) or 1.0
         acc: dict[int, float] = defaultdict(float)
         for t in known:
@@ -256,7 +257,7 @@ class ReferenceAligner:
 
     def contained(self, i: int, terms: set[str]) -> bool:
         """True when most of reference verse ``i`` (IDF weighted) is in ``terms``."""
-        vt = [t for t in set(tokenize(self.ref[i].text)) if t in self.idf]
+        vt = sorted(t for t in set(tokenize(self.ref[i].text)) if t in self.idf)
         total = sum(self.idf[t] for t in vt)
         return total > 0 and sum(self.idf[t] for t in vt if t in terms) / total >= 0.7
 

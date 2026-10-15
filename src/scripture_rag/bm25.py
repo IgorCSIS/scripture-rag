@@ -18,8 +18,9 @@ class BM25Index:
     enough that this is acceptable for the MVP.
     """
 
-    def __init__(self) -> None:
-        """Create an empty index."""
+    def __init__(self, k1: float = 1.5, b: float = 0.75) -> None:
+        """Create an empty index with BM25 parameters ``k1`` and ``b``."""
+        self.k1, self.b = k1, b
         self._ids: list[str] = []
         self._corpus: list[list[str]] = []
         self._bm25: BM25Okapi | None = None
@@ -44,7 +45,7 @@ class BM25Index:
         """
         self._ids.extend(ids)
         self._corpus.extend(tokenize(t) or ["_empty_"] for t in texts)
-        self._bm25 = BM25Okapi(self._corpus)
+        self._bm25 = BM25Okapi(self._corpus, k1=self.k1, b=self.b)
 
     def search(self, query: str, k: int) -> list[tuple[str, float]]:
         """Top-k chunks by BM25 score; zero-score hits are dropped.

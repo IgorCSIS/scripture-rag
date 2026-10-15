@@ -70,7 +70,10 @@ def top_k(scores: np.ndarray, k: int) -> np.ndarray:
     k = min(k, scores.shape[0])
     if k <= 0:
         return np.empty(0, dtype=np.int64)
-    part = np.argpartition(-scores, k - 1)[:k]
+    # Ties at the cut go to the lower index so the browser port (site/js/rag.js) picks the same items.
+    kth = -np.partition(-scores, k - 1)[k - 1]
+    above = np.flatnonzero(scores > kth)
+    part = np.concatenate([above, np.flatnonzero(scores == kth)[: k - len(above)]])
     return part[np.argsort(-scores[part], kind="stable")]
 
 
