@@ -13,6 +13,8 @@
 ![Coverage](https://img.shields.io/badge/coverage-89%25-0ca678)
 ![Offline first](https://img.shields.io/badge/offline-first-495057)
 
+[![Live demo](https://img.shields.io/badge/live%20demo-open%20the%20app-3b5bdb?style=for-the-badge)](https://igorcsis.github.io/scripture-rag/)
+
 [Quick start](#quick-start) | [Diagrams](#diagrams) | [How it works](#how-it-works) | [Measured results](#measured-results) | [Theme map](#unsupervised-theme-map) | [Complexity](#big-o-summary) | [Docs](#documentation)
 
 </div>
@@ -53,6 +55,8 @@ Load public-domain books (PDF or TXT, including Internet Archive downloads), ask
 - **Library manifest.** One row per loaded book: id, title, role, tradition, date, source URL, license status, pages, passages, added date; export to CSV or JSON for audit.
 
 ## Quick start
+
+**Try it live:** [igorcsis.github.io/scripture-rag](https://igorcsis.github.io/scripture-rag/) runs entirely in your browser, no install needed.
 
 ### Windows (PowerShell)
 
