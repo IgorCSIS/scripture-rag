@@ -1,0 +1,41 @@
+{
+  "chunks": {
+    "python": 6538,
+    "browser": 6538,
+    "identical": 6538,
+    "per_book": {
+      "kjv_1611": {
+        "python": 3124,
+        "browser": 3124,
+        "identical": 3124
+      },
+      "koran_rodwell": {
+        "python": 3413,
+        "browser": 3413,
+        "identical": 3413
+      },
+      "injection_test": {
+        "python": 1,
+        "browser": 1,
+        "identical": 1
+      }
+    }
+  },
+  "index_texts": {
+    "n": 6538,
+    "identical": 6538
+  },
+  "sets": {
+    "eval": {
+      "n": 248,
+      "decision_agree": 248,
+      "context_agree": 248,
+      "top_agree": 248,
+      "lang_agree": 248,
+      "missing_scores": 0,
+      "max_score_diff": 0,
+      "max_support_diff": 2.220446049250313e-16,
+      "disagreements": []
+    }
+  }
+}

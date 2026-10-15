@@ -1,0 +1,220 @@
+{
+  "set": "eval",
+  "n": 248,
+  "models": {
+    "embed": {
+      "id": "Xenova/multilingual-e5-small",
+      "dtype": "fp32"
+    },
+    "rerank": {
+      "id": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1",
+      "dtype": "fp32",
+      "file": "model"
+    },
+    "translate": {
+      "id": "Xenova/opus-mt-ROMANCE-en",
+      "dtype": "fp32",
+      "generate": {
+        "max_new_tokens": 96,
+        "num_beams": 4
+      }
+    }
+  },
+  "passage_cosine_min": 0.9604619693153209,
+  "decision_agree": 246,
+  "context_agree": 238,
+  "translation_identical": 50,
+  "translated": 69,
+  "by_split": {
+    "tune": {
+      "n": 110,
+      "agree": 110
+    },
+    "heldout": {
+      "n": 138,
+      "agree": 136
+    }
+  },
+  "disagreements": [
+    {
+      "id": "S038",
+      "python_answered": true,
+      "browser_answered": true,
+      "python": [
+        "koran_rodwell-0939",
+        "koran_rodwell-0938",
+        "koran_rodwell-n0677"
+      ],
+      "browser": [
+        "koran_rodwell-0939"
+      ],
+      "q_en_python": "What did Lokman advise your son?",
+      "q_en_browser": "What did Lokman take away from your son?",
+      "top_browser": 0.8205416726214508,
+      "top_python": 0.997768516583753
+    },
+    {
+      "id": "S039",
+      "python_answered": true,
+      "browser_answered": true,
+      "python": [
+        "kjv_1611-0146",
+        "kjv_1611-0142",
+        "kjv_1611-0143"
+      ],
+      "browser": [
+        "kjv_1611-0146",
+        "kjv_1611-0142",
+        "kjv_1611-0147"
+      ],
+      "q_en_python": "What did Cain answer when the Lord asked him about his brother Abel?",
+      "q_en_browser": "What did Cain answer when the Lord asked him about his brother, the abseil?",
+      "top_browser": 0.9935090310718107,
+      "top_python": 0.9999449772468422
+    },
+    {
+      "id": "S044",
+      "python_answered": true,
+      "browser_answered": true,
+      "python": [
+        "koran_rodwell-0186",
+        "koran_rodwell-n0250",
+        "koran_rodwell-n0225"
+      ],
+      "browser": [
+        "koran_rodwell-0186",
+        "koran_rodwell-n0250",
+        "koran_rodwell-0217"
+      ],
+      "q_en_python": "What became of Moses' staff when he threw it away?",
+      "q_en_browser": "What did Moses' staff become when he threw it away?",
+      "top_browser": 0.8743232300960497,
+      "top_python": 0.955531433597033
+    },
+    {
+      "id": "P11",
+      "python_answered": true,
+      "browser_answered": false,
+      "python": [
+        "koran_rodwell-0150",
+        "koran_rodwell-n0201"
+      ],
+      "browser": [],
+      "q_en_python": "What happened to Jonas when he ran off to the loaded ship?",
+      "q_en_browser": "What happened to the Jasons when you ran off to the loaded ship?",
+      "top_browser": 0.05582305317052007,
+      "top_python": 0.9625411247931245
+    },
+    {
+      "id": "P12",
+      "python_answered": true,
+      "browser_answered": true,
+      "python": [
+        "koran_rodwell-0537",
+        "koran_rodwell-n0745",
+        "koran_rodwell-1062"
+      ],
+      "browser": [
+        "koran_rodwell-n0875",
+        "koran_rodwell-n0874",
+        "koran_rodwell-0207"
+      ],
+      "q_en_python": "Who refused to prostrate before Adam?",
+      "q_en_browser": "Who refused to bow down before Adam?",
+      "top_browser": 0.9740754394504951,
+      "top_python": 0.917484367064892
+    },
+    {
+      "id": "P14",
+      "python_answered": true,
+      "browser_answered": false,
+      "python": [
+        "koran_rodwell-n0431",
+        "koran_rodwell-0493"
+      ],
+      "browser": [],
+      "q_en_python": "Which bird was absent when Solomon reviewed the birds?",
+      "q_en_browser": "Which bird was absent when Solomon passed the birds in magazine?",
+      "top_browser": 0.15557003946298315,
+      "top_python": 0.8802583572376883
+    },
+    {
+      "id": "E01",
+      "python_answered": true,
+      "browser_answered": true,
+      "python": [
+        "kjv_1611-0123",
+        "kjv_1611-0141",
+        "koran_rodwell-0870"
+      ],
+      "browser": [
+        "kjv_1611-0123",
+        "kjv_1611-0141"
+      ],
+      "q_en_python": "From what did the Lord God form man?",
+      "q_en_browser": "What did the Lord God train man for?",
+      "top_browser": 0.24051519547663,
+      "top_python": 0.9993728663218949
+    },
+    {
+      "id": "E04",
+      "python_answered": true,
+      "browser_answered": true,
+      "python": [
+        "kjv_1611-0339",
+        "kjv_1611-0341",
+        "kjv_1611-0338"
+      ],
+      "browser": [
+        "kjv_1611-0332",
+        "kjv_1611-0339"
+      ],
+      "q_en_python": "To whom did God tell Abraham to offer up a burnt offering?",
+      "q_en_browser": "To whom did God tell Abraham to offer in a holocaust?",
+      "top_browser": 0.9318921209440114,
+      "top_python": 0.9976221251507151
+    },
+    {
+      "id": "E07",
+      "python_answered": true,
+      "browser_answered": true,
+      "python": [
+        "kjv_1611-0797",
+        "kjv_1611-0796",
+        "kjv_1611-2974"
+      ],
+      "browser": [
+        "kjv_1611-0797",
+        "kjv_1611-0796",
+        "koran_rodwell-n0227"
+      ],
+      "q_en_python": "In what did Moses' mother put the child on the river bank?",
+      "q_en_browser": "In what did Moses' mother put the child at the edge of the river?",
+      "top_browser": 0.8244335096991361,
+      "top_python": 0.7890786230254544
+    },
+    {
+      "id": "E17",
+      "python_answered": true,
+      "browser_answered": true,
+      "python": [
+        "koran_rodwell-n1273",
+        "koran_rodwell-1360"
+      ],
+      "browser": [
+        "koran_rodwell-n1273",
+        "koran_rodwell-1982",
+        "koran_rodwell-1360"
+      ],
+      "q_en_python": "Where were believers ordered to turn their faces in prayer?",
+      "q_en_browser": "Where did believers be commanded to turn their faces in prayer?",
+      "top_browser": 0.5357306042424821,
+      "top_python": 0.29553680890437334
+    }
+  ],
+  "median_ms": {
+    "translate": 0,
+    "retrieve": 30,
+    "rerank": 2025
+  }
+}

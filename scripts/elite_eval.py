@@ -53,6 +53,9 @@ REF_URL = "https://www.gutenberg.org/cache/epub/10/pg10.txt"
 REF_PATH = Path("data/ref/kjv_pg10.txt")
 LANGS = ("en", "pt", "es")
 REFUSE_TYPES = {"adversarial"}
+# Splits used for every choice: the tune split plus the synthetic dev set (scripts/build_dev_set.py).
+SELECT = ("tune", "dev")
+SHOW_HELDOUT = False  # set by --final; held-out is scored once, on the final configuration
 
 
 def norm(t: str) -> str:
@@ -291,12 +294,17 @@ class Config:
     candidates: int = 30
     bm25_original: bool = False
     rerankers: tuple[str, ...] = ()
+    bm25_k1: float = 1.5
+    bm25_b: float = 0.75
+    rrf_k: int = 60
 
     def label(self) -> str:
         return (f"{self.chunking}|norm={int(self.normalize)}|mt={int(self.translate)}|exp={int(self.expand)}|"
                 f"{self.embedder.split('/')[-1]}|w={self.dense_weight}|"
                 + "+".join(r.split('/')[-1] for r in (self.rerankers or (self.reranker,)))
-                + f"|k={self.candidates}|bmo={int(self.bm25_original)}")
+                + f"|k={self.candidates}|bmo={int(self.bm25_original)}"
+                + ("" if (self.bm25_k1, self.bm25_b, self.rrf_k) == (1.5, 0.75, 60)
+                   else f"|bm25={self.bm25_k1},{self.bm25_b}|rrf={self.rrf_k}"))
 
 
 def wrrf(lists: list[tuple[list[int], float]], k: int = 60) -> list[int]:
@@ -310,16 +318,17 @@ def wrrf(lists: list[tuple[list[int], float]], k: int = 60) -> list[int]:
 def run_config(cfg: Config, corpus: Corpus, items: list[dict[str, Any]], models: Models,
                cache: dict[str, Any]) -> list[dict[str, Any]]:
     """Per item: ranked (chunk index, rerank score, support) and stage timings."""
-    key = (cfg.chunking, cfg.normalize)
+    key = (cfg.chunking, cfg.normalize, cfg.bm25_k1, cfg.bm25_b)
     if key not in cache:
         chunks = corpus.chunks(cfg.chunking)
         normz = default_normalizer()
-        index_texts = [normz.text(c.text) if cfg.normalize and c.book_id == "kjv_1611" else c.text for c in chunks]
-        bm = BM25Index()
+        # Every book is normalized, as in RagPipeline and the browser (site/js/rag.js).
+        index_texts = [normz.text(c.text) if cfg.normalize else c.text for c in chunks]
+        bm = BM25Index(cfg.bm25_k1, cfg.bm25_b)
         bm.add([str(i) for i in range(len(chunks))], index_texts)
         cache[key] = (chunks, index_texts, bm, IdfTable(index_texts))
     chunks, index_texts, bm, idf = cache[key]
-    mkey = (key, cfg.embedder)
+    mkey = ((cfg.chunking, cfg.normalize), cfg.embedder)
     if mkey not in cache:
         cache[mkey] = models.passages(cfg.embedder, index_texts)
     mat = cache[mkey]
@@ -336,10 +345,10 @@ def run_config(cfg: Config, corpus: Corpus, items: list[dict[str, Any]], models:
         lists.append((bm_ids, 1 - cfg.dense_weight))
         if cfg.bm25_original and q_en != q:
             lists.append(([int(i) for i, _ in bm.search(q, cfg.candidates)], 1 - cfg.dense_weight))
-        for qq in {q, q_en}:
-            sims = mat @ models.query(cfg.embedder, qq)
-            lists.append((list(np.argsort(-sims)[: cfg.candidates]), cfg.dense_weight))
-        cand = wrrf(lists)[: cfg.candidates]
+        for qq in dict.fromkeys([q, q_en]):
+            sims = mat.astype(np.float64) @ models.query(cfg.embedder, qq).astype(np.float64)
+            lists.append(([int(i) for i in np.argsort(-sims, kind="stable")[: cfg.candidates]], cfg.dense_weight))
+        cand = wrrf(lists, cfg.rrf_k)[: cfg.candidates]
         t2 = time.perf_counter()
         texts = [chunks[i].text for i in cand]
         per = [models.rerank(m, q_en, texts) for m in (cfg.rerankers or (cfg.reranker,))]
@@ -347,7 +356,7 @@ def run_config(cfg: Config, corpus: Corpus, items: list[dict[str, Any]], models:
         t3 = time.perf_counter()
         order = sorted(range(len(cand)), key=lambda j: -scores[j])[:5]
         ranked = [(cand[j], float(scores[j]), support(q_en, index_texts[cand[j]], idf)) for j in order]
-        out.append({"lang": lang, "q_en": q_en, "ranked": ranked,
+        out.append({"lang": lang, "q_en": q_en, "ranked": ranked, "cand_texts": texts,
                     "t_translate": t1 - t0, "t_retrieve": t2 - t1, "t_rerank": t3 - t2})
     models.save()
     return out
@@ -428,7 +437,7 @@ SUP_GRID = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
 
 def tune(items, runs, chunks, snippets, per_lang: bool, use_support: bool) -> Policy:
     """Pick thresholds on the tune split only."""
-    tix = [k for k, it in enumerate(items) if it["split"] == "tune"]
+    tix = [k for k, it in enumerate(items) if it["split"] in SELECT]
     ti, tr = [items[k] for k in tix], [runs[k] for k in tix]
     best: tuple | None = None
     for s in SUP_GRID if use_support else [0.0]:
@@ -455,17 +464,21 @@ def tune(items, runs, chunks, snippets, per_lang: bool, use_support: bool) -> Po
 def evaluate(name: str, cfg: Config, corpus, items, models, cache, snippets, per_lang=False, use_support=False):
     t0 = time.perf_counter()
     runs = run_config(cfg, corpus, items, models, cache)
-    chunks = cache[(cfg.chunking, cfg.normalize)][0]
+    chunks = cache[(cfg.chunking, cfg.normalize, cfg.bm25_k1, cfg.bm25_b)][0]
     pol = tune(items, runs, chunks, snippets, per_lang, use_support)
     rows = grade(items, runs, chunks, pol, snippets)
     res = {"step": name, "config": cfg.label(), "policy": {"t": pol.t, "s_min": pol.s_min},
            "tune": card([r for r in rows if r["split"] == "tune"]),
-           "heldout": card([r for r in rows if r["split"] == "heldout"]),
+           "dev": card([r for r in rows if r["split"] == "dev"]),
+           "select": card([r for r in rows if r["split"] in SELECT]),
+           "heldout": card([r for r in rows if r["split"] == "heldout"]) if SHOW_HELDOUT else None,
            "stage_ms": {k: round(1000 * float(np.median([r[k] for r in runs])), 2)
                         for k in ("t_translate", "t_retrieve", "t_rerank")},
            "wall_s": round(time.perf_counter() - t0, 1)}
     print(json.dumps({k: res[k] for k in ("step", "config", "policy")}), flush=True)
-    print("   tune   ", res["tune"], "\n   heldout", res["heldout"], flush=True)
+    print("   tune   ", res["tune"], "\n   dev    ", res["dev"], flush=True)
+    if SHOW_HELDOUT:
+        print("   heldout", res["heldout"], flush=True)
     return res, rows, runs
 
 
@@ -477,8 +490,16 @@ def _jsonable(o: Any) -> Any:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--final", action="store_true", help="also score the held-out split (do this once)")
+    ap.add_argument("--no-dev", action="store_true", help="select on the tune split only")
     args = ap.parse_args()
+    global SHOW_HELDOUT, SELECT
+    SHOW_HELDOUT = args.final
+    if args.no_dev:
+        SELECT = ("tune",)
     items_all = [json.loads(x) for x in (EVAL / "eval_set.jsonl").read_text(encoding="utf-8").splitlines() if x]
+    if "dev" in SELECT:
+        items_all += [json.loads(x) for x in (EVAL / "dev_set.jsonl").read_text(encoding="utf-8").splitlines() if x]
     corpus = load()
     snippets = evidence_snippets(corpus)
     full = " ".join(norm(" ".join(d.pages)) for d in corpus.docs)
@@ -515,7 +536,7 @@ def main() -> None:
                              cache, snippets)
         emb_res[emb] = res
         steps.append(res)
-    best_emb = max(emb_res, key=lambda e: objective(emb_res[e]["tune"]))
+    best_emb = max(emb_res, key=lambda e: objective(emb_res[e]["select"]))
     cfg = replace(cfg, embedder=best_emb)
     w_res = {}
     for w in (0.0, 0.25, 0.5, 0.75, 1.0):
@@ -523,14 +544,14 @@ def main() -> None:
                              snippets)
         w_res[w] = res
         steps.append(res)
-    cfg = replace(cfg, dense_weight=max(w_res, key=lambda w: objective(w_res[w]["tune"])))
+    cfg = replace(cfg, dense_weight=max(w_res, key=lambda w: objective(w_res[w]["select"])))
     rr_res = {}
     for rr in ["cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"] + ([] if args.quick else ["BAAI/bge-reranker-v2-m3"]):
         res, _, _ = evaluate(f"A7 reranker {rr.split('/')[-1]}", replace(cfg, reranker=rr), corpus, items, models,
                              cache, snippets)
         rr_res[rr] = res
         steps.append(res)
-    cfg = replace(cfg, reranker=max(rr_res, key=lambda r: objective(rr_res[r]["tune"])))
+    cfg = replace(cfg, reranker=max(rr_res, key=lambda r: objective(rr_res[r]["select"])))
     res, _, _ = evaluate("A8 per-language thresholds", cfg, corpus, items, models, cache, snippets, per_lang=True)
     steps.append(res)
     res, best_rows, _runs = evaluate("A9 per-language thresholds + lexical support gate", cfg, corpus, items, models,
@@ -547,7 +568,7 @@ def main() -> None:
         r2, rows2, runs2 = evaluate(name, replace(cfg, **change), corpus, items, models, cache, snippets,
                                     per_lang=True, use_support=True)
         steps.append(r2)
-        if may_select and objective(r2["tune"]) >= objective(res["tune"]):
+        if may_select and objective(r2["select"]) >= objective(res["select"]):
             cfg, res, best_rows, _runs = replace(cfg, **change), r2, rows2, runs2
     out = {"items": len(items), "dropped": [d["id"] for d in dropped], "language_detection_accuracy": lang_acc,
            "final_config": cfg.__dict__,
