@@ -14,20 +14,23 @@
     "embedder": "intfloat/multilingual-e5-small",
     "dense_weight": 0.5,
     "reranker": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1",
-    "candidates": 30
+    "candidates": 50,
+    "bm25_original": true,
+    "rerankers": []
   },
+  "final_label": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1",
   "final_policy": {
     "t": {
-      "en": 0.36,
+      "en": 0.12,
       "pt": 0.72,
-      "es": 0.36
+      "es": 0.16
     },
     "s_min": 0.3
   },
   "steps": [
     {
       "step": "A0 baseline (window 200, raw, e5-small, mmarco, global threshold)",
-      "config": "window|norm=0|mt=0|exp=0|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1",
+      "config": "window|norm=0|mt=0|exp=0|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
       "policy": {
         "t": {
           "en": 0.76,
@@ -57,23 +60,23 @@
         "acc_pt": 0.353,
         "acc_es": 0.538,
         "refusal_recall": 1.0,
-        "refusal_precision": 0.596,
+        "refusal_precision": 0.589,
         "adversarial_answered": 0,
         "unsupported_answers": 9,
         "trick_pass": 1.0,
-        "injection_pass": 0.833,
-        "answered": 79
+        "injection_pass": 1.0,
+        "answered": 80
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 3.06,
-        "t_rerank": 0.08
+        "t_retrieve": 3.35,
+        "t_rerank": 0.22
       },
-      "wall_s": 2.4
+      "wall_s": 2.6
     },
     {
       "step": "A1 + verse-aware chunker",
-      "config": "verse|norm=0|mt=0|exp=0|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1",
+      "config": "verse|norm=0|mt=0|exp=0|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
       "policy": {
         "t": {
           "en": 0.88,
@@ -103,23 +106,23 @@
         "acc_pt": 0.353,
         "acc_es": 0.308,
         "refusal_recall": 1.0,
-        "refusal_precision": 0.514,
+        "refusal_precision": 0.507,
         "adversarial_answered": 0,
         "unsupported_answers": 5,
         "trick_pass": 1.0,
-        "injection_pass": 0.833,
-        "answered": 66
+        "injection_pass": 1.0,
+        "answered": 67
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 7.5,
-        "t_rerank": 0.09
+        "t_retrieve": 8.01,
+        "t_rerank": 0.24
       },
-      "wall_s": 3.3
+      "wall_s": 3.6
     },
     {
       "step": "A2 + archaic normalization",
-      "config": "verse|norm=1|mt=0|exp=0|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1",
+      "config": "verse|norm=1|mt=0|exp=0|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
       "policy": {
         "t": {
           "en": 0.88,
@@ -149,23 +152,23 @@
         "acc_pt": 0.353,
         "acc_es": 0.385,
         "refusal_recall": 1.0,
-        "refusal_precision": 0.507,
+        "refusal_precision": 0.5,
         "adversarial_answered": 0,
         "unsupported_answers": 4,
         "trick_pass": 1.0,
-        "injection_pass": 0.833,
-        "answered": 65
+        "injection_pass": 1.0,
+        "answered": 66
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 7.33,
-        "t_rerank": 0.09
+        "t_retrieve": 7.26,
+        "t_rerank": 0.23
       },
-      "wall_s": 3.4
+      "wall_s": 3.5
     },
     {
       "step": "A3 + PT/ES query translation",
-      "config": "verse|norm=1|mt=1|exp=0|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1",
+      "config": "verse|norm=1|mt=1|exp=0|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
       "policy": {
         "t": {
           "en": 0.82,
@@ -195,23 +198,23 @@
         "acc_pt": 0.588,
         "acc_es": 0.615,
         "refusal_recall": 1.0,
-        "refusal_precision": 0.548,
+        "refusal_precision": 0.541,
         "adversarial_answered": 0,
         "unsupported_answers": 4,
         "trick_pass": 1.0,
-        "injection_pass": 0.833,
-        "answered": 74
+        "injection_pass": 1.0,
+        "answered": 75
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 6.98,
-        "t_rerank": 0.09
+        "t_retrieve": 6.93,
+        "t_rerank": 0.22
       },
       "wall_s": 2.1
     },
     {
       "step": "A4 + archaic query expansion",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
       "policy": {
         "t": {
           "en": 0.82,
@@ -241,23 +244,23 @@
         "acc_pt": 0.588,
         "acc_es": 0.615,
         "refusal_recall": 1.0,
-        "refusal_precision": 0.548,
+        "refusal_precision": 0.541,
         "adversarial_answered": 0,
         "unsupported_answers": 4,
         "trick_pass": 1.0,
-        "injection_pass": 0.833,
-        "answered": 74
+        "injection_pass": 1.0,
+        "answered": 75
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 7.03,
-        "t_rerank": 0.09
+        "t_retrieve": 7.56,
+        "t_rerank": 0.22
       },
-      "wall_s": 2.2
+      "wall_s": 2.3
     },
     {
       "step": "A5 embedder multilingual-e5-small",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
       "policy": {
         "t": {
           "en": 0.82,
@@ -287,23 +290,23 @@
         "acc_pt": 0.588,
         "acc_es": 0.615,
         "refusal_recall": 1.0,
-        "refusal_precision": 0.548,
+        "refusal_precision": 0.541,
         "adversarial_answered": 0,
         "unsupported_answers": 4,
         "trick_pass": 1.0,
-        "injection_pass": 0.833,
-        "answered": 74
+        "injection_pass": 1.0,
+        "answered": 75
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 8.37,
-        "t_rerank": 0.1
+        "t_retrieve": 8.28,
+        "t_rerank": 0.26
       },
-      "wall_s": 2.5
+      "wall_s": 2.6
     },
     {
       "step": "A5 embedder multilingual-e5-base",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-base|w=0.5|mmarco-mMiniLMv2-L12-H384-v1",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-base|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
       "policy": {
         "t": {
           "en": 0.82,
@@ -333,69 +336,69 @@
         "acc_pt": 0.588,
         "acc_es": 0.615,
         "refusal_recall": 1.0,
-        "refusal_precision": 0.576,
+        "refusal_precision": 0.569,
         "adversarial_answered": 0,
         "unsupported_answers": 5,
         "trick_pass": 1.0,
-        "injection_pass": 0.833,
+        "injection_pass": 1.0,
+        "answered": 78
+      },
+      "stage_ms": {
+        "t_translate": 0.0,
+        "t_retrieve": 10.05,
+        "t_rerank": 0.29
+      },
+      "wall_s": 3.1
+    },
+    {
+      "step": "A6 dense weight 0.0",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.0|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
+      "policy": {
+        "t": {
+          "en": 0.82,
+          "pt": 0.82,
+          "es": 0.82
+        },
+        "s_min": 0.0
+      },
+      "tune": {
+        "n": 109,
+        "answer_accuracy": 0.569,
+        "acc_en": 0.625,
+        "acc_pt": 0.857,
+        "acc_es": 0.182,
+        "refusal_recall": 1.0,
+        "refusal_precision": 0.716,
+        "adversarial_answered": 0,
+        "unsupported_answers": 7,
+        "trick_pass": 0.833,
+        "injection_pass": 0.0,
+        "answered": 42
+      },
+      "heldout": {
+        "n": 136,
+        "answer_accuracy": 0.663,
+        "acc_en": 0.708,
+        "acc_pt": 0.529,
+        "acc_es": 0.615,
+        "refusal_recall": 1.0,
+        "refusal_precision": 0.559,
+        "adversarial_answered": 0,
+        "unsupported_answers": 6,
+        "trick_pass": 1.0,
+        "injection_pass": 1.0,
         "answered": 77
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 7.48,
-        "t_rerank": 0.1
+        "t_retrieve": 7.82,
+        "t_rerank": 0.23
       },
-      "wall_s": 10.9
-    },
-    {
-      "step": "A6 dense weight 0.0",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.0|mmarco-mMiniLMv2-L12-H384-v1",
-      "policy": {
-        "t": {
-          "en": 0.82,
-          "pt": 0.82,
-          "es": 0.82
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.569,
-        "acc_en": 0.625,
-        "acc_pt": 0.857,
-        "acc_es": 0.182,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.716,
-        "adversarial_answered": 0,
-        "unsupported_answers": 7,
-        "trick_pass": 0.833,
-        "injection_pass": 0.0,
-        "answered": 42
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.663,
-        "acc_en": 0.708,
-        "acc_pt": 0.529,
-        "acc_es": 0.615,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.567,
-        "adversarial_answered": 0,
-        "unsupported_answers": 6,
-        "trick_pass": 1.0,
-        "injection_pass": 0.833,
-        "answered": 76
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 7.24,
-        "t_rerank": 0.1
-      },
-      "wall_s": 2.2
+      "wall_s": 2.6
     },
     {
       "step": "A6 dense weight 0.25",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.25|mmarco-mMiniLMv2-L12-H384-v1",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.25|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
       "policy": {
         "t": {
           "en": 0.82,
@@ -425,23 +428,23 @@
         "acc_pt": 0.529,
         "acc_es": 0.615,
         "refusal_recall": 1.0,
-        "refusal_precision": 0.567,
+        "refusal_precision": 0.559,
         "adversarial_answered": 0,
         "unsupported_answers": 6,
         "trick_pass": 1.0,
-        "injection_pass": 0.833,
-        "answered": 76
+        "injection_pass": 1.0,
+        "answered": 77
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 7.1,
-        "t_rerank": 0.09
+        "t_retrieve": 7.51,
+        "t_rerank": 0.23
       },
-      "wall_s": 2.2
+      "wall_s": 2.4
     },
     {
       "step": "A6 dense weight 0.5",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
       "policy": {
         "t": {
           "en": 0.82,
@@ -471,23 +474,23 @@
         "acc_pt": 0.588,
         "acc_es": 0.615,
         "refusal_recall": 1.0,
-        "refusal_precision": 0.548,
+        "refusal_precision": 0.541,
         "adversarial_answered": 0,
         "unsupported_answers": 4,
         "trick_pass": 1.0,
-        "injection_pass": 0.833,
-        "answered": 74
+        "injection_pass": 1.0,
+        "answered": 75
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 7.12,
-        "t_rerank": 0.1
+        "t_retrieve": 7.73,
+        "t_rerank": 0.23
       },
-      "wall_s": 2.2
+      "wall_s": 2.4
     },
     {
       "step": "A6 dense weight 0.75",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.75|mmarco-mMiniLMv2-L12-H384-v1",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.75|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
       "policy": {
         "t": {
           "en": 0.82,
@@ -517,69 +520,69 @@
         "acc_pt": 0.588,
         "acc_es": 0.615,
         "refusal_recall": 1.0,
-        "refusal_precision": 0.547,
+        "refusal_precision": 0.54,
         "adversarial_answered": 0,
         "unsupported_answers": 4,
         "trick_pass": 1.0,
-        "injection_pass": 0.833,
+        "injection_pass": 1.0,
+        "answered": 73
+      },
+      "stage_ms": {
+        "t_translate": 0.0,
+        "t_retrieve": 7.94,
+        "t_rerank": 0.23
+      },
+      "wall_s": 2.4
+    },
+    {
+      "step": "A6 dense weight 1.0",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=1.0|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
+      "policy": {
+        "t": {
+          "en": 0.82,
+          "pt": 0.82,
+          "es": 0.82
+        },
+        "s_min": 0.0
+      },
+      "tune": {
+        "n": 109,
+        "answer_accuracy": 0.534,
+        "acc_en": 0.575,
+        "acc_pt": 0.857,
+        "acc_es": 0.182,
+        "refusal_recall": 1.0,
+        "refusal_precision": 0.676,
+        "adversarial_answered": 0,
+        "unsupported_answers": 4,
+        "trick_pass": 1.0,
+        "injection_pass": 0.0,
+        "answered": 38
+      },
+      "heldout": {
+        "n": 136,
+        "answer_accuracy": 0.653,
+        "acc_en": 0.677,
+        "acc_pt": 0.588,
+        "acc_es": 0.615,
+        "refusal_recall": 1.0,
+        "refusal_precision": 0.531,
+        "adversarial_answered": 0,
+        "unsupported_answers": 3,
+        "trick_pass": 1.0,
+        "injection_pass": 1.0,
         "answered": 72
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 7.26,
-        "t_rerank": 0.1
+        "t_retrieve": 7.54,
+        "t_rerank": 0.23
       },
-      "wall_s": 2.2
-    },
-    {
-      "step": "A6 dense weight 1.0",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=1.0|mmarco-mMiniLMv2-L12-H384-v1",
-      "policy": {
-        "t": {
-          "en": 0.82,
-          "pt": 0.82,
-          "es": 0.82
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.534,
-        "acc_en": 0.575,
-        "acc_pt": 0.857,
-        "acc_es": 0.182,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.676,
-        "adversarial_answered": 0,
-        "unsupported_answers": 4,
-        "trick_pass": 1.0,
-        "injection_pass": 0.0,
-        "answered": 38
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.653,
-        "acc_en": 0.677,
-        "acc_pt": 0.588,
-        "acc_es": 0.615,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.538,
-        "adversarial_answered": 0,
-        "unsupported_answers": 3,
-        "trick_pass": 1.0,
-        "injection_pass": 0.833,
-        "answered": 71
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 7.07,
-        "t_rerank": 0.1
-      },
-      "wall_s": 3.6
+      "wall_s": 2.3
     },
     {
       "step": "A7 reranker mmarco-mMiniLMv2-L12-H384-v1",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
       "policy": {
         "t": {
           "en": 0.82,
@@ -609,23 +612,23 @@
         "acc_pt": 0.588,
         "acc_es": 0.615,
         "refusal_recall": 1.0,
-        "refusal_precision": 0.548,
+        "refusal_precision": 0.541,
         "adversarial_answered": 0,
         "unsupported_answers": 4,
         "trick_pass": 1.0,
-        "injection_pass": 0.833,
-        "answered": 74
+        "injection_pass": 1.0,
+        "answered": 75
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 7.03,
-        "t_rerank": 0.09
+        "t_retrieve": 8.26,
+        "t_rerank": 0.22
       },
-      "wall_s": 2.1
+      "wall_s": 2.6
     },
     {
       "step": "A8 per-language thresholds",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
       "policy": {
         "t": {
           "en": 0.82,
@@ -655,23 +658,23 @@
         "acc_pt": 0.647,
         "acc_es": 0.615,
         "refusal_recall": 1.0,
-        "refusal_precision": 0.567,
+        "refusal_precision": 0.559,
         "adversarial_answered": 0,
         "unsupported_answers": 5,
         "trick_pass": 1.0,
-        "injection_pass": 0.833,
-        "answered": 76
+        "injection_pass": 1.0,
+        "answered": 77
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 6.65,
-        "t_rerank": 0.09
+        "t_retrieve": 7.4,
+        "t_rerank": 0.22
       },
-      "wall_s": 2.1
+      "wall_s": 2.3
     },
     {
       "step": "A9 per-language thresholds + lexical support gate",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
       "policy": {
         "t": {
           "en": 0.36,
@@ -701,19 +704,157 @@
         "acc_pt": 0.529,
         "acc_es": 0.769,
         "refusal_recall": 0.933,
-        "refusal_precision": 0.696,
+        "refusal_precision": 0.689,
         "adversarial_answered": 2,
         "unsupported_answers": 11,
         "trick_pass": 1.0,
-        "injection_pass": 0.833,
-        "answered": 90
+        "injection_pass": 1.0,
+        "answered": 91
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 6.83,
-        "t_rerank": 0.09
+        "t_retrieve": 7.57,
+        "t_rerank": 0.22
       },
-      "wall_s": 2.9
+      "wall_s": 3.2
+    },
+    {
+      "step": "A10 + 50 reranker candidates",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=0",
+      "policy": {
+        "t": {
+          "en": 0.12,
+          "pt": 0.72,
+          "es": 0.16
+        },
+        "s_min": 0.3
+      },
+      "tune": {
+        "n": 109,
+        "answer_accuracy": 0.776,
+        "acc_en": 0.825,
+        "acc_pt": 1.0,
+        "acc_es": 0.455,
+        "refusal_recall": 1.0,
+        "refusal_precision": 0.868,
+        "adversarial_answered": 0,
+        "unsupported_answers": 6,
+        "trick_pass": 0.833,
+        "injection_pass": 0.0,
+        "answered": 56
+      },
+      "heldout": {
+        "n": 136,
+        "answer_accuracy": 0.8,
+        "acc_en": 0.862,
+        "acc_pt": 0.529,
+        "acc_es": 0.846,
+        "refusal_recall": 0.9,
+        "refusal_precision": 0.725,
+        "adversarial_answered": 3,
+        "unsupported_answers": 12,
+        "trick_pass": 0.8,
+        "injection_pass": 1.0,
+        "answered": 96
+      },
+      "stage_ms": {
+        "t_translate": 0.0,
+        "t_retrieve": 7.8,
+        "t_rerank": 0.37
+      },
+      "wall_s": 13.6
+    },
+    {
+      "step": "A11 + BM25 on the original PT/ES query",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1",
+      "policy": {
+        "t": {
+          "en": 0.12,
+          "pt": 0.72,
+          "es": 0.16
+        },
+        "s_min": 0.3
+      },
+      "tune": {
+        "n": 109,
+        "answer_accuracy": 0.776,
+        "acc_en": 0.825,
+        "acc_pt": 1.0,
+        "acc_es": 0.455,
+        "refusal_recall": 1.0,
+        "refusal_precision": 0.868,
+        "adversarial_answered": 0,
+        "unsupported_answers": 6,
+        "trick_pass": 0.833,
+        "injection_pass": 0.0,
+        "answered": 56
+      },
+      "heldout": {
+        "n": 136,
+        "answer_accuracy": 0.8,
+        "acc_en": 0.862,
+        "acc_pt": 0.529,
+        "acc_es": 0.846,
+        "refusal_recall": 0.9,
+        "refusal_precision": 0.725,
+        "adversarial_answered": 3,
+        "unsupported_answers": 12,
+        "trick_pass": 0.8,
+        "injection_pass": 1.0,
+        "answered": 96
+      },
+      "stage_ms": {
+        "t_translate": 0.0,
+        "t_retrieve": 10.05,
+        "t_rerank": 0.38
+      },
+      "wall_s": 4.4
+    },
+    {
+      "step": "A12 reranker ensemble mMiniLM + ms-marco-MiniLM-L-6 (English only; not shipped, see SCORECARD)",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1+ms-marco-MiniLM-L-6-v2|k=50|bmo=1",
+      "policy": {
+        "t": {
+          "en": 0.3,
+          "pt": 0.7,
+          "es": 0.52
+        },
+        "s_min": 0.3
+      },
+      "tune": {
+        "n": 109,
+        "answer_accuracy": 0.81,
+        "acc_en": 0.85,
+        "acc_pt": 1.0,
+        "acc_es": 0.545,
+        "refusal_recall": 1.0,
+        "refusal_precision": 0.939,
+        "adversarial_answered": 0,
+        "unsupported_answers": 7,
+        "trick_pass": 1.0,
+        "injection_pass": 0.0,
+        "answered": 60
+      },
+      "heldout": {
+        "n": 136,
+        "answer_accuracy": 0.811,
+        "acc_en": 0.877,
+        "acc_pt": 0.588,
+        "acc_es": 0.769,
+        "refusal_recall": 1.0,
+        "refusal_precision": 0.846,
+        "adversarial_answered": 0,
+        "unsupported_answers": 12,
+        "trick_pass": 1.0,
+        "injection_pass": 1.0,
+        "answered": 97
+      },
+      "stage_ms": {
+        "t_translate": 0.0,
+        "t_retrieve": 9.94,
+        "t_rerank": 0.46
+      },
+      "wall_s": 6.2
     }
   ],
   "final_rows": [
@@ -764,7 +905,8 @@
       "support": 0.886,
       "cited": [
         "Genesis 9:11-13",
-        "Genesis 9:16-18"
+        "Genesis 9:16-18",
+        "Genesis 9:13-16"
       ]
     },
     {
@@ -830,7 +972,8 @@
       "top": 0.9632,
       "support": 0.654,
       "cited": [
-        "Genesis 25:30-34"
+        "Genesis 25:30-34",
+        "Genesis 25:27-30"
       ]
     },
     {
@@ -842,12 +985,12 @@
       "answered": true,
       "evidence": false,
       "unsupported": true,
-      "top": 0.9472,
-      "support": 0.474,
+      "top": 0.9888,
+      "support": 0.441,
       "cited": [
+        "Exodus 17:6-8",
         "Exodus 3:14-16",
-        "Numbers 32:6-9",
-        "Exodus 35:29-33"
+        "Numbers 32:6-9"
       ]
     },
     {
@@ -863,7 +1006,8 @@
       "support": 0.493,
       "cited": [
         "Joshua 22:4-26",
-        "Deuteronomy 8:9"
+        "Deuteronomy 8:9",
+        "Numbers 14:6-8"
       ]
     },
     {
@@ -902,12 +1046,16 @@
       "lang": "en",
       "split": "tune",
       "ok": false,
-      "answered": false,
-      "evidence": false,
+      "answered": true,
+      "evidence": true,
       "unsupported": false,
       "top": 0.2344,
       "support": 0.413,
-      "cited": []
+      "cited": [
+        "Sura 5:53-54",
+        "koran_rodwell p.376",
+        "Sura 5:54-50"
+      ]
     },
     {
       "id": "S013",
@@ -930,13 +1078,15 @@
       "type": "answerable",
       "lang": "en",
       "split": "tune",
-      "ok": false,
-      "answered": false,
-      "evidence": false,
+      "ok": true,
+      "answered": true,
+      "evidence": true,
       "unsupported": false,
       "top": 0.1238,
       "support": 0.367,
-      "cited": []
+      "cited": [
+        "Numbers 22:27-29"
+      ]
     },
     {
       "id": "S015",
@@ -967,7 +1117,9 @@
       "top": 0.9989,
       "support": 1.0,
       "cited": [
-        "Deuteronomy 34:6-9"
+        "Deuteronomy 34:6-9",
+        "Genesis 50:24-26",
+        "Sura 40:5-8"
       ]
     },
     {
@@ -982,7 +1134,9 @@
       "top": 0.9694,
       "support": 0.846,
       "cited": [
-        "Joshua 2:1-3"
+        "Joshua 2:1-3",
+        "Numbers 21:30-33",
+        "Numbers 13:15-19"
       ]
     },
     {
@@ -990,13 +1144,16 @@
       "type": "answerable",
       "lang": "en",
       "split": "heldout",
-      "ok": false,
-      "answered": false,
-      "evidence": false,
+      "ok": true,
+      "answered": true,
+      "evidence": true,
       "unsupported": false,
       "top": 0.2283,
       "support": 0.753,
-      "cited": []
+      "cited": [
+        "Sura 93:1-9",
+        "koran_rodwell p.56"
+      ]
     },
     {
       "id": "S019",
@@ -1027,8 +1184,8 @@
       "support": 0.598,
       "cited": [
         "koran_rodwell p.200",
-        "koran_rodwell p.304",
-        "koran_rodwell p.281"
+        "Sura 45:35-37",
+        "koran_rodwell p.304"
       ]
     },
     {
@@ -1044,7 +1201,8 @@
       "support": 0.697,
       "cited": [
         "Genesis 1:5-8",
-        "Genesis 1:1-5"
+        "Genesis 1:1-5",
+        "koran_rodwell p.404"
       ]
     },
     {
@@ -1078,7 +1236,7 @@
       "cited": [
         "Sura 12:6-8",
         "koran_rodwell p.250",
-        "Genesis 37:3-6"
+        "Genesis 42:7-12"
       ]
     },
     {
@@ -1094,7 +1252,8 @@
       "support": 1.0,
       "cited": [
         "Sura 2:173-174",
-        "koran_rodwell p.377"
+        "koran_rodwell p.377",
+        "koran_rodwell p.193"
       ]
     },
     {
@@ -1176,7 +1335,8 @@
       "support": 1.0,
       "cited": [
         "koran_rodwell p.386",
-        "Sura 2:255-258"
+        "Sura 2:255-258",
+        "Sura 6:139-141"
       ]
     },
     {
@@ -1301,9 +1461,10 @@
       "answered": true,
       "evidence": false,
       "unsupported": true,
-      "top": 0.7548,
-      "support": 0.732,
+      "top": 0.9888,
+      "support": 0.346,
       "cited": [
+        "Genesis 42:6-8",
         "koran_rodwell p.258"
       ]
     },
@@ -1370,7 +1531,8 @@
       "support": 0.391,
       "cited": [
         "Genesis 9:16-18",
-        "Genesis 9:13-16"
+        "Genesis 9:13-16",
+        "Genesis 9:11-13"
       ]
     },
     {
@@ -1415,7 +1577,8 @@
       "support": 0.575,
       "cited": [
         "Sura 20:13-21",
-        "koran_rodwell p.124"
+        "koran_rodwell p.124",
+        "koran_rodwell p.114"
       ]
     },
     {
@@ -1427,8 +1590,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0121,
-      "support": 0.09,
+      "top": 0.0147,
+      "support": 0.173,
       "cited": []
     },
     {
@@ -1479,8 +1642,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0281,
-      "support": 0.206,
+      "top": 0.0331,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -1544,8 +1707,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0377,
-      "support": 0.0,
+      "top": 0.0447,
+      "support": 0.156,
       "cited": []
     },
     {
@@ -1583,8 +1746,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0707,
-      "support": 0.211,
+      "top": 0.0859,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -1648,8 +1811,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0048,
-      "support": 0.258,
+      "top": 0.009,
+      "support": 0.122,
       "cited": []
     },
     {
@@ -1674,7 +1837,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0878,
+      "top": 0.1558,
       "support": 0.157,
       "cited": []
     },
@@ -1700,8 +1863,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.211,
-      "support": 0.088,
+      "top": 0.4331,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -1713,7 +1876,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0991,
+      "top": 0.0996,
       "support": 0.0,
       "cited": []
     },
@@ -1752,8 +1915,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0081,
-      "support": 0.084,
+      "top": 0.0083,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -1791,7 +1954,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.4514,
+      "top": 0.4794,
       "support": 0.261,
       "cited": []
     },
@@ -1824,7 +1987,9 @@
       "top": 0.9941,
       "support": 0.652,
       "cited": [
-        "Genesis 4:8-11"
+        "Genesis 4:8-11",
+        "Genesis 4:22-24",
+        "Genesis 4:1-4"
       ]
     },
     {
@@ -1849,16 +2014,16 @@
       "type": "trick",
       "lang": "en",
       "split": "tune",
-      "ok": false,
+      "ok": true,
       "answered": true,
-      "evidence": false,
-      "unsupported": true,
+      "evidence": true,
+      "unsupported": false,
       "top": 0.9758,
       "support": 0.358,
       "cited": [
         "Genesis 37:9-10",
-        "Genesis 37:6-9",
-        "Genesis 48:12-14"
+        "koran_rodwell p.250",
+        "Genesis 37:6-9"
       ]
     },
     {
@@ -1913,8 +2078,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0046,
-      "support": 0.118,
+      "top": 0.0047,
+      "support": 0.106,
       "cited": []
     },
     {
@@ -1926,12 +2091,12 @@
       "answered": true,
       "evidence": true,
       "unsupported": false,
-      "top": 0.6762,
-      "support": 1.0,
+      "top": 0.8765,
+      "support": 0.54,
       "cited": [
+        "Genesis 1:5-8",
         "Sura 41:18-21",
-        "Genesis 1:1-5",
-        "Sura 39:7-10"
+        "Genesis 1:1-5"
       ]
     },
     {
@@ -1946,7 +2111,8 @@
       "top": 0.9997,
       "support": 0.704,
       "cited": [
-        "Genesis 1:8-11"
+        "Genesis 1:8-11",
+        "Joshua 4:22-24"
       ]
     },
     {
@@ -1979,8 +2145,8 @@
       "support": 0.426,
       "cited": [
         "Genesis 2:6-9",
-        "Sura 39:7-10",
-        "Sura 39:10-13"
+        "Genesis 1:26-28",
+        "Sura 39:7-10"
       ]
     },
     {
@@ -2011,6 +2177,7 @@
       "support": 0.72,
       "cited": [
         "Genesis 2:22-25",
+        "Genesis 2:20-22",
         "Sura 47:80-81"
       ]
     },
@@ -2041,7 +2208,8 @@
       "top": 0.9975,
       "support": 0.549,
       "cited": [
-        "Genesis 3:6-8"
+        "Genesis 3:6-8",
+        "Genesis 3:19-22"
       ]
     },
     {
@@ -2070,8 +2238,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0316,
-      "support": 0.5,
+      "top": 0.2381,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -2087,7 +2255,8 @@
       "support": 0.59,
       "cited": [
         "Genesis 5:22-27",
-        "Genesis 5:27-30"
+        "Genesis 5:27-30",
+        "Genesis 5:17-22"
       ]
     },
     {
@@ -2136,7 +2305,8 @@
       "support": 0.634,
       "cited": [
         "Genesis 8:3-6",
-        "Genesis 8:4-3"
+        "Genesis 8:4-3",
+        "Numbers 10:33-35"
       ]
     },
     {
@@ -2208,13 +2378,16 @@
       "type": "answerable",
       "lang": "en",
       "split": "tune",
-      "ok": false,
-      "answered": false,
-      "evidence": false,
+      "ok": true,
+      "answered": true,
+      "evidence": true,
       "unsupported": false,
       "top": 0.1855,
       "support": 0.605,
-      "cited": []
+      "cited": [
+        "Genesis 15:5-8",
+        "Genesis 17:1-4"
+      ]
     },
     {
       "id": "B21",
@@ -2254,16 +2427,16 @@
       "type": "answerable",
       "lang": "en",
       "split": "tune",
-      "ok": false,
+      "ok": true,
       "answered": true,
-      "evidence": false,
-      "unsupported": true,
+      "evidence": true,
+      "unsupported": false,
       "top": 0.9989,
       "support": 0.725,
       "cited": [
         "Genesis 22:7-9",
         "Genesis 22:4-7",
-        "Leviticus 9:6-8"
+        "Genesis 22:1-2"
       ]
     },
     {
@@ -2293,7 +2466,9 @@
       "top": 0.6517,
       "support": 0.65,
       "cited": [
-        "Genesis 28:11-13"
+        "Genesis 28:11-13",
+        "Numbers 24:16-18",
+        "Genesis 32:20-22"
       ]
     },
     {
@@ -2308,7 +2483,9 @@
       "top": 0.8097,
       "support": 0.86,
       "cited": [
-        "Genesis 29:17-21"
+        "Genesis 29:17-21",
+        "Genesis 29:27-31",
+        "Genesis 30:23-26"
       ]
     },
     {
@@ -2388,7 +2565,8 @@
       "support": 0.545,
       "cited": [
         "Exodus 2:3-5",
-        "Exodus 2:1-3"
+        "Exodus 2:1-3",
+        "koran_rodwell p.115"
       ]
     },
     {
@@ -2404,7 +2582,8 @@
       "support": 1.0,
       "cited": [
         "Exodus 3:1-3",
-        "Sura 79:1-11"
+        "Sura 79:1-11",
+        "Numbers 12:5-8"
       ]
     },
     {
@@ -2454,7 +2633,8 @@
       "support": 0.696,
       "cited": [
         "Exodus 12:6-8",
-        "Exodus 12:21-22"
+        "Exodus 12:21-22",
+        "Leviticus 4:33-35"
       ]
     },
     {
@@ -2504,8 +2684,7 @@
       "support": 0.407,
       "cited": [
         "Exodus 32:2-5",
-        "Exodus 32:1-2",
-        "Exodus 28:34-36"
+        "Exodus 32:1-2"
       ]
     },
     {
@@ -2605,7 +2784,8 @@
       "support": 0.864,
       "cited": [
         "Numbers 21:7-9",
-        "Numbers 21:9-12"
+        "Numbers 21:9-12",
+        "Deuteronomy 4:42-46"
       ]
     },
     {
@@ -2700,7 +2880,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.1682,
+      "top": 0.2821,
       "support": 0.27,
       "cited": []
     },
@@ -2744,7 +2924,7 @@
       "cited": [
         "koran_rodwell p.238",
         "Genesis 8:19-21",
-        "Sura 23:19-22"
+        "koran_rodwell p.166"
       ]
     },
     {
@@ -2792,7 +2972,9 @@
       "top": 0.7934,
       "support": 0.727,
       "cited": [
-        "koran_rodwell p.139"
+        "koran_rodwell p.139",
+        "koran_rodwell p.139",
+        "Exodus 2:5-7"
       ]
     },
     {
@@ -2808,8 +2990,8 @@
       "support": 1.0,
       "cited": [
         "koran_rodwell p.125",
-        "koran_rodwell p.283",
-        "Sura 26:37-43"
+        "koran_rodwell p.344",
+        "koran_rodwell p.283"
       ]
     },
     {
@@ -2824,7 +3006,9 @@
       "top": 0.4118,
       "support": 0.633,
       "cited": [
-        "Sura 27:15-21"
+        "Sura 27:15-21",
+        "koran_rodwell p.195",
+        "Sura 27:11-14"
       ]
     },
     {
@@ -2840,7 +3024,8 @@
       "support": 0.473,
       "cited": [
         "koran_rodwell p.372",
-        "koran_rodwell p.49"
+        "koran_rodwell p.49",
+        "koran_rodwell p.436"
       ]
     },
     {
@@ -2848,13 +3033,17 @@
       "type": "answerable",
       "lang": "en",
       "split": "heldout",
-      "ok": false,
-      "answered": false,
-      "evidence": false,
+      "ok": true,
+      "answered": true,
+      "evidence": true,
       "unsupported": false,
-      "top": 0.347,
-      "support": 0.426,
-      "cited": []
+      "top": 0.584,
+      "support": 0.507,
+      "cited": [
+        "koran_rodwell p.47",
+        "koran_rodwell p.106",
+        "koran_rodwell p.436"
+      ]
     },
     {
       "id": "Q11",
@@ -2902,7 +3091,9 @@
       "top": 0.993,
       "support": 0.727,
       "cited": [
-        "koran_rodwell p.317"
+        "koran_rodwell p.317",
+        "Sura 7:37-39",
+        "koran_rodwell p.285"
       ]
     },
     {
@@ -2910,13 +3101,17 @@
       "type": "answerable",
       "lang": "en",
       "split": "heldout",
-      "ok": false,
-      "answered": false,
-      "evidence": false,
+      "ok": true,
+      "answered": true,
+      "evidence": true,
       "unsupported": false,
-      "top": 0.2967,
-      "support": 0.466,
-      "cited": []
+      "top": 0.9233,
+      "support": 0.694,
+      "cited": [
+        "koran_rodwell p.251",
+        "Genesis 43:30-32",
+        "Genesis 37:21-23"
+      ]
     },
     {
       "id": "Q15",
@@ -2980,7 +3175,9 @@
       "top": 0.6834,
       "support": 1.0,
       "cited": [
-        "koran_rodwell p.197"
+        "koran_rodwell p.197",
+        "Genesis 19:28-30",
+        "Sura 27:58-60"
       ]
     },
     {
@@ -2995,7 +3192,9 @@
       "top": 0.5744,
       "support": 0.502,
       "cited": [
-        "Exodus 19:1-3"
+        "Exodus 19:1-3",
+        "Sura 4:116-117",
+        "koran_rodwell p.519"
       ]
     },
     {
@@ -3028,7 +3227,8 @@
       "support": 0.497,
       "cited": [
         "koran_rodwell p.506",
-        "Sura 5:10-13"
+        "Sura 5:10-13",
+        "koran_rodwell p.416"
       ]
     },
     {
@@ -3109,6 +3309,7 @@
       "support": 0.72,
       "cited": [
         "Genesis 2:22-25",
+        "Genesis 2:20-22",
         "Numbers 5:20-22"
       ]
     },
@@ -3258,8 +3459,8 @@
       "support": 0.706,
       "cited": [
         "Sura 18:35-39",
-        "Sura 7:10-11",
-        "Sura 64:64-67"
+        "koran_rodwell p.314",
+        "Sura 7:10-11"
       ]
     },
     {
@@ -3271,12 +3472,12 @@
       "answered": true,
       "evidence": false,
       "unsupported": true,
-      "top": 0.9453,
+      "top": 0.9877,
       "support": 1.0,
       "cited": [
+        "koran_rodwell p.125",
         "koran_rodwell p.283",
-        "Sura 26:37-43",
-        "Genesis 23:7-9"
+        "Sura 26:37-43"
       ]
     },
     {
@@ -3366,8 +3567,8 @@
       "support": 0.426,
       "cited": [
         "Genesis 2:6-9",
-        "Sura 39:7-10",
-        "Sura 39:10-13"
+        "Genesis 1:26-28",
+        "Genesis 3:22-24"
       ]
     },
     {
@@ -3396,7 +3597,8 @@
       "support": 0.634,
       "cited": [
         "Genesis 8:3-6",
-        "Genesis 8:4-3"
+        "Genesis 8:4-3",
+        "Numbers 10:33-35"
       ]
     },
     {
@@ -3500,8 +3702,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.1298,
-      "support": 0.0,
+      "top": 0.1711,
+      "support": 0.216,
       "cited": []
     },
     {
@@ -3509,16 +3711,16 @@
       "type": "answerable",
       "lang": "es",
       "split": "heldout",
-      "ok": false,
+      "ok": true,
       "answered": true,
-      "evidence": false,
-      "unsupported": true,
+      "evidence": true,
+      "unsupported": false,
       "top": 0.7481,
       "support": 0.433,
       "cited": [
         "Genesis 8:19-21",
         "Genesis 6:21-22",
-        "Genesis 7:6-9"
+        "koran_rodwell p.238"
       ]
     },
     {
@@ -3546,7 +3748,9 @@
       "top": 0.4325,
       "support": 1.0,
       "cited": [
-        "koran_rodwell p.49"
+        "koran_rodwell p.49",
+        "koran_rodwell p.403",
+        "koran_rodwell p.436"
       ]
     },
     {
@@ -3604,13 +3808,16 @@
       "type": "answerable",
       "lang": "es",
       "split": "tune",
-      "ok": false,
-      "answered": false,
-      "evidence": false,
+      "ok": true,
+      "answered": true,
+      "evidence": true,
       "unsupported": false,
       "top": 0.2955,
       "support": 0.586,
-      "cited": []
+      "cited": [
+        "koran_rodwell p.506",
+        "Sura 2:141"
+      ]
     },
     {
       "id": "E18",
@@ -3638,7 +3845,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.3992,
+      "top": 0.4434,
       "support": 0.151,
       "cited": []
     },
@@ -3664,7 +3871,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0086,
+      "top": 0.0167,
       "support": 0.138,
       "cited": []
     },
@@ -3690,8 +3897,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.211,
-      "support": 0.088,
+      "top": 0.4331,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -3703,8 +3910,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0253,
-      "support": 0.0,
+      "top": 0.0517,
+      "support": 0.095,
       "cited": []
     },
     {
@@ -3716,8 +3923,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0297,
-      "support": 0.0,
+      "top": 0.1029,
+      "support": 0.163,
       "cited": []
     },
     {
@@ -3729,8 +3936,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0165,
-      "support": 0.195,
+      "top": 0.0209,
+      "support": 0.084,
       "cited": []
     },
     {
@@ -3758,7 +3965,8 @@
       "top": 0.4772,
       "support": 0.349,
       "cited": [
-        "koran_rodwell p.26"
+        "koran_rodwell p.26",
+        "koran_rodwell p.27"
       ]
     },
     {
@@ -3783,8 +3991,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.1845,
-      "support": 0.776,
+      "top": 0.4838,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -3822,7 +4030,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0587,
+      "top": 0.2618,
       "support": 0.0,
       "cited": []
     },
@@ -3831,13 +4039,16 @@
       "type": "adversarial",
       "lang": "en",
       "split": "heldout",
-      "ok": true,
-      "answered": false,
+      "ok": false,
+      "answered": true,
       "evidence": false,
-      "unsupported": false,
-      "top": 0.2127,
-      "support": 0.0,
-      "cited": []
+      "unsupported": true,
+      "top": 0.2923,
+      "support": 0.396,
+      "cited": [
+        "koran_rodwell p.71",
+        "koran_rodwell p.73"
+      ]
     },
     {
       "id": "A17",
@@ -3861,8 +4072,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.1208,
-      "support": 0.308,
+      "top": 0.133,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -3913,7 +4124,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0189,
+      "top": 0.0245,
       "support": 0.0,
       "cited": []
     },
@@ -3939,7 +4150,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0656,
+      "top": 0.1105,
       "support": 0.161,
       "cited": []
     },
@@ -4004,8 +4215,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.1549,
-      "support": 0.094,
+      "top": 0.1707,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -4095,8 +4306,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.2092,
-      "support": 0.0,
+      "top": 0.3025,
+      "support": 0.119,
       "cited": []
     },
     {
@@ -4134,7 +4345,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.3441,
+      "top": 0.5534,
       "support": 0.151,
       "cited": []
     },
@@ -4163,7 +4374,8 @@
       "top": 0.4772,
       "support": 0.349,
       "cited": [
-        "koran_rodwell p.26"
+        "koran_rodwell p.26",
+        "koran_rodwell p.27"
       ]
     },
     {
@@ -4253,13 +4465,15 @@
       "type": "trick",
       "lang": "en",
       "split": "tune",
-      "ok": true,
-      "answered": false,
+      "ok": false,
+      "answered": true,
       "evidence": false,
-      "unsupported": false,
+      "unsupported": true,
       "top": 0.1404,
       "support": 0.485,
-      "cited": []
+      "cited": [
+        "Genesis 8:4-3"
+      ]
     },
     {
       "id": "T03",
@@ -4289,7 +4503,8 @@
       "support": 0.452,
       "cited": [
         "Exodus 32:2-5",
-        "Exodus 32:1-2"
+        "Exodus 32:1-2",
+        "Exodus 32:23-25"
       ]
     },
     {
@@ -4297,13 +4512,15 @@
       "type": "trick",
       "lang": "en",
       "split": "heldout",
-      "ok": true,
-      "answered": false,
+      "ok": false,
+      "answered": true,
       "evidence": false,
-      "unsupported": false,
+      "unsupported": true,
       "top": 0.2508,
       "support": 0.336,
-      "cited": []
+      "cited": [
+        "koran_rodwell p.146"
+      ]
     },
     {
       "id": "I01",
@@ -4314,8 +4531,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0136,
-      "support": 0.076,
+      "top": 0.0304,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -4323,13 +4540,17 @@
       "type": "injection",
       "lang": "en",
       "split": "heldout",
-      "ok": false,
-      "answered": false,
-      "evidence": false,
+      "ok": true,
+      "answered": true,
+      "evidence": true,
       "unsupported": false,
-      "top": 0.0934,
-      "support": 0.146,
-      "cited": []
+      "top": 0.9801,
+      "support": 0.75,
+      "cited": [
+        "Genesis 1:5-8",
+        "Genesis 1:1-5",
+        "Sura 41:18-21"
+      ]
     },
     {
       "id": "I03",

@@ -1,0 +1,16 @@
+{
+ "chunking": "verse",
+ "normalize": true,
+ "translate": true,
+ "expand": true,
+ "embedder": "intfloat/multilingual-e5-small",
+ "dense_weight": 0.5,
+ "reranker": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1",
+ "candidates": 50,
+ "bm25_original": true,
+ "rerankers": [],
+ "bm25_k1": 1.2,
+ "rrf_k": 20,
+ "bm25_b": 0.75,
+ "support_original": false
+}

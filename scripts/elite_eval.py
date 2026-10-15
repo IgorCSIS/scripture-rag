@@ -499,6 +499,8 @@ def main() -> None:
     ap.add_argument("--quick", action="store_true")
     ap.add_argument("--final", action="store_true", help="also score the held-out split (do this once)")
     ap.add_argument("--no-dev", action="store_true", help="select on the tune split only")
+    ap.add_argument("--only-final", action="store_true",
+                    help="score only the configuration in docs/eval/final_config.json (selected in round2.json)")
     args = ap.parse_args()
     global SHOW_HELDOUT, SELECT
     SHOW_HELDOUT = args.final
@@ -522,6 +524,19 @@ def main() -> None:
           f"{[d['id'] for d in dropped]}", flush=True)
     lang_acc = float(np.mean([detect_language(it["question"]) == it["lang"] for it in items]))
     models, cache, steps = Models(), {}, []
+    if args.only_final:
+        fc = json.loads((EVAL / "final_config.json").read_text(encoding="utf-8"))
+        fc["rerankers"] = tuple(fc.get("rerankers") or ())
+        cfg = Config(**fc)
+        res, best_rows, _ = evaluate("Final: round 2 selection (round2.json)", cfg, corpus, items, models, cache,
+                                     snippets, per_lang=True, use_support=True)
+        out = {"items": len(items), "dropped": [d["id"] for d in dropped], "language_detection_accuracy": lang_acc,
+               "final_config": cfg.__dict__, "final_label": cfg.label(), "final_policy": res["policy"],
+               "steps": [res], "final_rows": best_rows}
+        (EVAL / "ablation.json").write_text(json.dumps(out, indent=2, ensure_ascii=False, default=_jsonable),
+                                           encoding="utf-8")
+        print("FINAL", cfg.label(), res["policy"], flush=True)
+        return
     cfg = Config()
     plan = [
         ("A0 baseline (window 200, raw, e5-small, mmarco, global threshold)", {}),
