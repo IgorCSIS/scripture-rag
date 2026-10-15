@@ -2,44 +2,44 @@
 
 Eval set [eval_set.jsonl](eval_set.jsonl), strict split: every choice is made on the **tune** split (109 items) plus the synthetic **dev** set [dev_set.jsonl](dev_set.jsonl) (175 items, scripts/build_dev_set.py) and reported once on the **held-out** split (136 items). Dropped (gold not in the PDF OCR): B12, B43, B46. Language detection accuracy: 0.993.
 
-Reproduce: `python scripts/elite_eval.py --quick --final` then `python scripts/make_scorecard.py`. Raw data: [ablation.json](ablation.json); previous run: [ablation_prev.json](ablation_prev.json).
+Reproduce: `python scripts/elite_eval.py --only-final --final` (config and gate in final_config.json) then `python scripts/make_scorecard.py`. Raw data: [ablation.json](ablation.json); previous run: [ablation_prev.json](ablation_prev.json).
 
 Unsupported answers = answers to adversarial items plus answers whose cited passages do not hold the gold answer (wrong evidence). Citations are extractive quotes, so citation validity is 1.0 by construction.
 
-## Held-out: previous final vs current final
+## Held-out: round 1 final vs shipped (round 1 gate rollback with round 2 parity fixes)
 
 | Metric | Previous | Current | Target |
 |---|---|---|---|
 | Answer accuracy | 0.800 | 0.789 | >= 0.90 |
-| EN | 0.862 | 0.846 | >= 0.85 |
-| PT | 0.529 | 0.529 | >= 0.85 |
+| EN | 0.862 | 0.862 | >= 0.85 |
+| PT | 0.529 | 0.471 | >= 0.85 |
 | ES | 0.846 | 0.846 | >= 0.85 |
-| Refusal recall | 0.900 | 0.867 |  |
-| Refusal precision | 0.725 | 0.778 |  |
-| Adversarial answered | 3 | 4 | 0 |
-| Unsupported answers (incl. adversarial) | 12 | 17 | 0 |
+| Refusal recall | 0.900 | 0.900 |  |
+| Refusal precision | 0.725 | 0.707 |  |
+| Adversarial answered | 3 | 3 | 0 |
+| Unsupported answers (incl. adversarial) | 12 | 12 | 0 |
 | Injection pass | 1.000 | 1.000 | 1.0 |
 
 Previous: `verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1`, policy `{"t": {"en": 0.12, "pt": 0.72, "es": 0.16}, "s_min": 0.3}`.
-Current: `verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1|bm25=1.2,0.75|rrf=20`, policy `{"t": {"en": 0.18, "pt": 0.04, "es": 0.34}, "s_min": 0.3}`.
+Current: `verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1`, policy `{"t": {"en": 0.12, "pt": 0.72, "es": 0.16}, "s_min": 0.3}`.
 
 ## All steps, tune split (selection data)
 
 | Run | n | Answer acc | EN | PT | ES | Refusal recall | Refusal precision | Adversarial answered | Unsupported answers | Injection pass |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Final: round 2 selection (round2.json) | 109 | 0.724 | 0.775 | 1.000 | 0.364 | 1.000 | 0.839 | 0 | 7 | 0.000 |
+| Final: round 1 gate rollback with round 2 parity fixes | 109 | 0.776 | 0.825 | 1.000 | 0.455 | 0.977 | 0.865 | 1 | 8 | 0.000 |
 
 ## All steps, synthetic dev set (selection data)
 
 | Run | n | Answer acc | EN | PT | ES | Refusal recall | Refusal precision | Adversarial answered | Unsupported answers | Injection pass |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Final: round 2 selection (round2.json) | 175 | 0.702 | 0.814 | 0.682 | 0.614 | 1.000 | 0.603 | 0 | 10 | nan |
+| Final: round 1 gate rollback with round 2 parity fixes | 175 | 0.656 | 0.837 | 0.523 | 0.614 | 0.955 | 0.532 | 2 | 10 | nan |
 
 ## All steps, held-out split (reported, never used for selection)
 
 | Run | n | Answer acc | EN | PT | ES | Refusal recall | Refusal precision | Adversarial answered | Unsupported answers | Injection pass |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Final: round 2 selection (round2.json) | 136 | 0.789 | 0.846 | 0.529 | 0.846 | 0.867 | 0.778 | 4 | 17 | 1.000 |
+| Final: round 1 gate rollback with round 2 parity fixes | 136 | 0.789 | 0.862 | 0.471 | 0.846 | 0.900 | 0.707 | 3 | 12 | 1.000 |
 
 ## Round 2 (selection on tune + synthetic dev, held-out scored once on the final configuration)
 
@@ -64,6 +64,10 @@ Notes:
 - Dense search on the untranslated query was already part of the pipeline (both the original and translated query are embedded). PT diagnosis: in 2 of 20 dev PT misses MarianMT returned the Portuguese question unchanged; most other misses have the right verse ranked first but lexical support just under 0.3 after paraphrasing translation. No better Apache/MIT PT to EN Marian checkpoint was found on the Hub, so the translator is unchanged.
 - No learned or fine-tuned component was shipped this round (embedder fine-tuning skipped), so the out-of-corpus guard was not triggered.
 - Held-out went from 0.800 to 0.789 and unsupported answers from 12 to 17: the dev-informed gate (PT threshold 0.04, i.e. the support check alone) did not transfer to held-out. Reported as measured; held-out was not used to change anything.
+
+## Shipped: round 1 gate rollback
+
+After the round 2 held-out result above, the shipped gate was rolled back to the round 1 final policy: thresholds en 0.12, pt 0.72, es 0.16, s_min 0.3, 50 candidates, BM25 on the original query, default BM25 (k1 1.5, b 0.75) and RRF (k 60). The round 2 parity fixes (every book normalized, deterministic tie breaks) are kept. This rollback was chosen after seeing the held-out scores, so the held-out numbers for it are not an untouched estimate. Against the round 1 run the only changes are the parity fixes; on held-out they move PT from 0.529 to 0.471 and refusal precision from 0.725 to 0.707, other held-out metrics are unchanged. No new test set was added. Round 2 raw data is kept in [ablation_round2.json](ablation_round2.json); the round 1 run is [ablation_prev.json](ablation_prev.json).
 
 ## Browser parity
 

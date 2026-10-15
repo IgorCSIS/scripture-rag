@@ -44,13 +44,14 @@ def main() -> None:
         f"Dropped (gold not in the PDF OCR): {', '.join(cur['dropped'])}. "
         f"Language detection accuracy: {cur['language_detection_accuracy']:.3f}.",
         "",
-        "Reproduce: `python scripts/elite_eval.py --quick --final` then `python scripts/make_scorecard.py`. "
+        "Reproduce: `python scripts/elite_eval.py --only-final --final` (config and gate in final_config.json) "
+        "then `python scripts/make_scorecard.py`. "
         "Raw data: [ablation.json](ablation.json); previous run: [ablation_prev.json](ablation_prev.json).",
         "",
         "Unsupported answers = answers to adversarial items plus answers whose cited passages do not hold the "
         "gold answer (wrong evidence). Citations are extractive quotes, so citation validity is 1.0 by construction.",
         "",
-        "## Held-out: previous final vs current final",
+        "## Held-out: round 1 final vs shipped (round 1 gate rollback with round 2 parity fixes)",
         "",
         "| Metric | Previous | Current | Target |",
         "|---|---|---|---|",

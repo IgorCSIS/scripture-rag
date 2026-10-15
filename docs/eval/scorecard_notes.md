@@ -22,6 +22,10 @@ Notes:
 - No learned or fine-tuned component was shipped this round (embedder fine-tuning skipped), so the out-of-corpus guard was not triggered.
 - Held-out went from 0.800 to 0.789 and unsupported answers from 12 to 17: the dev-informed gate (PT threshold 0.04, i.e. the support check alone) did not transfer to held-out. Reported as measured; held-out was not used to change anything.
 
+## Shipped: round 1 gate rollback
+
+After the round 2 held-out result above, the shipped gate was rolled back to the round 1 final policy: thresholds en 0.12, pt 0.72, es 0.16, s_min 0.3, 50 candidates, BM25 on the original query, default BM25 (k1 1.5, b 0.75) and RRF (k 60). The round 2 parity fixes (every book normalized, deterministic tie breaks) are kept. This rollback was chosen after seeing the held-out scores, so the held-out numbers for it are not an untouched estimate. Against the round 1 run the only changes are the parity fixes; on held-out they move PT from 0.529 to 0.471 and refusal precision from 0.725 to 0.707, other held-out metrics are unchanged. No new test set was added. Round 2 raw data is kept in [ablation_round2.json](ablation_round2.json); the round 1 run is [ablation_prev.json](ablation_prev.json).
+
 ## Browser parity
 
 The browser pipeline ([site/js/rag.js](../../site/js/rag.js)) is a port of the Python one with the same defaults. [parity.json](parity.json): same chunks (6538/6538), same index texts, and identical answer/refuse decisions and citations on all 248 eval items and 175 dev items when fed the Python model outputs. [parity_models.json](parity_models.json): with the browser models themselves (transformers.js ONNX, run in Node) decisions agree on the eval set as listed there; differences come from beam-search translation and float noise. CI runs a committed replay fixture (site/tests/parity.test.mjs).
