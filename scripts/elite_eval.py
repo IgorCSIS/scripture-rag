@@ -289,10 +289,14 @@ class Config:
     dense_weight: float = 0.5
     reranker: str = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
     candidates: int = 30
+    bm25_original: bool = False
+    rerankers: tuple[str, ...] = ()
 
     def label(self) -> str:
         return (f"{self.chunking}|norm={int(self.normalize)}|mt={int(self.translate)}|exp={int(self.expand)}|"
-                f"{self.embedder.split('/')[-1]}|w={self.dense_weight}|{self.reranker.split('/')[-1]}")
+                f"{self.embedder.split('/')[-1]}|w={self.dense_weight}|"
+                + "+".join(r.split('/')[-1] for r in (self.rerankers or (self.reranker,)))
+                + f"|k={self.candidates}|bmo={int(self.bm25_original)}")
 
 
 def wrrf(lists: list[tuple[list[int], float]], k: int = 60) -> list[int]:
@@ -330,12 +334,16 @@ def run_config(cfg: Config, corpus: Corpus, items: list[dict[str, Any]], models:
         lists: list[tuple[list[int], float]] = []
         bm_ids = [int(i) for i, _ in bm.search(q_bm, cfg.candidates)]
         lists.append((bm_ids, 1 - cfg.dense_weight))
+        if cfg.bm25_original and q_en != q:
+            lists.append(([int(i) for i, _ in bm.search(q, cfg.candidates)], 1 - cfg.dense_weight))
         for qq in {q, q_en}:
             sims = mat @ models.query(cfg.embedder, qq)
             lists.append((list(np.argsort(-sims)[: cfg.candidates]), cfg.dense_weight))
         cand = wrrf(lists)[: cfg.candidates]
         t2 = time.perf_counter()
-        scores = models.rerank(cfg.reranker, q_en, [chunks[i].text for i in cand])
+        texts = [chunks[i].text for i in cand]
+        per = [models.rerank(m, q_en, texts) for m in (cfg.rerankers or (cfg.reranker,))]
+        scores = [float(np.mean(v)) for v in zip(*per)]
         t3 = time.perf_counter()
         order = sorted(range(len(cand)), key=lambda j: -scores[j])[:5]
         ranked = [(cand[j], float(scores[j]), support(q_en, index_texts[cand[j]], idf)) for j in order]
@@ -525,11 +533,24 @@ def main() -> None:
     cfg = replace(cfg, reranker=max(rr_res, key=lambda r: objective(rr_res[r]["tune"])))
     res, _, _ = evaluate("A8 per-language thresholds", cfg, corpus, items, models, cache, snippets, per_lang=True)
     steps.append(res)
-    res, best_rows, runs = evaluate("A9 per-language thresholds + lexical support gate", cfg, corpus, items, models,
+    res, best_rows, _runs = evaluate("A9 per-language thresholds + lexical support gate", cfg, corpus, items, models,
                                     cache, snippets, per_lang=True, use_support=True)
     steps.append(res)
+    # Later stages: each is kept only if it wins on the tune split.
+    later = [
+        ("A10 + 50 reranker candidates", {"candidates": 50}, True),
+        ("A11 + BM25 on the original PT/ES query", {"bm25_original": True}, True),
+        ("A12 reranker ensemble mMiniLM + ms-marco-MiniLM-L-6 (English only; not shipped, see SCORECARD)",
+         {"rerankers": (cfg.reranker, "cross-encoder/ms-marco-MiniLM-L-6-v2")}, False),
+    ]
+    for name, change, may_select in later:
+        r2, rows2, runs2 = evaluate(name, replace(cfg, **change), corpus, items, models, cache, snippets,
+                                    per_lang=True, use_support=True)
+        steps.append(r2)
+        if may_select and objective(r2["tune"]) >= objective(res["tune"]):
+            cfg, res, best_rows, _runs = replace(cfg, **change), r2, rows2, runs2
     out = {"items": len(items), "dropped": [d["id"] for d in dropped], "language_detection_accuracy": lang_acc,
-           "final_config": cfg.__dict__, "final_policy": res["policy"], "steps": steps, "final_rows": best_rows}
+           "final_config": cfg.__dict__, "final_label": cfg.label(), "final_policy": res["policy"], "steps": steps, "final_rows": best_rows}
     text = json.dumps(out, indent=2, ensure_ascii=False, default=_jsonable)
     (EVAL / "ablation.json").write_text(text, encoding="utf-8")
     print("FINAL", cfg.label(), res["policy"], flush=True)
