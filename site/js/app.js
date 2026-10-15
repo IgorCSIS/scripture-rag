@@ -257,7 +257,10 @@ async function addBook(name, pages, extra = {}) {
   while (state.books.some((b) => b.bookId === bookId)) bookId = `${core.safeBookId(name)}-${i++}`;
   const clean = pages.map(core.stripControl);
   // Same chunking as Python: verse-aware when the layout allows it, else windows.
-  const chunks = rag.chunkDocument(bookId, clean, { aligner: await getAligner(), windowTokens: Number($("chunkSize").value) || rag.DEFAULTS.windowTokens });
+  const windowTokens = Math.max(20, Number($("chunkSize").value) || rag.DEFAULTS.windowTokens);
+  // Overlap 40 at the default 200 words (as in Python), scaled down for smaller windows.
+  const overlap = Math.min(rag.DEFAULTS.windowOverlap, Math.floor(windowTokens / 5));
+  const chunks = rag.chunkDocument(bookId, clean, { aligner: await getAligner(), windowTokens, overlap });
   if (!chunks.length) throw new Error("No text found (scanned PDFs need OCR first)");
   setProgress("ingest", `Indexing ${name}, ${chunks.length} passages`, 85);
   const norm = await getNormalizer();

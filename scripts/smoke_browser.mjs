@@ -15,6 +15,8 @@ const step = (name, ok) => { console.log(`${ok ? "PASS" : "FAIL"} ${name}`); if 
 await page.addInitScript(() => localStorage.setItem("srag-onboarded", "1"));
 await page.goto(url);
 await page.waitForFunction(() => globalThis.ScriptureRAG?.state.db);
+// The tiny sample needs small windows to give the theme map a few points (default is 200 words).
+await page.evaluate(() => { document.getElementById("chunkSize").value = "30"; });
 await page.click("#sample");
 await page.waitForFunction(() => globalThis.ScriptureRAG?.state.books.length >= 1, null, { timeout: 15000 });
 writeFileSync("/tmp/notes_on_psalms.txt", "Notes on the Psalms. A commentary. The shepherd in this psalm is read as the Lord who guides and feeds his people, a figure of care.");
