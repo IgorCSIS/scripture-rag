@@ -83,7 +83,7 @@ sequenceDiagram
   alt below either gate
     P-->>U: I could not find this in the loaded texts.
   else both gates pass
-    P-->>U: top 3 verse quotes, each cited [book p.N #id]
+    P-->>U: top 3 cited verse quotes
   end
 ```
 

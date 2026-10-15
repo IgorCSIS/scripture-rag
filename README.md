@@ -135,7 +135,7 @@ sequenceDiagram
   alt score < t[lang] or support < 0.3
     P-->>U: I could not find this in the loaded texts.
   else both gates pass
-    P-->>U: top 3 verse quotes, each cited [book p.N #id]
+    P-->>U: top 3 cited verse quotes
   end
 ```
 
@@ -237,7 +237,8 @@ Previous configuration (single threshold 0.22).
 | Role-scoped answer | 3.46 | 4.54 | 7.80 | 18.35 | 34.21 |
 | Compare by tradition | 7.36 | 10.54 | 15.45 | 36.88 | 69.60 |
 
-<p align="center"><img src="docs/benchmarks/library_stages.png" width="410" alt="Log-log plot of browser library stage latency vs passages n: outliers, auto-tags, manifest CSV, role-scoped answer, compare by tradition"> <img src="docs/benchmarks/browser_ann.png" width="410" alt="Log-log plot of browser p50 search latency vs n passages, brute force vs HNSW, with HNSW recall@10 at each n"></p>
+<p align="center"><img src="docs/benchmarks/library_stages.png" width="640" alt="Log-log plot of browser library stage latency vs passages n: outliers, auto-tags, manifest CSV, role-scoped answer, compare by tradition"></p>
+<p align="center"><img src="docs/benchmarks/browser_ann.png" width="640" alt="Log-log plot of browser p50 search latency vs n passages, brute force vs HNSW, with HNSW recall@10 at each n"></p>
 
 IA panel stages, ms by r search hits (for the book selector, B = r books):
 
@@ -296,7 +297,7 @@ docs/                PRD, architecture, complexity, evaluation, security, source
 
 | Document | Contents |
 |---|---|
-| [docs/PRD.md](docs/PRD.md) | Requirements FR-01 to FR-16 with acceptance criteria and evidence |
+| [docs/PRD.md](docs/PRD.md) | Requirements FR-01 to FR-20 with acceptance criteria and evidence |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | All mermaid diagrams |
 | [docs/COMPLEXITY.md](docs/COMPLEXITY.md) | Big-O table, computational theory, benchmark plots |
 | [docs/COURSE_MAPPING.md](docs/COURSE_MAPPING.md) | Feature to course module mapping |
