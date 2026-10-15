@@ -34,7 +34,7 @@
       "lang_agree": 248,
       "missing_scores": 0,
       "max_score_diff": 0,
-      "max_support_diff": 3.3306690738754696e-16,
+      "max_support_diff": 2.220446049250313e-16,
       "disagreements": []
     },
     "dev": {

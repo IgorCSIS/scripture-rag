@@ -17,94 +17,94 @@
     "candidates": 50,
     "bm25_original": true,
     "rerankers": [],
-    "bm25_k1": 1.2,
+    "bm25_k1": 1.5,
     "bm25_b": 0.75,
-    "rrf_k": 20,
+    "rrf_k": 60,
     "support_original": false
   },
-  "final_label": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1|bm25=1.2,0.75|rrf=20",
+  "final_label": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1",
   "final_policy": {
     "t": {
-      "en": 0.18,
-      "pt": 0.04,
-      "es": 0.34
+      "en": 0.12,
+      "pt": 0.72,
+      "es": 0.16
     },
     "s_min": 0.3
   },
   "steps": [
     {
-      "step": "Final: round 2 selection (round2.json)",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1|bm25=1.2,0.75|rrf=20",
+      "step": "Final: round 1 gate rollback with round 2 parity fixes",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1",
       "policy": {
         "t": {
-          "en": 0.18,
-          "pt": 0.04,
-          "es": 0.34
+          "en": 0.12,
+          "pt": 0.72,
+          "es": 0.16
         },
         "s_min": 0.3
       },
       "tune": {
         "n": 109,
-        "answer_accuracy": 0.724,
-        "acc_en": 0.775,
+        "answer_accuracy": 0.776,
+        "acc_en": 0.825,
         "acc_pt": 1.0,
-        "acc_es": 0.364,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.839,
-        "adversarial_answered": 0,
-        "unsupported_answers": 7,
-        "trick_pass": 0.833,
+        "acc_es": 0.455,
+        "refusal_recall": 0.977,
+        "refusal_precision": 0.865,
+        "adversarial_answered": 1,
+        "unsupported_answers": 8,
+        "trick_pass": 0.667,
         "injection_pass": 0.0,
-        "answered": 53
+        "answered": 57
       },
       "dev": {
         "n": 175,
-        "answer_accuracy": 0.702,
-        "acc_en": 0.814,
-        "acc_pt": 0.682,
+        "answer_accuracy": 0.656,
+        "acc_en": 0.837,
+        "acc_pt": 0.523,
         "acc_es": 0.614,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.603,
-        "adversarial_answered": 0,
+        "refusal_recall": 0.955,
+        "refusal_precision": 0.532,
+        "adversarial_answered": 2,
         "unsupported_answers": 10,
         "trick_pass": NaN,
         "injection_pass": NaN,
-        "answered": 102
+        "answered": 96
       },
       "select": {
         "n": 284,
-        "answer_accuracy": 0.709,
-        "acc_en": 0.795,
-        "acc_pt": 0.725,
-        "acc_es": 0.564,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.705,
-        "adversarial_answered": 0,
-        "unsupported_answers": 17,
-        "trick_pass": 0.833,
+        "answer_accuracy": 0.693,
+        "acc_en": 0.831,
+        "acc_pt": 0.588,
+        "acc_es": 0.582,
+        "refusal_recall": 0.966,
+        "refusal_precision": 0.664,
+        "adversarial_answered": 3,
+        "unsupported_answers": 18,
+        "trick_pass": 0.667,
         "injection_pass": 0.0,
-        "answered": 155
+        "answered": 153
       },
       "heldout": {
         "n": 136,
         "answer_accuracy": 0.789,
-        "acc_en": 0.846,
-        "acc_pt": 0.529,
+        "acc_en": 0.862,
+        "acc_pt": 0.471,
         "acc_es": 0.846,
-        "refusal_recall": 0.867,
-        "refusal_precision": 0.778,
-        "adversarial_answered": 4,
-        "unsupported_answers": 17,
+        "refusal_recall": 0.9,
+        "refusal_precision": 0.707,
+        "adversarial_answered": 3,
+        "unsupported_answers": 12,
         "trick_pass": 0.8,
         "injection_pass": 1.0,
-        "answered": 100
+        "answered": 95
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 16.19,
-        "t_rerank": 0.49
+        "t_retrieve": 13.9,
+        "t_rerank": 0.37
       },
-      "wall_s": 33.3
+      "wall_s": 8.6
     }
   ],
   "final_rows": [
@@ -328,13 +328,15 @@
       "type": "answerable",
       "lang": "en",
       "split": "tune",
-      "ok": false,
-      "answered": false,
-      "evidence": false,
+      "ok": true,
+      "answered": true,
+      "evidence": true,
       "unsupported": false,
       "top": 0.1238,
       "support": 0.367,
-      "cited": []
+      "cited": [
+        "Numbers 22:27-29"
+      ]
     },
     {
       "id": "S015",
@@ -392,14 +394,15 @@
       "type": "answerable",
       "lang": "en",
       "split": "heldout",
-      "ok": false,
+      "ok": true,
       "answered": true,
-      "evidence": false,
-      "unsupported": true,
+      "evidence": true,
+      "unsupported": false,
       "top": 0.2283,
       "support": 0.753,
       "cited": [
-        "Sura 93:1-9"
+        "Sura 93:1-9",
+        "koran_rodwell p.56"
       ]
     },
     {
@@ -431,8 +434,8 @@
       "support": 0.598,
       "cited": [
         "koran_rodwell p.200",
-        "koran_rodwell p.304",
-        "koran_rodwell p.47"
+        "Sura 45:35-37",
+        "koran_rodwell p.304"
       ]
     },
     {
@@ -582,7 +585,8 @@
       "support": 1.0,
       "cited": [
         "koran_rodwell p.386",
-        "Sura 2:255-258"
+        "Sura 2:255-258",
+        "Sura 6:139-141"
       ]
     },
     {
@@ -675,17 +679,13 @@
       "type": "answerable",
       "lang": "pt",
       "split": "heldout",
-      "ok": true,
-      "answered": true,
-      "evidence": true,
+      "ok": false,
+      "answered": false,
+      "evidence": false,
       "unsupported": false,
       "top": 0.4921,
       "support": 0.57,
-      "cited": [
-        "Exodus 16:3-4",
-        "Deuteronomy 28:24-26",
-        "Sura 60:24-26"
-      ]
+      "cited": []
     },
     {
       "id": "S036",
@@ -699,8 +699,7 @@
       "top": 0.9055,
       "support": 0.678,
       "cited": [
-        "koran_rodwell p.56",
-        "Sura 93:1-9"
+        "koran_rodwell p.56"
       ]
     },
     {
@@ -716,8 +715,7 @@
       "support": 0.346,
       "cited": [
         "Genesis 42:6-8",
-        "koran_rodwell p.258",
-        "Genesis 37:3-6"
+        "koran_rodwell p.258"
       ]
     },
     {
@@ -829,7 +827,8 @@
       "support": 0.575,
       "cited": [
         "Sura 20:13-21",
-        "koran_rodwell p.124"
+        "koran_rodwell p.124",
+        "koran_rodwell p.114"
       ]
     },
     {
@@ -1506,7 +1505,8 @@
       "support": 0.593,
       "cited": [
         "Genesis 5:22-27",
-        "Genesis 5:27-30"
+        "Genesis 5:27-30",
+        "Genesis 5:17-22"
       ]
     },
     {
@@ -1635,7 +1635,8 @@
       "top": 0.1855,
       "support": 0.605,
       "cited": [
-        "Genesis 15:5-8"
+        "Genesis 15:5-8",
+        "Genesis 17:1-4"
       ]
     },
     {
@@ -1676,16 +1677,16 @@
       "type": "answerable",
       "lang": "en",
       "split": "tune",
-      "ok": false,
+      "ok": true,
       "answered": true,
-      "evidence": false,
-      "unsupported": true,
+      "evidence": true,
+      "unsupported": false,
       "top": 0.9989,
       "support": 0.725,
       "cited": [
         "Genesis 22:7-9",
-        "Genesis 22:12-14",
-        "Genesis 22:4-7"
+        "Genesis 22:4-7",
+        "Genesis 22:1-2"
       ]
     },
     {
@@ -1715,7 +1716,9 @@
       "top": 0.6517,
       "support": 0.65,
       "cited": [
-        "Genesis 28:11-13"
+        "Genesis 28:11-13",
+        "Numbers 24:16-18",
+        "Genesis 32:20-22"
       ]
     },
     {
@@ -1731,7 +1734,8 @@
       "support": 0.86,
       "cited": [
         "Genesis 29:17-21",
-        "Genesis 29:27-31"
+        "Genesis 29:27-31",
+        "Genesis 30:23-26"
       ]
     },
     {
@@ -2030,7 +2034,8 @@
       "support": 0.863,
       "cited": [
         "Numbers 21:7-9",
-        "Numbers 21:9-12"
+        "Numbers 21:9-12",
+        "Deuteronomy 4:42-46"
       ]
     },
     {
@@ -2125,7 +2130,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.2821,
+      "top": 0.1682,
       "support": 0.27,
       "cited": []
     },
@@ -2218,7 +2223,8 @@
       "support": 0.727,
       "cited": [
         "koran_rodwell p.139",
-        "koran_rodwell p.139"
+        "koran_rodwell p.139",
+        "Exodus 2:5-7"
       ]
     },
     {
@@ -2251,7 +2257,8 @@
       "support": 0.633,
       "cited": [
         "Sura 27:15-21",
-        "koran_rodwell p.195"
+        "koran_rodwell p.195",
+        "Sura 27:11-14"
       ]
     },
     {
@@ -2536,9 +2543,7 @@
       "top": 0.8972,
       "support": 0.747,
       "cited": [
-        "Genesis 2:1-4",
-        "Exodus 35:1-3",
-        "Exodus 34:20-22"
+        "Genesis 2:1-4"
       ]
     },
     {
@@ -2570,9 +2575,7 @@
       "top": 0.7389,
       "support": 0.619,
       "cited": [
-        "Genesis 7:11-14",
-        "Genesis 7:3-6",
-        "Genesis 8:4-3"
+        "Genesis 7:11-14"
       ]
     },
     {
@@ -2588,8 +2591,7 @@
       "support": 0.485,
       "cited": [
         "Genesis 8:9-11",
-        "Genesis 8:11-13",
-        "Genesis 8:6-9"
+        "Genesis 8:11-13"
       ]
     },
     {
@@ -2634,9 +2636,7 @@
       "top": 0.999,
       "support": 1.0,
       "cited": [
-        "Exodus 3:1-3",
-        "Numbers 20:5-8",
-        "Sura 79:1-11"
+        "Exodus 3:1-3"
       ]
     },
     {
@@ -2664,9 +2664,7 @@
       "top": 0.9167,
       "support": 0.779,
       "cited": [
-        "Leviticus 19:17-19",
-        "Leviticus 19:15-17",
-        "Exodus 20:14-17"
+        "Leviticus 19:17-19"
       ]
     },
     {
@@ -2745,8 +2743,7 @@
       "support": 0.615,
       "cited": [
         "koran_rodwell p.195",
-        "Sura 27:15-21",
-        "Sura 27:11-14"
+        "Sura 27:15-21"
       ]
     },
     {
@@ -2755,16 +2752,12 @@
       "lang": "pt",
       "split": "heldout",
       "ok": false,
-      "answered": true,
+      "answered": false,
       "evidence": false,
-      "unsupported": true,
+      "unsupported": false,
       "top": 0.3012,
       "support": 0.549,
-      "cited": [
-        "koran_rodwell p.255",
-        "Sura 12:72-71",
-        "Genesis 37:21-23"
-      ]
+      "cited": []
     },
     {
       "id": "P16",
@@ -2789,16 +2782,12 @@
       "lang": "pt",
       "split": "heldout",
       "ok": false,
-      "answered": true,
+      "answered": false,
       "evidence": false,
-      "unsupported": true,
+      "unsupported": false,
       "top": 0.61,
       "support": 1.0,
-      "cited": [
-        "koran_rodwell p.197",
-        "Sura 27:58-60",
-        "koran_rodwell p.129"
-      ]
+      "cited": []
     },
     {
       "id": "P18",
@@ -2806,16 +2795,12 @@
       "lang": "pt",
       "split": "heldout",
       "ok": false,
-      "answered": true,
+      "answered": false,
       "evidence": false,
-      "unsupported": true,
+      "unsupported": false,
       "top": 0.7078,
       "support": 0.536,
-      "cited": [
-        "Numbers 14:1-3",
-        "Exodus 13:16-18",
-        "Exodus 11:2"
-      ]
+      "cited": []
     },
     {
       "id": "E01",
@@ -2860,7 +2845,8 @@
       "support": 0.634,
       "cited": [
         "Genesis 8:3-6",
-        "Genesis 8:4-3"
+        "Genesis 8:4-3",
+        "Numbers 10:33-35"
       ]
     },
     {
@@ -3010,7 +2996,9 @@
       "top": 0.4325,
       "support": 1.0,
       "cited": [
-        "koran_rodwell p.49"
+        "koran_rodwell p.49",
+        "koran_rodwell p.403",
+        "koran_rodwell p.436"
       ]
     },
     {
@@ -3068,13 +3056,16 @@
       "type": "answerable",
       "lang": "es",
       "split": "tune",
-      "ok": false,
-      "answered": false,
-      "evidence": false,
+      "ok": true,
+      "answered": true,
+      "evidence": true,
       "unsupported": false,
       "top": 0.2955,
       "support": 0.586,
-      "cited": []
+      "cited": [
+        "koran_rodwell p.506",
+        "Sura 2:141"
+      ]
     },
     {
       "id": "E18",
@@ -3244,13 +3235,17 @@
       "type": "adversarial",
       "lang": "en",
       "split": "tune",
-      "ok": true,
-      "answered": false,
+      "ok": false,
+      "answered": true,
       "evidence": false,
-      "unsupported": false,
-      "top": 0.1887,
-      "support": 0.0,
-      "cited": []
+      "unsupported": true,
+      "top": 0.4314,
+      "support": 0.356,
+      "cited": [
+        "Exodus 39:9-13",
+        "koran_rodwell p.212",
+        "koran_rodwell p.427"
+      ]
     },
     {
       "id": "A13",
@@ -3407,8 +3402,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.1233,
-      "support": 0.301,
+      "top": 0.1105,
+      "support": 0.161,
       "cited": []
     },
     {
@@ -3520,15 +3515,13 @@
       "type": "adversarial",
       "lang": "pt",
       "split": "heldout",
-      "ok": false,
-      "answered": true,
+      "ok": true,
+      "answered": false,
       "evidence": false,
-      "unsupported": true,
-      "top": 0.0687,
-      "support": 0.371,
-      "cited": [
-        "koran_rodwell p.26"
-      ]
+      "unsupported": false,
+      "top": 0.0267,
+      "support": 0.154,
+      "cited": []
     },
     {
       "id": "A34",
@@ -3633,7 +3626,8 @@
       "top": 0.4772,
       "support": 0.349,
       "cited": [
-        "koran_rodwell p.26"
+        "koran_rodwell p.26",
+        "koran_rodwell p.27"
       ]
     },
     {
@@ -3723,13 +3717,15 @@
       "type": "trick",
       "lang": "en",
       "split": "tune",
-      "ok": true,
-      "answered": false,
+      "ok": false,
+      "answered": true,
       "evidence": false,
-      "unsupported": false,
+      "unsupported": true,
       "top": 0.1404,
       "support": 0.485,
-      "cited": []
+      "cited": [
+        "Genesis 8:4-3"
+      ]
     },
     {
       "id": "T03",
@@ -3868,8 +3864,7 @@
       "support": 0.816,
       "cited": [
         "Genesis 4:1-4",
-        "Genesis 4:4-7",
-        "Numbers 6:14-16"
+        "Genesis 4:4-7"
       ]
     },
     {
@@ -3902,7 +3897,8 @@
       "support": 0.593,
       "cited": [
         "Genesis 5:22-27",
-        "Genesis 5:27-30"
+        "Genesis 5:27-30",
+        "Genesis 5:17-22"
       ]
     },
     {
@@ -3964,8 +3960,7 @@
       "support": 0.849,
       "cited": [
         "Genesis 6:13-15",
-        "Exodus 25:23-26",
-        "Exodus 37:3-6"
+        "Exodus 25:23-26"
       ]
     },
     {
@@ -3994,7 +3989,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.5052,
+      "top": 0.4885,
       "support": 0.284,
       "cited": []
     },
@@ -4105,8 +4100,7 @@
       "support": 0.854,
       "cited": [
         "Genesis 25:30-34",
-        "Genesis 25:27-30",
-        "Genesis 27:30-32"
+        "Genesis 25:27-30"
       ]
     },
     {
@@ -4146,16 +4140,13 @@
       "type": "answerable",
       "lang": "pt",
       "split": "dev",
-      "ok": true,
-      "answered": true,
-      "evidence": true,
+      "ok": false,
+      "answered": false,
+      "evidence": false,
       "unsupported": false,
       "top": 0.4337,
       "support": 0.395,
-      "cited": [
-        "Genesis 28:11-13",
-        "Numbers 24:16-18"
-      ]
+      "cited": []
     },
     {
       "id": "D12-es",
@@ -4185,7 +4176,8 @@
       "support": 0.4,
       "cited": [
         "Genesis 30:6-9",
-        "Genesis 32:25-28"
+        "Genesis 32:25-28",
+        "Genesis 30:3-6"
       ]
     },
     {
@@ -4244,8 +4236,7 @@
       "support": 0.561,
       "cited": [
         "Genesis 37:3-6",
-        "Genesis 37:1-3",
-        "Genesis 46:28-30"
+        "Genesis 37:1-3"
       ]
     },
     {
@@ -4317,7 +4308,8 @@
       "support": 0.612,
       "cited": [
         "Exodus 16:31-32",
-        "Exodus 16:29-31"
+        "Exodus 16:29-31",
+        "Exodus 16:3-4"
       ]
     },
     {
@@ -4325,17 +4317,13 @@
       "type": "answerable",
       "lang": "pt",
       "split": "dev",
-      "ok": true,
-      "answered": true,
-      "evidence": true,
+      "ok": false,
+      "answered": false,
+      "evidence": false,
       "unsupported": false,
       "top": 0.3938,
       "support": 0.612,
-      "cited": [
-        "Exodus 16:29-31",
-        "Exodus 16:31-32",
-        "Exodus 12:19-21"
-      ]
+      "cited": []
     },
     {
       "id": "D20-es",
@@ -4349,7 +4337,9 @@
       "top": 0.3938,
       "support": 0.612,
       "cited": [
-        "Exodus 16:29-31"
+        "Exodus 16:29-31",
+        "Exodus 16:31-32",
+        "Exodus 12:19-21"
       ]
     },
     {
@@ -4382,8 +4372,7 @@
       "support": 0.347,
       "cited": [
         "Exodus 24:16-18",
-        "Exodus 24:14-16",
-        "Numbers 10:33-35"
+        "Exodus 24:14-16"
       ]
     },
     {
@@ -4399,7 +4388,8 @@
       "support": 0.561,
       "cited": [
         "Exodus 24:16-18",
-        "Exodus 24:14-16"
+        "Exodus 24:14-16",
+        "Exodus 19:13-16"
       ]
     },
     {
@@ -4423,15 +4413,13 @@
       "type": "answerable",
       "lang": "pt",
       "split": "dev",
-      "ok": true,
-      "answered": true,
-      "evidence": true,
+      "ok": false,
+      "answered": false,
+      "evidence": false,
       "unsupported": false,
       "top": 0.7025,
       "support": 0.327,
-      "cited": [
-        "Leviticus 16:8-11"
-      ]
+      "cited": []
     },
     {
       "id": "D24-es",
@@ -4465,15 +4453,12 @@
       "lang": "pt",
       "split": "dev",
       "ok": false,
-      "answered": true,
+      "answered": false,
       "evidence": false,
-      "unsupported": true,
+      "unsupported": false,
       "top": 0.086,
       "support": 0.78,
-      "cited": [
-        "Sura 76:23-28",
-        "koran_rodwell p.108"
-      ]
+      "cited": []
     },
     {
       "id": "D25-es",
@@ -4510,17 +4495,13 @@
       "type": "answerable",
       "lang": "pt",
       "split": "dev",
-      "ok": true,
-      "answered": true,
-      "evidence": true,
+      "ok": false,
+      "answered": false,
+      "evidence": false,
       "unsupported": false,
       "top": 0.6572,
       "support": 0.305,
-      "cited": [
-        "Deuteronomy 8:2-3",
-        "Deuteronomy 8:3-5",
-        "Genesis 3:22-24"
-      ]
+      "cited": []
     },
     {
       "id": "D29-es",
@@ -4547,9 +4528,7 @@
       "top": 0.9989,
       "support": 1.0,
       "cited": [
-        "Deuteronomy 34:6-9",
-        "Genesis 50:24-26",
-        "Sura 40:5-8"
+        "Deuteronomy 34:6-9"
       ]
     },
     {
@@ -4564,7 +4543,9 @@
       "top": 0.9989,
       "support": 1.0,
       "cited": [
-        "Deuteronomy 34:6-9"
+        "Deuteronomy 34:6-9",
+        "Genesis 50:24-26",
+        "Sura 40:5-8"
       ]
     },
     {
@@ -4588,17 +4569,13 @@
       "type": "answerable",
       "lang": "pt",
       "split": "dev",
-      "ok": true,
-      "answered": true,
-      "evidence": true,
+      "ok": false,
+      "answered": false,
+      "evidence": false,
       "unsupported": false,
       "top": 0.4559,
       "support": 0.722,
-      "cited": [
-        "Joshua 6:21-23",
-        "Joshua 2:3-5",
-        "Joshua 2:1-3"
-      ]
+      "cited": []
     },
     {
       "id": "D31-es",
@@ -4612,7 +4589,8 @@
       "top": 0.4559,
       "support": 0.722,
       "cited": [
-        "Joshua 6:21-23"
+        "Joshua 6:21-23",
+        "Joshua 2:3-5"
       ]
     },
     {
@@ -4636,17 +4614,13 @@
       "type": "answerable",
       "lang": "pt",
       "split": "dev",
-      "ok": true,
-      "answered": true,
-      "evidence": true,
+      "ok": false,
+      "answered": false,
+      "evidence": false,
       "unsupported": false,
       "top": 0.1752,
       "support": 0.474,
-      "cited": [
-        "Joshua 10:2-5",
-        "Joshua 10:5-6",
-        "Joshua 10:11-12"
-      ]
+      "cited": []
     },
     {
       "id": "D33-es",
@@ -4740,9 +4714,7 @@
       "top": 0.8819,
       "support": 0.557,
       "cited": [
-        "Joshua 3:17",
-        "Joshua 4:22-24",
-        "Joshua 4:18-19"
+        "Joshua 3:17"
       ]
     },
     {
@@ -4771,8 +4743,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0112,
-      "support": 0.182,
+      "top": 0.0196,
+      "support": 0.16,
       "cited": []
     },
     {
@@ -4807,17 +4779,32 @@
       "lang": "en",
       "split": "dev",
       "ok": false,
-      "answered": false,
+      "answered": true,
       "evidence": false,
-      "unsupported": false,
-      "top": 0.1738,
-      "support": 0.834,
-      "cited": []
+      "unsupported": true,
+      "top": 0.1412,
+      "support": 0.403,
+      "cited": [
+        "Leviticus 25:26-28"
+      ]
     },
     {
       "id": "D38-pt",
       "type": "answerable",
       "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.2029,
+      "support": 0.486,
+      "cited": []
+    },
+    {
+      "id": "D38-es",
+      "type": "answerable",
+      "lang": "es",
       "split": "dev",
       "ok": false,
       "answered": true,
@@ -4826,23 +4813,8 @@
       "top": 0.2029,
       "support": 0.486,
       "cited": [
-        "Genesis 3:22-24",
-        "Leviticus 25:26-28",
-        "Leviticus 25:28-29"
+        "Genesis 3:22-24"
       ]
-    },
-    {
-      "id": "D38-es",
-      "type": "answerable",
-      "lang": "es",
-      "split": "dev",
-      "ok": false,
-      "answered": false,
-      "evidence": false,
-      "unsupported": false,
-      "top": 0.2029,
-      "support": 0.486,
-      "cited": []
     },
     {
       "id": "D39-en",
@@ -4918,16 +4890,12 @@
       "lang": "pt",
       "split": "dev",
       "ok": false,
-      "answered": true,
+      "answered": false,
       "evidence": false,
-      "unsupported": true,
+      "unsupported": false,
       "top": 0.4905,
       "support": 0.425,
-      "cited": [
-        "Genesis 47:26-28",
-        "Genesis 41:12-14",
-        "Genesis 41:14-17"
-      ]
+      "cited": []
     },
     {
       "id": "D40-es",
@@ -4941,7 +4909,9 @@
       "top": 0.3498,
       "support": 0.741,
       "cited": [
-        "Genesis 41:43-46"
+        "Genesis 41:43-46",
+        "Genesis 47:26-28",
+        "Genesis 41:46-48"
       ]
     },
     {
@@ -4957,7 +4927,8 @@
       "support": 0.719,
       "cited": [
         "koran_rodwell p.386",
-        "Sura 2:255-258"
+        "Sura 2:255-258",
+        "Sura 4:100-101"
       ]
     },
     {
@@ -5025,16 +4996,16 @@
       "type": "answerable",
       "lang": "es",
       "split": "dev",
-      "ok": true,
+      "ok": false,
       "answered": true,
-      "evidence": true,
-      "unsupported": false,
+      "evidence": false,
+      "unsupported": true,
       "top": 0.9724,
       "support": 0.641,
       "cited": [
         "koran_rodwell p.283",
         "Sura 2:121-122",
-        "koran_rodwell p.175"
+        "Genesis 22:1-2"
       ]
     },
     {
@@ -5169,7 +5140,8 @@
       "top": 0.992,
       "support": 1.0,
       "cited": [
-        "Genesis 1:14-18"
+        "Genesis 1:14-18",
+        "Exodus 13:21-22"
       ]
     },
     {
@@ -5201,8 +5173,7 @@
       "support": 0.75,
       "cited": [
         "Genesis 3:14-15",
-        "Genesis 3:11-14",
-        "Deuteronomy 27:12-15"
+        "Genesis 3:11-14"
       ]
     },
     {
@@ -5298,8 +5269,7 @@
       "support": 0.77,
       "cited": [
         "Genesis 6:13-15",
-        "Genesis 6:15-16",
-        "Exodus 25:2-23"
+        "Genesis 6:15-16"
       ]
     },
     {
@@ -5322,20 +5292,34 @@
       "type": "answerable",
       "lang": "en",
       "split": "dev",
-      "ok": false,
+      "ok": true,
       "answered": true,
-      "evidence": false,
-      "unsupported": true,
+      "evidence": true,
+      "unsupported": false,
       "top": 0.31,
       "support": 0.368,
       "cited": [
-        "Genesis 7:9-11"
+        "Genesis 7:9-11",
+        "Genesis 7:3-6"
       ]
     },
     {
       "id": "D56-pt",
       "type": "answerable",
       "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.31,
+      "support": 0.368,
+      "cited": []
+    },
+    {
+      "id": "D56-es",
+      "type": "answerable",
+      "lang": "es",
       "split": "dev",
       "ok": true,
       "answered": true,
@@ -5345,22 +5329,8 @@
       "support": 0.368,
       "cited": [
         "Genesis 7:9-11",
-        "Genesis 7:3-6",
-        "Genesis 8:4-3"
+        "Genesis 7:3-6"
       ]
-    },
-    {
-      "id": "D56-es",
-      "type": "answerable",
-      "lang": "es",
-      "split": "dev",
-      "ok": false,
-      "answered": false,
-      "evidence": false,
-      "unsupported": false,
-      "top": 0.31,
-      "support": 0.368,
-      "cited": []
     },
     {
       "id": "D57-en",
@@ -5434,9 +5404,7 @@
       "top": 0.7236,
       "support": 1.0,
       "cited": [
-        "Genesis 50:24-26",
-        "Deuteronomy 34:6-9",
-        "koran_rodwell p.254"
+        "Genesis 50:24-26"
       ]
     },
     {
@@ -5535,8 +5503,7 @@
       "support": 0.41,
       "cited": [
         "Exodus 7:19-20",
-        "Exodus 7:20-21",
-        "Exodus 8:5-6"
+        "Exodus 7:20-21"
       ]
     },
     {
@@ -5586,8 +5553,7 @@
       "support": 0.724,
       "cited": [
         "Exodus 17:4-6",
-        "Exodus 17:6-8",
-        "Numbers 20:22-11"
+        "Exodus 17:6-8"
       ]
     },
     {
@@ -5737,8 +5703,7 @@
       "support": 0.506,
       "cited": [
         "Numbers 20:11-13",
-        "Numbers 20:22-11",
-        "koran_rodwell p.363"
+        "Numbers 20:22-11"
       ]
     },
     {
@@ -5754,7 +5719,8 @@
       "support": 0.422,
       "cited": [
         "Numbers 20:11-13",
-        "Numbers 20:22-11"
+        "Numbers 20:22-11",
+        "koran_rodwell p.363"
       ]
     },
     {
@@ -5827,14 +5793,12 @@
       "lang": "pt",
       "split": "dev",
       "ok": false,
-      "answered": true,
+      "answered": false,
       "evidence": false,
-      "unsupported": true,
+      "unsupported": false,
       "top": 0.0493,
       "support": 0.443,
-      "cited": [
-        "Joshua 9:1-4"
-      ]
+      "cited": []
     },
     {
       "id": "D69-es",
@@ -6086,13 +6050,16 @@
       "type": "adversarial",
       "lang": "en",
       "split": "dev",
-      "ok": true,
-      "answered": false,
+      "ok": false,
+      "answered": true,
       "evidence": false,
-      "unsupported": false,
+      "unsupported": true,
       "top": 0.1621,
       "support": 0.308,
-      "cited": []
+      "cited": [
+        "Numbers 16:46-37",
+        "Joshua 8:8-10"
+      ]
     },
     {
       "id": "U06-pt",
@@ -6112,13 +6079,15 @@
       "type": "adversarial",
       "lang": "es",
       "split": "dev",
-      "ok": true,
-      "answered": false,
+      "ok": false,
+      "answered": true,
       "evidence": false,
-      "unsupported": false,
+      "unsupported": true,
       "top": 0.1621,
       "support": 0.308,
-      "cited": []
+      "cited": [
+        "Numbers 16:46-37"
+      ]
     },
     {
       "id": "U07-en",
