@@ -48,12 +48,21 @@ await page.selectOption("#compareBy", "role");
 await page.click("#compareGo");
 await page.waitForSelector(".compare-col", { timeout: 15000 });
 step("compare mode shows side by side columns", (await page.locator(".compare-col").count()) === 2);
+const shots = process.env.SMOKE_SHOTS;
+if (shots) await page.evaluate(() => { document.getElementById("toasts").hidden = true; });
+if (shots) await page.locator("#panel-compare").screenshot({ path: `${shots}/compare-tab.png` });
 
 await page.click("#tab-themes");
 await page.waitForSelector("#themeMap .pt", { timeout: 15000 });
 step("theme map renders", (await page.locator("#themeMap .pt").count()) > 0);
 step("outlier box present", (await page.locator("#outlierBox").count()) === 1);
 
+const sb = page.locator("details:has(#searchBooks)");
+if (await sb.count()) {
+  if (!(await sb.evaluate((d) => d.open))) await sb.locator("summary").click();
+  step("books to search list renders", (await page.locator("#searchBooks input, #searchBooks label").count()) > 0);
+  if (shots) await sb.screenshot({ path: `${shots}/books-to-search.png` });
+}
 await page.click("#manifestBox summary");
 step("manifest table has 2 rows", (await page.locator("#manifestTable tbody tr").count()) === 2);
 const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#manifestCsv")]);
@@ -63,6 +72,7 @@ await page.click("#tab-archive");
 await page.waitForSelector("#iaQuery", { timeout: 10000 });
 const filt = await page.evaluate(() => ["iaLang", "iaTrad", "iaSort", "iaCreator", "iaColl", "iaFrom", "iaTo", "iaPdf", "iaPd", "iaGroup", "iaRelated"].every((id) => document.getElementById(id)));
 step("archive filters, grouping and related controls mounted", filt);
+if (shots) await page.locator("#panel-archive").screenshot({ path: `${shots}/ia-panel.png` });
 await page.screenshot({ path: process.env.SMOKE_SHOT || "/tmp/smoke.png", fullPage: false });
 step(`no page errors (${errors.join(" | ")})`, errors.length === 0);
 await browser.close();
