@@ -9,29 +9,29 @@ treat them as relative, not absolute. Raw results: `docs/benchmarks/vectordb.jso
 
 | Backend | n | recall@10 | p50 ms | p95 ms | build s | memory MB |
 |---|---|---|---|---|---|---|
-| numpy brute force | 1e3 | 1.000 | 0.04 | 0.10 | 0.00 | 0.3 |
-| faiss Flat | 1e3 | 1.000 | 0.04 | 0.04 | 0.03 | 14.4 |
-| faiss HNSW (M 32, efSearch 64) | 1e3 | 1.000 | 0.03 | 0.03 | 0.10 | 0.8 |
-| faiss IVF | 1e3 | 0.672 | 0.01 | 0.01 | 0.01 | 4.0 |
-| LanceDB IVF-PQ (refine 10) | 1e3 | 1.000 | 3.19 | 4.38 | 1.23 | 159.6 |
-| Chroma (HNSW) | 1e3 | 1.000 | 0.58 | 0.96 | 0.55 | 65.7 |
-| numpy brute force | 1e4 | 1.000 | 0.15 | 5.97 | 0.00 | 0.0 |
-| faiss Flat | 1e4 | 1.000 | 0.31 | 4.00 | 0.00 | 0.0 |
-| faiss HNSW | 1e4 | 0.950 | 0.08 | 0.14 | 0.21 | 0.0 |
-| faiss IVF | 1e4 | 0.929 | 0.05 | 0.08 | 0.40 | 18.4 |
-| LanceDB IVF-PQ | 1e4 | 0.835 | 5.92 | 7.12 | 2.30 | 221.7 |
-| Chroma (HNSW) | 1e4 | 0.971 | 0.93 | 1.95 | 0.87 | 61.5 |
-| numpy brute force | 1e5 | 1.000 | 3.31 | 17.10 | 0.04 | 153.6 |
-| faiss Flat | 1e5 | 1.000 | 5.46 | 19.16 | 0.09 | 153.6 |
-| faiss HNSW | 1e5 | 0.836 | 0.13 | 0.24 | 3.07 | 153.6 |
-| faiss IVF | 1e5 | 1.000 | 0.41 | 0.52 | 5.20 | 128.2 |
-| LanceDB IVF-PQ | 1e5 | 0.670 | 6.04 | 8.42 | 21.42 | 393.1 |
-| Chroma (HNSW) | 1e5 | 0.881 | 1.03 | 1.64 | 9.16 | 231.6 |
-| numpy brute force | 1e6 | 1.000 | 25.76 | 33.65 | 0.50 | 1536.1 |
-| faiss Flat | 1e6 | 1.000 | 49.72 | 84.19 | 1.43 | 1537.0 |
-| faiss HNSW | 1e6 | 0.468 | 0.29 | 0.52 | 40.82 | 1797.3 |
-| faiss IVF | 1e6 | 1.000 | 4.32 | 4.84 | 51.69 | 1778.4 |
-| LanceDB IVF-PQ | 1e6 | 0.765 | 7.06 | 9.23 | 45.42 | 295.0 |
+| numpy brute force | 1e3 | 1.000 | 0.03 | 0.05 | 0.00 | 0.3 |
+| faiss Flat | 1e3 | 1.000 | 0.03 | 0.04 | 0.05 | 14.3 |
+| faiss HNSW | 1e3 | 1.000 | 0.03 | 0.04 | 0.07 | 0.8 |
+| faiss IVF | 1e3 | 0.671 | 0.01 | 0.02 | 0.01 | 4.0 |
+| LanceDB (IVF-PQ) | 1e3 | 1.000 | 3.39 | 4.39 | 1.34 | 160.7 |
+| Chroma (HNSW) | 1e3 | 1.000 | 0.64 | 0.95 | 0.80 | 64.4 |
+| numpy brute force | 1e4 | 1.000 | 0.08 | 0.27 | 0.00 | 0.0 |
+| faiss Flat | 1e4 | 1.000 | 0.23 | 1.44 | 0.00 | 0.0 |
+| faiss HNSW | 1e4 | 0.950 | 0.07 | 0.10 | 0.21 | 0.0 |
+| faiss IVF | 1e4 | 0.929 | 0.05 | 0.07 | 0.26 | 18.4 |
+| LanceDB (IVF-PQ) | 1e4 | 0.841 | 5.98 | 7.73 | 2.20 | 173.8 |
+| Chroma (HNSW) | 1e4 | 0.982 | 0.79 | 1.31 | 0.77 | 69.9 |
+| numpy brute force | 1e5 | 1.000 | 1.77 | 7.62 | 0.05 | 153.6 |
+| faiss Flat | 1e5 | 1.000 | 2.36 | 10.78 | 0.20 | 153.6 |
+| faiss HNSW | 1e5 | 0.836 | 0.14 | 0.26 | 2.34 | 153.6 |
+| faiss IVF | 1e5 | 1.000 | 0.45 | 0.58 | 3.66 | 126.6 |
+| LanceDB (IVF-PQ) | 1e5 | 0.669 | 6.10 | 7.99 | 21.13 | 477.5 |
+| Chroma (HNSW) | 1e5 | 0.874 | 1.07 | 1.53 | 9.17 | 234.5 |
+| numpy brute force | 1e6 | 1.000 | 28.11 | 49.91 | 0.46 | 1536.0 |
+| faiss Flat | 1e6 | 1.000 | 53.01 | 84.06 | 1.15 | 1536.0 |
+| faiss HNSW | 1e6 | 0.468 | 0.24 | 0.41 | 41.38 | 1796.2 |
+| faiss IVF | 1e6 | 1.000 | 4.42 | 5.12 | 50.32 | 1772.2 |
+| LanceDB (IVF-PQ) | 1e6 | 0.756 | 7.38 | 9.48 | 49.97 | 284.6 |
 
 Chroma was capped at 1e5 (insert time). Memory is the RSS growth measured around the build, so small values are
 noisy and can read 0. HNSW recall falls at 1e6 because efSearch was held at 64 for every n; raising it trades
