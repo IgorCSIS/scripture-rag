@@ -89,14 +89,13 @@ def main() -> None:
     for row in ann:
         t = sub_row(t, f"{row['n']:,}", [f2(row["brute_p50_ms"]), f2(row["hnsw_p50_ms"]), f2(row["hnsw_build_s"]),
                                          f2(row["recall_at_10"])], numeric_from=0)
-    t = re.sub(r"^\| Answer accuracy \(en / pt / es\) \| [0-9.]+ \([0-9. /]+\); target 0.90, not met \|$",
-               f"| Answer accuracy (en / pt / es) | {h['answer_accuracy']:.3f} ({h['acc_en']:.3f} / "
-               f"{h['acc_pt']:.3f} / {h['acc_es']:.3f}); target 0.90, not met |", t, flags=re.M)
-    wrong = h["unsupported_answers"] - h["adversarial_answered"]
-    t = re.sub(r"^\| Refusal recall / precision \| [0-9.]+ / [0-9.]+; .*\|$",
+    t = re.sub(r"^\| Answer accuracy \(en / es\) \| [0-9.]+ \([0-9. /]+\); target 0.90, not met \|$",
+               f"| Answer accuracy (en / es) | {h['answer_accuracy']:.3f} ({h['acc_en']:.3f} / "
+               f"{h['acc_es']:.3f}); target 0.90, not met |", t, flags=re.M)
+    t = re.sub(r"^\| Refusal recall / precision \| [0-9.]+ / [0-9.]+; .* adversarial answered, .*\|$",
                f"| Refusal recall / precision | {h['refusal_recall']:.3f} / {h['refusal_precision']:.3f}; "
-               f"{h['adversarial_answered']} adversarial answered, {wrong} wrong-evidence answers; "
-               f"injection pass {h['injection_pass']:.3f} |", t, flags=re.M)
+               f"{h['adversarial_answered']} adversarial answered, {h['unsupported_answers']} unsupported answers "
+               f"(incl. adversarial); injection pass {h['injection_pass']:.3f} |", t, flags=re.M)
     Path("README.md").write_text(t, encoding="utf-8")
     Path("docs/COMPLEXITY.md").write_text(c, encoding="utf-8")
 
