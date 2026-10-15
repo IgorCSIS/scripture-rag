@@ -9,7 +9,7 @@ import numpy as np
 
 from .bm25 import BM25Index
 from .chunker import Chunk, Chunker
-from .config import REFUSAL_TEXT, Settings
+from .config import PT_UNSUPPORTED_TEXT, REFUSAL_TEXT, Settings
 from .embed import Embedder, make_embedder
 from .gate import GatePolicy, IdfTable, support
 from .generate import ExtractiveGenerator, Generator
@@ -170,7 +170,7 @@ class RagPipeline:
 
     def _english(self, question: str, lang: str) -> str:
         """Translate PT/ES questions when enabled."""
-        if not self.settings.translate or lang == "en":
+        if not self.settings.translate or lang == "en" or (lang == "pt" and not self.settings.portuguese):
             return question
         if self._translator is None:
             from .translate import QueryTranslator
@@ -233,6 +233,8 @@ class RagPipeline:
             return Answer(question, REFUSAL_TEXT, True, 0.0, reason="no text loaded or empty question")
         question = clean_query(question)
         lang = detect_language(question)
+        if lang == "pt" and not s.portuguese:
+            return Answer(question, PT_UNSUPPORTED_TEXT, True, 0.0, reason="unsupported language (pt)")
         q_en = self._english(question, lang)
         if books:
             # Over-fetch, then keep candidates from the selected books.

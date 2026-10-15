@@ -131,3 +131,14 @@ def test_real_models_smoke() -> None:  # pragma: no cover
                              rerank_model="cross-encoder/ms-marco-MiniLM-L-6-v2", refusal_threshold=0.1))
     p.add_document(load_path(FIXTURES / "books" / "kjv_sample.txt"))
     assert not p.ask("Who is my shepherd?").refused
+
+
+def test_portuguese_questions_unsupported(settings: Settings) -> None:
+    from scripture_rag.config import PT_UNSUPPORTED_TEXT
+
+    p = RagPipeline(settings, embedder=HashingEmbedder(), reranker=LexicalOverlapReranker())
+    p.add_document(load_path(FIXTURES / "books" / "kjv_sample.txt"))
+    a = p.ask("Quem é o meu pastor? O Senhor não me deixa faltar nada?")
+    assert a.refused and a.text == PT_UNSUPPORTED_TEXT and not a.citations
+    assert a.reason == "unsupported language (pt)"
+    assert not Settings().portuguese

@@ -5,6 +5,7 @@
 // so `node --test` checks the same decisions as Python (site/tests/parity.test.mjs).
 
 export const REFUSAL_TEXT = "I could not find this in the loaded texts.";
+export const PT_UNSUPPORTED_TEXT = "Portuguese questions are not supported yet; please ask in English or Spanish.";
 
 /** Shipped defaults: the round 1 final gate (tune split), BM25 k1 1.5 and RRF k 60 (docs/eval/SCORECARD.md). */
 export const DEFAULTS = Object.freeze({
@@ -23,6 +24,8 @@ export const DEFAULTS = Object.freeze({
   windowTokens: 200,
   windowOverlap: 40,
   verseWords: 80,
+  // Portuguese questions are off for launch: they get PT_UNSUPPORTED_TEXT with no retrieval.
+  portuguese: false,
 });
 
 const STOPWORDS = new Set(`a an and are as at be by for from has have he her his i in is it its of on or
@@ -472,6 +475,7 @@ export async function ragAnswer(question, index, models, opts = {}) {
   if (!index.chunks.length || !question.trim()) return empty;
   const q = cleanQuery(question);
   const lang = detectLanguage(q);
+  if (lang === "pt" && !o.portuguese) return { refused: true, unsupportedLanguage: true, lang, text: PT_UNSUPPORTED_TEXT, citations: [], topScore: 0, reason: "unsupported language (pt)" };
   const t0 = now();
   const qEn = lang !== "en" && models.translate ? await models.translate(q, lang) : q;
   const t1 = now();

@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from typing import Final
 
 REFUSAL_TEXT: Final[str] = "I could not find this in the loaded texts."
+PT_UNSUPPORTED_TEXT: Final[str] = "Portuguese questions are not supported yet; please ask in English or Spanish."
 
 
 def _env(name: str, default: str) -> str:
@@ -73,6 +74,8 @@ class Settings:
         Minimum lexical support of the best passage (0 disables the check).
     bm25_k1 : float
         BM25 term-frequency saturation (chosen on tune + dev, see docs/eval/round2.json).
+    portuguese : bool
+        Answer Portuguese questions (off for launch: they get ``PT_UNSUPPORTED_TEXT``, no retrieval).
     rrf_k : int
         Rank fusion constant in ``w / (rrf_k + rank)``.
     reference_path : str
@@ -98,6 +101,7 @@ class Settings:
     min_support: float = 0.3
     bm25_k1: float = 1.5
     rrf_k: int = 60
+    portuguese: bool = False
     reference_path: str = ""
     extra: dict[str, str] = field(default_factory=dict)
 
@@ -144,6 +148,7 @@ class Settings:
             dense_weight=float(_env("DENSE_WEIGHT", str(d["dense_weight"].default))),
             lang_thresholds=_env("LANG_THRESHOLDS", d["lang_thresholds"].default),
             min_support=float(_env("MIN_SUPPORT", str(d["min_support"].default))),
+            portuguese=_env("PORTUGUESE", "0") == "1",
             reference_path=_env("REFERENCE_PATH", ""),
         )
 

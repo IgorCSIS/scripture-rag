@@ -16,7 +16,7 @@ export function mount(root) {
   const api = globalThis.ScriptureRAG;
   const cache = { get: api.cacheGet, put: api.cachePut };
   const q = el("input", { id: "iaQuery", type: "search", placeholder: "Search words, e.g. talmud rodkinson", "aria-label": "Internet Archive search" });
-  const lang = sel("iaLang", [["", "Any language"], ["en", "English"], ["pt", "Portuguese"], ["es", "Spanish"]]);
+  const lang = sel("iaLang", [["", "Any language"], ["en", "English"], ["es", "Spanish"]]);
   const trad = sel("iaTrad", [["", "Any tradition"], ...Object.keys(ia.TRADITIONS).map((t) => [t, t[0].toUpperCase() + t.slice(1)])]);
   const sort = sel("iaSort", [["relevance", "Relevance"], ["date_asc", "Oldest"], ["date_desc", "Newest"], ["downloads", "Most downloaded"], ["title", "Title"]]);
   const creator = el("input", { id: "iaCreator", type: "text" });

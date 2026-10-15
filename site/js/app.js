@@ -342,6 +342,11 @@ function chip(c) {
 
 function renderAnswer(res, q) {
   const box = $("answer");
+  if (res.unsupportedLanguage) {
+    box.replaceChildren(el("div", { class: "state refusal", role: "alert" }, icon(ICONS.warn), el("h3", {}, "Language not supported yet"),
+      el("p", {}, rag.PT_UNSUPPORTED_TEXT)));
+    return;
+  }
   if (res.refused) {
     box.replaceChildren(el("div", { class: "state refusal", role: "alert" }, icon(ICONS.warn), el("h3", {}, NOT_FOUND),
       el("p", {}, res.trace
@@ -377,7 +382,10 @@ async function ask() {
     const scope = $("libRole").value;
     const ids = lib.keepLoaded(state.searchIds, state.books);
     let res;
-    if (state.embedder !== "hashing") {
+    const lang = rag.detectLanguage(rag.cleanQuery(q));
+    if (lang === "pt" && !rag.DEFAULTS.portuguese) {
+      res = { refused: true, unsupportedLanguage: true, lang, text: rag.PT_UNSUPPORTED_TEXT, citations: [], topScore: 0, reason: "unsupported language (pt)" };
+    } else if (state.embedder !== "hashing") {
       // Full pipeline with the built-in defaults scored in docs/eval/SCORECARD.md.
       const books = scope || ids.size ? lib.selectBooks(state.books, { role: scope || undefined, ids }) : null;
       res = await rag.ragAnswer(q, await ragIndex(), pipelineModels, books ? { books } : {});
