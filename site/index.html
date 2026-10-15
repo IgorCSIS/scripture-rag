@@ -19,7 +19,7 @@
 
 <header class="topbar" id="top">
   <div class="topbar-inner">
-    <a class="brand" href="#top" aria-label="Scripture RAG home"><img src="assets/logo.svg" alt="" width="32" height="32"><span>Scripture RAG</span></a>
+    <a class="brand" href="#top" aria-label="Scripture RAG home"><img src="assets/favicon.svg" alt="" width="32" height="32"><span>Scripture RAG</span></a>
     <nav class="mainnav" aria-label="Main">
       <a href="#app">App</a><a href="#how">How it works</a><a href="#themes-about">Themes</a><a href="#bench">Benchmarks</a><a href="#privacy">Privacy</a><a href="https://github.com/IgorCSIS/scripture-rag" rel="noopener">GitHub</a>
     </nav>
@@ -43,7 +43,7 @@
 
 <main>
   <section class="hero" aria-labelledby="hero-title">
-    <img class="hero-logo" src="assets/logo.svg" alt="Three interlocking circles of light around an open page" width="88" height="88">
+    <img class="hero-logo" src="assets/logo.svg" alt="An open book with light rising evenly in every direction" width="88" height="88">
     <h1 id="hero-title">Answers only from the text.<br><span class="grad">With citations, or an honest refusal.</span></h1>
     <p class="lead">Load public-domain books in PDF or TXT, ask in English, Portuguese or Spanish, and open the exact passage and page behind every answer.</p>
     <p class="privacy-pill"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z"/></svg>Everything stays on this device. No uploads, no trackers.</p>
@@ -186,14 +186,14 @@
       <article class="feature"><h3>Honest</h3><p>Below the score threshold it says: <em>Not found in loaded texts.</em></p></article>
       <article class="feature"><h3>Themes</h3><p>k-means over passage embeddings, PCA map, TF-IDF labels, similar passages across books.</p></article>
     </div>
-    <img class="figure" src="assets/pipeline.svg" alt="Ingest pipeline: read pages, chunk, embed, index" loading="lazy">
-    <img class="figure" src="assets/retrieval.svg" alt="Retrieval flow: BM25 and vectors fused, reranked, gated, cited" loading="lazy">
-    <img class="figure" src="assets/architecture.svg" alt="Architecture diagram" loading="lazy">
+    <img class="figure" src="assets/pipeline.svg" alt="Ingest pipeline: upload checks, parse pages, strip control characters, normalize archaic spelling, verse chunks, embed and index" loading="lazy">
+    <img class="figure" src="assets/retrieval.svg" alt="Answer flow: clean, detect language, translate, expand, BM25 plus e5, weighted RRF, rerank top 50, language and support gates, cited quotes or refusal" loading="lazy">
+    <img class="figure" src="assets/architecture.svg" alt="System overview: books to indexes, question to hybrid search, rerank and two gates, then cited quotes or a refusal" loading="lazy">
   </section>
 
   <section id="themes-about" class="content">
     <h2>Unsupervised theme discovery</h2>
-    <img class="figure" src="assets/clustering.svg" alt="Clustering diagram" loading="lazy">
+    <img class="figure" src="assets/clustering.svg" alt="Theme map pipeline: k-means with silhouette, PCA to 2D, TF-IDF labels, outlier flags, similar passages" loading="lazy">
     <p>Passages are embedded, clustered with k-means (k chosen by silhouette), projected to 2D with PCA and labeled with class-based TF-IDF keywords. The map re-clusters as you add books.</p>
   </section>
 
