@@ -2,10 +2,11 @@
 
 <img src="site/assets/logo.svg" alt="Scripture RAG logo: an open book with light rising evenly in every direction" width="120" height="120">
 
-# Scripture RAG
+# Scripture RAG (Beta)
 
 **Answers only from the texts you load. With citations, or an honest refusal.**
 
+![Status Beta](https://img.shields.io/badge/status-beta-e67700)
 ![Python 3.11](https://img.shields.io/badge/python-3.11-3b5bdb)
 ![License MIT](https://img.shields.io/badge/license-MIT-0ca678)
 ![Tests](https://img.shields.io/badge/tests-pytest%20%2B%20node-e8590c)
