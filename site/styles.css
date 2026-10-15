@@ -275,3 +275,12 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 var(--sp-4); }
 .manifest-wrap { overflow-x: auto; margin-bottom: var(--sp-2); }
 .manifest { width: 100%; border-collapse: collapse; font-size: var(--fs-xs); }
 .manifest th, .manifest td { padding: var(--sp-1); border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+
+/* Internet Archive search panel */
+.ia-search { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
+.ia-search input[type="search"] { flex: 1 1 16rem; min-width: 0; width: auto; }
+.ia-filters { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: var(--sp-2); align-items: end; margin-block: var(--sp-2); }
+.ia-field { display: flex; flex-direction: column; gap: .25rem; min-width: 0; }
+.ia-field input, .ia-field select { width: 100%; min-width: 0; }
+.ia-filters > label.small { display: inline-flex; align-items: center; gap: .35rem; }
+.ia-hit { display: grid; gap: .25rem; }
