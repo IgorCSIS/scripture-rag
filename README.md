@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="site/assets/logo.svg" alt="Scripture RAG logo" width="120">
+<img src="site/assets/logo.svg" alt="Scripture RAG logo: an open book with light rising evenly in every direction" width="120" height="120">
 
 # Scripture RAG
 
@@ -18,16 +18,22 @@
 
 ---
 
-Load public-domain books (PDF or TXT, including Internet Archive downloads), ask in English, Portuguese or Spanish, and get the exact passages behind each answer as `[book p.N #chunk_id]`. When the text does not support an answer the app says `I could not find this in the loaded texts.`
+Load public-domain books (PDF or TXT, including Internet Archive downloads), ask in English, Portuguese or Spanish, and get the exact verses behind each answer as `[book p.N #chunk_id]`. Answers are extractive: the app quotes your texts and never generates prose, and there is no LLM anywhere in the pipeline. When the text does not support an answer the app says `I could not find this in the loaded texts.`
 
-<p align="center"><img src="docs/screenshots/ask.png" alt="Ask tab with a cited passage" width="820"></p>
+<p align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/desktop-dark-answer.png">
+  <img src="docs/screenshots/desktop-light-answer.png" alt="Browser app answering 'Who is my shepherd?' with the quoted text of Psalm 23 and the citation psalm23_kjv p.1-3 #0000" width="820">
+</picture>
+</p>
 
 ## Features
 
 | | | |
 |---|---|---|
-| **Hybrid retrieval**<br>BM25 plus embeddings, fused with Reciprocal Rank Fusion (k = 60) | **Reranking**<br>Lexical reranker offline, cross-encoder optional | **Citations everywhere**<br>Every sentence cites a chunk; a regex validator rejects anything else |
-| **Refusal gate**<br>Low relevance means no answer | **Extractive answers**<br>Answers are quoted passages; there is no LLM generation step | **Theme map**<br>k-means, silhouette, PCA, TF-IDF topic labels, optional BERTopic |
+| **Hybrid retrieval**<br>BM25 on the translated and original query plus `multilingual-e5-small`, fused with weighted Reciprocal Rank Fusion | **Reranking**<br>`mmarco-mMiniLMv2-L12` cross-encoder reranks the top 50 (browser default; Python default is an offline lexical reranker) | **Citations everywhere**<br>Every quote carries `[book p.N #chunk_id]`; a validator rejects anything else |
+| **Two refusal gates**<br>Per-language score threshold plus lexical support >= 0.3 | **Extractive answers**<br>Answers are quoted verses; there is no LLM or generation step | **Theme map**<br>k-means, silhouette, PCA, TF-IDF topic labels, optional BERTopic |
+| **Three languages**<br>PT and ES questions are translated to EN with MarianMT before search | **Verse-aware chunks**<br>About 80 words, 1 verse overlap; 200/40 token windows when no verses are found | **Archaic normalization**<br>`thee`, `saith`, `-eth` forms normalized; queries expanded with synonyms |
 | **Similar passages**<br>Nearest neighbors from other books | **Browser demo**<br>Runs fully client side, history in IndexedDB | **Safe uploads**<br>Magic bytes, size and page caps, parse timeout, escaped output |
 | **Compare mode**<br>Same question answered per tradition, side by side | **Outlier flags**<br>Passages far from every cluster are marked on the theme map | **Library manifest**<br>Books, roles, traditions and licenses, exportable as CSV or JSON |
 
@@ -35,8 +41,10 @@ Load public-domain books (PDF or TXT, including Internet Archive downloads), ask
 
 - **Internet Archive panel.** Search archive.org with client-side year, author, collection and public-domain filters; each hit shows a license label. Hits are clustered (k-means, K by silhouette, up to 5) with the active embedder and ranked by similarity to the centroid of the loaded library, so related books surface first. For any item, `licenseurl`, `rights`, `possible-copyright-status` and dates are shown before anything downloads. PDFs are parsed page by page (pypdf in Python, pdf.js in the browser) so every chunk keeps `page_start`/`page_end`.
 - **Book selector.** Choose which loaded books an answer may search; retrieval then runs on that subset only (subset BM25 plus filtered vectors).
-- **Hybrid retrieval.** BM25 (exact words, names, verse references) and `multilingual-e5-small` embeddings (meaning, cross-language) each return candidates; Reciprocal Rank Fusion merges the two rankings without score calibration. A cross-encoder reranker orders the final top 5.
-- **Support gate.** If the best reranked passage scores below the calibrated threshold (0.22 for the e5 + mMiniLM pair, see [stress results](docs/eval/stress_results.md)), the app refuses instead of answering. A validator also refuses any draft whose citations do not resolve to supplied chunks.
+- **Query preparation.** `clean_query` tidies the raw question, the language is detected (en / pt / es), PT and ES questions are translated to English with MarianMT, then archaic normalization and query expansion are applied.
+- **Hybrid retrieval.** BM25 (exact words, names, verse references; run on both the translated and the original query) and `multilingual-e5-small` embeddings (meaning, cross-language) each return candidates; weighted Reciprocal Rank Fusion merges the rankings without score calibration. The `mmarco-mMiniLMv2-L12-H384-v1` cross-encoder reranks the top 50 fused candidates, and the top 3 passages that pass both gates are quoted.
+- **Two gates.** The best reranked passage must clear a per-language threshold (en 0.12, pt 0.72, es 0.16) and have lexical support of at least 0.3 against the question; otherwise the app refuses. Values and how they were chosen: [docs/eval/SCORECARD.md](docs/eval/SCORECARD.md).
+- **Browser and Python parity.** The browser pipeline (`site/js/rag.js`) and the Python one make identical answer/refuse decisions and citations on the eval set ([docs/eval/parity.json](docs/eval/parity.json)). Above 20,000 passages the browser switches from brute-force search to an HNSW index.
 - **History.** Every question, answer and citation is stored in IndexedDB (`scripture-rag` database) with search, re-open, export/import JSON and clear all. Nothing leaves the browser.
 - **Theme map.** k-means (K by silhouette) on passage embeddings, PCA to 2D, class-based TF-IDF labels. Re-clusters when books change; click a point for nearest passages from other books.
 - **Compare mode.** Asks the same question once per group (tradition by default, or per book or role); each group's answer cites only its own books and can refuse independently.
@@ -101,42 +109,39 @@ Everything stays in your browser: libraries (chunks plus embeddings) and the Q&A
 
 ## Diagrams
 
-<p align="center"><img src="docs/diagrams/architecture.svg" alt="Architecture" width="860"></p>
-<p align="center"><img src="docs/diagrams/data_flow.svg" alt="Data flow: ingest path and query path" width="860"></p>
-<p align="center"><img src="docs/diagrams/state.svg" alt="Query state machine" width="860"></p>
+<p align="center"><img src="docs/diagrams/architecture.svg" alt="Architecture: the browser app (UI, ingest, rag.js pipeline, IndexedDB, IA panel, transformers.js models, indexes, theme map) and the Python package (apps, ingest, RagPipeline, extractive answer, Internet Archive, models, indexes, eval harness), kept in parity" width="860"></p>
+<p align="center"><img src="docs/diagrams/data_flow.svg" alt="Data flow: ingest (sanitize, normalize, verse chunk, index) and query (clean, detect language, translate, expand, BM25 plus dense, weighted RRF, rerank top 50, language gate, support gate, cited quotes or refusal)" width="860"></p>
+<p align="center"><img src="docs/diagrams/state.svg" alt="Query state machine: Idle, Preparing, Retrieving, Reranking, Gating, Support check, then Answered or Refused, then Saved to history" width="860"></p>
 
 Mermaid versions of all required diagrams (user story map, use case, architecture, sequence, data flow, ERD, state, class, GUI mockup) are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## How it works
 
-<p align="center"><img src="site/assets/pipeline.svg" alt="Ingest pipeline" width="860"></p>
-<p align="center"><img src="site/assets/retrieval.svg" alt="Retrieval flow" width="860"></p>
+<p align="center"><img src="site/assets/pipeline.svg" alt="Ingest pipeline: upload checks, parse pages, strip control characters, normalize archaic spelling, verse chunks of about 80 words with 1 verse overlap, embed and index" width="860"></p>
+<p align="center"><img src="site/assets/retrieval.svg" alt="Answer flow: question, clean_query, detect language, translate to English, normalize and expand, BM25 and dense search, weighted RRF, rerank top 50, language gate, support gate, cited verse quotes or refusal" width="860"></p>
 
 ```mermaid
 sequenceDiagram
   participant U as User
+  participant P as Pipeline
   participant R as HybridRetriever
   participant RR as Reranker
-  participant E as Extractive answer
-  participant V as Validator
-  U->>R: question
-  R->>RR: top 50 fused by RRF
-  alt top score < threshold
-    RR-->>U: I could not find this in the loaded texts.
-  else
-    RR->>E: top 5 passages
-    E->>V: quoted passages with citations
-    V-->>U: cited answer, or refusal if any citation is invalid
+  U->>P: question
+  P->>P: clean_query, detect language, translate PT/ES to EN, expand
+  P->>R: expanded query + original query
+  R-->>P: top 50 fused by weighted RRF
+  P->>RR: rerank 50 candidates
+  RR-->>P: top 5 + scores
+  alt score < t[lang] or support < 0.3
+    P-->>U: I could not find this in the loaded texts.
+  else both gates pass
+    P-->>U: top 3 verse quotes, each cited [book p.N #id]
   end
 ```
 
-<p align="center"><img src="site/assets/architecture.svg" alt="Architecture" width="860"></p>
-
-All required diagrams (user story map, use case, architecture, sequence, data flow, ERD, state, class, GUI mockup) are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
 ## Unsupervised theme map
 
-<p align="center"><img src="site/assets/clustering.svg" alt="Clustering" width="860"></p>
+<p align="center"><img src="site/assets/clustering.svg" alt="Theme map pipeline: passage vectors, k-means with K by silhouette, PCA to 2D, TF-IDF labels, outlier flags, theme map, similar passages" width="860"></p>
 <p align="center"><img src="docs/screenshots/theme_map.png" alt="Theme map in the browser" width="820"></p>
 
 Passage embeddings are clustered with k-means (K chosen by silhouette), projected to 2D with PCA and labeled with class-based TF-IDF keywords. The map re-clusters as books are added; clicking a point lists the most similar passages from other books. Clusters are statistical similarity, not doctrinal claims.
@@ -163,13 +168,13 @@ n = chunks, d = embedding dim, k = candidates, K = clusters, i = iterations, L =
 | rankRelated | O(r d + r log r) | 1.04 |
 | Book selector (selectBooks) | O(B + s) | 0.72 |
 
-<p align="center"><img src="docs/benchmarks/overview.png" alt="Runtime vs n, log-log" width="560"></p>
+<p align="center"><img src="docs/benchmarks/overview.png" alt="Log-log plot of median Python runtime vs n for chunking, brute-force search, HNSW, BM25, k-means and PCA" width="640"></p>
 
 <p align="center">
-<img src="docs/benchmarks/brute_force_search.png" width="410" alt="Brute force">
-<img src="docs/benchmarks/hnsw_search.png" width="410" alt="HNSW">
-<img src="docs/benchmarks/kmeans.png" width="410" alt="k-means">
-<img src="docs/benchmarks/bm25_query.png" width="410" alt="BM25">
+<img src="docs/benchmarks/brute_force_search.png" width="410" alt="Brute-force search median latency vs n, linear and log-log, slope 1.05">
+<img src="docs/benchmarks/hnsw_search.png" width="410" alt="HNSW search median latency vs n, linear and log-log, slope 0.38">
+<img src="docs/benchmarks/kmeans.png" width="410" alt="k-means median latency vs n, linear and log-log, slope 0.62">
+<img src="docs/benchmarks/bm25_query.png" width="410" alt="BM25 query median latency vs n, linear and log-log, slope 1.21">
 </p>
 
 Full table, theory (curse of dimensionality, NP-hardness of k-means, refusal as a decision problem, citations as a regular language, rank aggregation) and discussion: [docs/COMPLEXITY.md](docs/COMPLEXITY.md). Regenerate with `python bench/bench_complexity.py`.
@@ -192,7 +197,7 @@ All numbers below are copied from files committed in the repo. Nothing is estima
 
 ### PDF stress test ([docs/eval/stress_results.md](docs/eval/stress_results.md))
 
-Two Internet Archive books (KJV 1611 reprint, Rodwell Koran), `multilingual-e5-small` + `mmarco-mMiniLMv2-L12-H384-v1`, threshold 0.22, 81 items.
+Previous configuration (before verse chunks, translation and the two gates): two Internet Archive books (KJV 1611 reprint, Rodwell Koran), `multilingual-e5-small` + `mmarco-mMiniLMv2-L12-H384-v1`, 200/40 windows, single threshold 0.22, 81 items. Kept for history; the shipped configuration is measured in the [Final scorecard](#final-scorecard).
 
 | Metric | Value |
 |---|---|
@@ -202,9 +207,11 @@ Two Internet Archive books (KJV 1611 reprint, Rodwell Koran), `multilingual-e5-s
 | Refusal recall / precision | 0.929 / 0.906 |
 | False refusals on answerable | 3 |
 | Trick / injection pass rate | 0.667 / 0.667 |
-| Latency p50 | 1972 ms |
+| Latency p50 (previous config) | 1972 ms |
 
 ### Grounding: source not loaded vs loaded ([docs/eval/loaded_phase_results.md](docs/eval/loaded_phase_results.md))
+
+Previous configuration (single threshold 0.22).
 
 | Condition | Pass | Answered | Abstained |
 |---|---|---|---|
@@ -230,9 +237,9 @@ Two Internet Archive books (KJV 1611 reprint, Rodwell Koran), `multilingual-e5-s
 | Role-scoped answer | 3.46 | 4.54 | 7.80 | 18.35 | 34.21 |
 | Compare by tradition | 7.36 | 10.54 | 15.45 | 36.88 | 69.60 |
 
-<p align="center"><img src="docs/benchmarks/library_stages.png" width="410" alt="Library stages"> <img src="docs/benchmarks/browser_ann.png" width="410" alt="Browser ANN"></p>
+<p align="center"><img src="docs/benchmarks/library_stages.png" width="410" alt="Log-log plot of browser library stage latency vs passages n: outliers, auto-tags, manifest CSV, role-scoped answer, compare by tradition"> <img src="docs/benchmarks/browser_ann.png" width="410" alt="Log-log plot of browser p50 search latency vs n passages, brute force vs HNSW, with HNSW recall@10 at each n"></p>
 
-IA panel stages, ms by r hits:
+IA panel stages, ms by r search hits (for the book selector, B = r books):
 
 | Stage | r=25 | 50 | 100 | 200 | 400 | Slope |
 |---|---|---|---|---|---|---|
@@ -241,41 +248,46 @@ IA panel stages, ms by r hits:
 | rankRelated | 0.020 | 0.035 | 0.078 | 0.135 | 0.386 | 1.04 |
 | Book selector (selectBooks) | 0.004 | 0.005 | 0.008 | 0.012 | 0.031 | 0.72 |
 
-<p align="center"><img src="docs/benchmarks/ia_stages.png" width="560" alt="IA panel stages"></p>
+<p align="center"><img src="docs/benchmarks/ia_stages.png" width="640" alt="Log-log plot of Internet Archive panel stage latency vs r hits: filterHits, clusterHits, rankRelated, book selector"></p>
 
 Server-side vector store comparison (NumPy, FAISS Flat/HNSW/IVF, LanceDB, Chroma): [docs/VECTOR_DB.md](docs/VECTOR_DB.md), raw data in [docs/benchmarks/vectordb.json](docs/benchmarks/vectordb.json).
 
 ### Final scorecard
 
-From the strict tune / held-out run of [docs/eval/eval_set.jsonl](docs/eval/eval_set.jsonl). Full before/after and per-configuration tables: [docs/eval/SCORECARD.md](docs/eval/SCORECARD.md).
+From the strict tune / held-out run of [docs/eval/eval_set.jsonl](docs/eval/eval_set.jsonl), shipped configuration, copied from [docs/eval/SCORECARD.md](docs/eval/SCORECARD.md) at commit f05db61. Every choice was made on the tune split and a synthetic dev set; held-out was scored once.
 
 | Metric | Value |
 |---|---|
 | Items | 245 scored (109 tune, 136 held-out); numbers below are held-out |
-| Recall@10 hybrid + rerank | not reported by the ablation; accuracy is graded on cited evidence instead |
-| Answer accuracy (en / pt / es) | 0.789 (0.846 / 0.529 / 0.846); target 0.90, not met |
-| Citation validity | 1.0 |
-| Refusal recall / precision | 0.867 / 0.778; 4 adversarial answered, 13 wrong-evidence answers; injection pass 1.000 |
-| Latency p50 / p95 | 1,972 ms p50 end to end on CPU (first stress run); the ablation reuses cached model outputs, so it does not time stages; p95 not recorded |
+| Answer accuracy (en / pt / es) | 0.789 (0.862 / 0.471 / 0.846); target 0.90, not met |
+| Citation validity | 1.0 (extractive quotes, valid by construction) |
+| Refusal recall / precision | 0.900 / 0.707; 3 adversarial answered, 12 unsupported answers (incl. adversarial); injection pass 1.000 |
+| Retrieval recall | not reported; accuracy is graded on cited evidence instead |
+| Latency | not measured for the shipped configuration (the eval reuses cached model outputs); the only timed run is the previous config above (1,972 ms p50 on CPU) |
 
 ## Limitations
 
 - OCR noise in scanned Internet Archive books affects retrieval; scanned PDFs without a text layer yield no text.
 - Citations use the PDF page index, which can differ from the printed page number.
 - A chunk spanning two pages is cited by its first page; the Sources view shows the full range.
-- The default offline embedder and reranker match words, not meaning; use the real models for semantic and cross-language questions. The refusal threshold must be calibrated per model.
+- The browser full-pipeline mode ships `multilingual-e5-small`, MarianMT and the mMiniLM cross-encoder. The Python defaults (`EMBED_MODEL=hashing`, `RERANK_MODEL=lexical`) are offline and match words, not meaning; install the real models for semantic and cross-language questions. The gate thresholds are calibrated for the e5 + mMiniLM pair.
+- Portuguese accuracy trails English and Spanish (see the scorecard); MarianMT paraphrases often push lexical support just under 0.3.
 - Clusters are statistical, not doctrinal.
 
 ## Project layout
 
 ```
-src/scripture_rag/   config, sanitize, ingest, chunker, embed, index, bm25, hybrid, rerank,
-                     generate, validate, pipeline, topics, similar, ia_import, eval, corpus
+src/scripture_rag/   config, sanitize, ingest, verses, chunker, normalize, text_utils, translate,
+                     embed, index, bm25, hybrid, rerank, gate, generate (extractive), validate,
+                     pipeline, topics, similar, library, ia_search, ia_import, discover, pdfgen,
+                     eval, corpus
 app_gradio.py        local app (extractive answers)
 app_streamlit.py     extractive demo
 demo.py              command line demo
-bench/               complexity benchmarks
-site/                static website and browser demo (js/core.js, js/db.js, js/app.js)
+bench/               benchmarks; plot_benchmarks.py re-plots every chart from the JSON
+site/                static website and browser demo: js/rag.js (pipeline), models.js, ann.js (HNSW),
+                     core.js, library.js, ia.js, archive-ui.js, db.js (IndexedDB), app.js, ui.js
+scripts/             eval, parity and scorecard scripts
 tests/               pytest suite and public-domain fixtures
 docs/                PRD, architecture, complexity, evaluation, security, sources, progress
 ```
@@ -289,7 +301,9 @@ docs/                PRD, architecture, complexity, evaluation, security, source
 | [docs/COMPLEXITY.md](docs/COMPLEXITY.md) | Big-O table, computational theory, benchmark plots |
 | [docs/COURSE_MAPPING.md](docs/COURSE_MAPPING.md) | Feature to course module mapping |
 | [docs/EVALUATION.md](docs/EVALUATION.md) | Eval harness and smoke results |
-| [docs/eval/](docs/eval/) | Stress and grounding eval sets and results |
+| [docs/eval/SCORECARD.md](docs/eval/SCORECARD.md) | Final held-out scorecard, tuning steps, browser parity |
+| [docs/eval/](docs/eval/) | Eval sets, stress and grounding results, raw JSON |
+| [docs/research/TUNING_RESEARCH.md](docs/research/TUNING_RESEARCH.md) | Tuning research notes |
 | [docs/benchmarks/](docs/benchmarks/) | Benchmark JSON and PNGs |
 | [docs/VECTOR_DB.md](docs/VECTOR_DB.md) | Vector index choice |
 | [docs/SECURITY.md](docs/SECURITY.md) | Uploads, prompt injection, storage, secrets |
@@ -315,8 +329,11 @@ docs/LAUNCH_CHECKLIST.md
 docs/PROGRESS.md
 docs/SECURITY.md
 docs/VECTOR_DB.md
+docs/eval/SCORECARD.md
+docs/eval/scorecard_notes.md
 docs/eval/loaded_phase_results.md
 docs/eval/stress_results.md
+docs/research/TUNING_RESEARCH.md
 ```
 
 ## License

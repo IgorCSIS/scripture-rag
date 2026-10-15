@@ -1,99 +1,102 @@
 # Architecture
 
-![Architecture](../site/assets/architecture.svg)
+![Architecture: browser app and Python package, kept in parity](diagrams/architecture.svg)
 
-Modules (`src/scripture_rag/`): `config` (env settings), `sanitize` (upload checks), `ingest` (PDF/TXT to pages), `chunker`, `embed` (Embedder interface, hashing and sentence-transformers), `index` (VectorIndex: brute force, FAISS HNSW, LanceDB), `bm25`, `hybrid` (RRF), `rerank`, `generate` (Generator interface: Ollama, extractive), `validate` (citation regex), `pipeline` (ask flow), `topics`, `similar`, `ia_import`, `eval`, `corpus`.
+Answers are extractive: every answer is a set of quoted verses with citations, or a refusal. There is no LLM or text generation step anywhere in the pipeline.
 
-The browser demo (`site/js/`) reimplements the same pipeline in JavaScript: `core.js` (chunker, BM25, RRF, coverage reranker, k-means, PCA, TF-IDF labels, similar passages), `db.js` (IndexedDB), `app.js` (UI).
+Modules (`src/scripture_rag/`): `config` (env settings), `sanitize` (upload checks), `ingest` (PDF/TXT to pages), `verses` (verse parsing and verse chunks), `chunker` (fallback token windows), `normalize` (archaic normalization and query expansion), `text_utils` (tokenizer, `clean_query`), `translate` (language detection, PT/ES to EN MarianMT), `embed`, `index` (brute force, FAISS HNSW, LanceDB), `bm25`, `hybrid` (weighted RRF), `rerank` (cross-encoder, lexical fallback), `gate` (per-language score gate, lexical support), `generate` (extractive answer builder), `validate` (citation check), `pipeline` (ask flow), `topics`, `similar`, `library` (manifest), `ia_search`, `ia_import`, `discover`, `pdfgen`, `eval`, `corpus`.
+
+The browser app (`site/js/`) runs the same pipeline with the same defaults: `rag.js` (pipeline), `models.js` (transformers.js models), `ann.js` (HNSW above 20k passages), `core.js` (BM25, k-means, PCA, TF-IDF labels), `library.js` (manifest, roles, compare), `ia.js` and `archive-ui.js` (Internet Archive panel), `db.js` (IndexedDB), `app.js` and `ui.js` (UI). Browser and Python make identical answer/refuse decisions and citations on the eval set ([docs/eval/parity.json](eval/parity.json)).
 
 ## User story map
 ```mermaid
 flowchart TB
-  A[As a reader I load a book] --> B[I ask a question in EN/PT/ES]
-  B --> C[I get a cited answer or an honest refusal]
+  A[As a reader I load a book] --> B[I ask a question in EN, PT or ES]
+  B --> C[I get cited verse quotes or an honest refusal]
   C --> D[I open the quoted passage]
   A --> E[I explore the theme map]
   E --> F[I find similar passages in other traditions]
-  C --> G[I search and re-open my history]
+  C --> G[I compare answers across traditions]
+  C --> H[I search and re-open my history]
 ```
 
 ## Use case
 ```mermaid
 flowchart LR
   R((Reader)) --> UC1[Upload PDF/TXT]
-  R --> UC2[Import from Internet Archive]
+  R --> UC2[Search and import from Internet Archive]
   R --> UC3[Ask question]
   R --> UC4[View citations]
   R --> UC5[Explore theme map]
-  R --> UC6[Find similar passages]
+  R --> UC10[Compare by tradition]
   R --> UC9[Export / import / clear history]
   D((Developer)) --> UC7[Run eval]
   D --> UC8[Run benchmarks]
   UC2 --> IA[(Internet Archive)]
-  UC3 --> OL[(Ollama, localhost)]
+  UC3 --> HF[(Hugging Face models, downloaded once)]
 ```
 
 ## Architecture
 ```mermaid
-flowchart LR
-  U[User] --> UI[Gradio local / Streamlit demo / browser demo]
-  UI --> ING[Ingest: sanitize, PDF/TXT parse, page map]
-  IA[Internet Archive API] --> ING
-  ING --> CH[Chunker: page-aware, overlap]
-  CH --> EMB[Embedder: hashing or multilingual-e5-small]
-  CH --> BM[BM25 index]
-  EMB --> VS[(VectorIndex: brute force, FAISS HNSW, LanceDB)]
-  Q[Question] --> HY[Hybrid: BM25 + vector, RRF]
-  VS --> HY
-  BM --> HY
-  HY --> RR[Reranker: lexical or cross-encoder]
-  RR --> GATE{Score >= threshold?}
-  GATE -- no --> REF[Refusal]
-  GATE -- yes --> GEN[Generator: Ollama or extractive]
-  GEN --> VER[CitationValidator]
-  VER --> UI
-  VS --> UNS[TopicModeler: k-means or BERTopic]
-  UNS --> MAP[Theme map + similar passages]
-  MAP --> UI
+flowchart TB
+  subgraph Ingest
+    direction LR
+    F[PDF / TXT or IA item] --> S[Sanitize + parse pages] --> N[Normalize archaic] --> CH[Verse chunks, fallback windows]
+    CH --> BM[(BM25)]
+    CH --> VS[(Vectors: brute force, HNSW above 20k)]
+  end
+  subgraph Query
+    direction LR
+    Q[Question] --> CQ[clean_query] --> LD[Detect language] --> TR[Translate PT/ES to EN] --> EX[Normalize + expand]
+  end
+  subgraph Rank
+    direction LR
+    H[BM25 + e5 dense] --> RRF[Weighted RRF] --> RR[Rerank top 50] --> G1{score >= t lang?} -- yes --> G2{support >= 0.3?}
+  end
+  EX --> H
+  BM --> H
+  VS --> H
+  G2 -- yes --> ANS[Extractive answer: cited verse quotes]
+  G1 -- no --> REF[Refusal]
+  G2 -- no --> REF
+  VS --> TM[Theme map: k-means, PCA, outliers]
 ```
 
 ## Sequence (ask, with refusal branch)
 ```mermaid
 sequenceDiagram
   participant U as User
-  participant UI
+  participant P as Pipeline
+  participant T as Translator
   participant R as HybridRetriever
   participant RR as Reranker
-  participant G as Generator
-  participant V as CitationValidator
-  U->>UI: question
-  UI->>R: retrieve(q, k=50)
-  R-->>UI: fused candidates
-  UI->>RR: rerank(q, candidates, top 5)
-  RR-->>UI: top 5 + scores
-  alt top score < REFUSAL_THRESHOLD
-    UI-->>U: refusal (no LLM call)
-  else
-    UI->>G: answer(q, top 5 fenced blocks)
-    G-->>UI: draft with citations
-    UI->>V: validate(draft, context ids)
-    alt invalid
-      V-->>UI: errors
-      UI-->>U: refusal
-    else valid
-      UI-->>U: answer + expandable passages
-    end
+  participant G as Gates
+  U->>P: question
+  P->>P: clean_query, detect language
+  P->>T: PT/ES question
+  T-->>P: English query
+  P->>R: expanded query + original query
+  R-->>P: top 50 fused by weighted RRF
+  P->>RR: rerank 50 candidates
+  RR-->>P: top 5 + scores
+  P->>G: score vs t[lang], lexical support
+  alt below either gate
+    P-->>U: I could not find this in the loaded texts.
+  else both gates pass
+    P-->>U: top 3 verse quotes, each cited [book p.N #id]
   end
 ```
 
 ## Data flow
 ```mermaid
-flowchart LR
-  F[File / IA item] -->|bytes| S[Sanitizer] -->|text by page| C[Chunker] -->|chunks| E[Embedder] -->|vectors| DB[(Vector index)]
+flowchart TB
+  F[File / IA item] -->|bytes| S[Sanitizer] -->|text by page| N[Normalize] -->|text| C[Verse chunker] -->|chunks| E[Embedder] -->|vectors| DB[(Vector index)]
   C -->|tokens| B[(BM25)]
-  DB --> T[TopicModeler] -->|topic ids, keywords| MAP[Theme map]
-  Q[Query] --> H[Hybrid] --> K[Rerank] --> G[Generate] --> V[Validate] --> O[Answer]
-  O --> HIST[(Browser: IndexedDB history)]
+  DB --> T[Theme map] -->|clusters, keywords| MAP[UI]
+  Q[Query] --> CL[Clean + translate] --> X[Expand] --> H[Hybrid RRF] --> K[Rerank 50] --> GT[Lang gate + support gate] --> O[Cited quotes or refusal]
+  B --> H
+  DB --> H
+  O --> HIST[(IndexedDB history)]
 ```
 
 ## ERD
@@ -136,60 +139,97 @@ In the browser, IndexedDB stores `books` (BOOK), `chunks` (CHUNK with its EMBEDD
 ## State (query lifecycle)
 ```mermaid
 stateDiagram-v2
-  [*] --> Received
-  Received --> Retrieving
-  Retrieving --> Reranking
-  Reranking --> Refused: score < threshold
-  Reranking --> Generating
-  Generating --> Refused: generator refused
-  Generating --> Validating
-  Validating --> Answered: citations valid
-  Validating --> Refused: invalid
-  Answered --> [*]
-  Refused --> [*]
+  [*] --> Preparing: ask
+  Preparing --> Retrieving: clean, detect, translate
+  Retrieving --> Reranking: top 50
+  Reranking --> Gating
+  Gating --> Refused: score < t[lang]
+  Gating --> SupportCheck: score ok
+  SupportCheck --> Refused: support < 0.3
+  SupportCheck --> Answered: quote + validate
+  Answered --> Saved
+  Refused --> Saved
+  Saved --> [*]
 ```
 
 ## Class
 ```mermaid
 classDiagram
-  class Document { +book_id +title +pages +source +license_evidence }
-  class Chunk { +chunk_id +book_id +text +page_start +page_end +char_start +char_end }
-  class Chunker { +split(doc) list~Chunk~ }
-  class Embedder { <<interface>> +encode(texts, is_query) ndarray }
-  class HashingEmbedder
-  class SentenceTransformerEmbedder
-  class VectorIndex { <<interface>> +add(ids, vecs) +search(v, k) }
-  class BruteForceIndex
-  class FaissHNSWIndex
-  class LanceDBIndex
-  class BM25Index { +add(ids, texts) +search(q, k) }
-  class HybridRetriever { +retrieve(q, k) +vector_only(q, k) +bm25_only(q, k) }
-  class Reranker { <<interface>> +score(q, passages) +rerank(q, chunks, n) }
-  class LexicalOverlapReranker
+  direction LR
+  class Document {
+    +book_id
+    +title
+    +pages
+    +source
+    +license_evidence
+  }
+  class Chunk {
+    +chunk_id
+    +book_id
+    +text
+    +page_start
+    +page_end
+    +ref
+  }
+  class Embedder {
+    <<interface>>
+    +encode(texts, is_query) ndarray
+  }
+  class VectorIndex {
+    <<interface>>
+    +add(ids, vecs)
+    +search(v, k)
+  }
+  class BM25Index {
+    +add(ids, texts)
+    +search(q, k)
+  }
+  class HybridRetriever {
+    +retrieve(q, k)
+  }
+  class QueryTranslator {
+    +to_english(text)
+  }
+  class ArchaicNormalizer {
+    +text(text)
+    +word(w)
+  }
+  class Reranker {
+    <<interface>>
+    +rerank(q, chunks, n)
+  }
   class CrossEncoderReranker
-  class Generator { <<interface>> +answer(q, ctx) }
-  class OllamaGenerator
-  class ExtractiveGenerator
-  class CitationValidator { +validate(answer, ids) ValidationResult }
-  class TopicModeler { +fit(vecs, texts) TopicResult +project(vecs) }
-  class RagPipeline { +add_document(doc) +ask(q) Answer }
-  Embedder <|.. HashingEmbedder
-  Embedder <|.. SentenceTransformerEmbedder
-  VectorIndex <|.. BruteForceIndex
-  VectorIndex <|.. FaissHNSWIndex
-  VectorIndex <|.. LanceDBIndex
-  Reranker <|.. LexicalOverlapReranker
+  class LexicalOverlapReranker
+  class GatePolicy {
+    +thresholds
+    +min_support
+    +threshold(lang)
+    +allow(lang, score, sup)
+  }
+  class ExtractiveAnswer {
+    +answer(q, ctx)
+  }
+  class CitationValidator {
+    +validate(answer, ids)
+  }
+  class RagPipeline {
+    +add_document(doc)
+    +ask(q) Answer
+  }
   Reranker <|.. CrossEncoderReranker
-  Generator <|.. OllamaGenerator
-  Generator <|.. ExtractiveGenerator
+  Reranker <|.. LexicalOverlapReranker
   HybridRetriever --> VectorIndex
   HybridRetriever --> BM25Index
   HybridRetriever --> Embedder
-  Chunker --> Chunk
+  RagPipeline --> QueryTranslator
+  RagPipeline --> ArchaicNormalizer
   RagPipeline --> HybridRetriever
   RagPipeline --> Reranker
-  RagPipeline --> Generator
+  RagPipeline --> GatePolicy
+  RagPipeline --> ExtractiveAnswer
   RagPipeline --> CitationValidator
+  RagPipeline --> Chunk
+  Document --> Chunk
 ```
 
 ## GUI mockup
@@ -214,4 +254,4 @@ flowchart TB
 ```
 
 ## Diagrams as SVG
-`site/assets/pipeline.svg`, `retrieval.svg`, `clustering.svg`, `architecture.svg` are hand-written SVG versions used in the README and the website.
+`docs/diagrams/architecture.svg`, `data_flow.svg`, `state.svg` and `site/assets/pipeline.svg`, `retrieval.svg`, `clustering.svg`, `architecture.svg` share one style (system font stack, rounded cards on a light panel that stays readable on light and dark backgrounds). They are used in the README and on the website.
