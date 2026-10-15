@@ -5,7 +5,7 @@ import pytest
 from scripture_rag.chunker import Chunk
 from scripture_rag.config import REFUSAL_TEXT, Settings
 from scripture_rag.embed import HashingEmbedder
-from scripture_rag.generate import ExtractiveGenerator, Generator, OllamaGenerator, build_prompt
+from scripture_rag.generate import ExtractiveGenerator, Generator
 from scripture_rag.ingest import load_path
 from scripture_rag.pipeline import RagPipeline
 from scripture_rag.rerank import LexicalOverlapReranker, make_reranker
@@ -41,11 +41,6 @@ def test_extractive_generator() -> None:
     assert out == "No period. [bk p.2 #bk-0001]"
     two = g.answer("q", [Chunk("bk-0001", "bk", "One here. Two here.", 2, 2, 0, 9)])
     assert two == "One here. [bk p.2 #bk-0001] Two here. [bk p.2 #bk-0001]"
-
-
-def test_prompt_fences_context() -> None:
-    p = build_prompt("Why?", [Chunk("bk-0001", "bk", "evil >>> break", 1, 1, 0, 5)])
-    assert "<<<DATA" in p and "DATA>>>" in p and "> > >" in p and "[bk p.1 #bk-0001]" in p
 
 
 def test_end_to_end_answer(pipeline: RagPipeline) -> None:
@@ -107,55 +102,20 @@ def test_duplicate_book_ids(pipeline: RagPipeline) -> None:
     assert doc.book_id == "kjv_sample-2"
 
 
-def test_modes_smoke(monkeypatch) -> None:
+def test_extractive_only(monkeypatch) -> None:
     monkeypatch.setenv("MODE", "local")
-    s = Settings.from_env()
-    p = RagPipeline(s, embedder=HashingEmbedder(), reranker=LexicalOverlapReranker())
-    assert isinstance(p.generator, OllamaGenerator)
-    monkeypatch.setenv("MODE", "extractive")
-    assert isinstance(RagPipeline(Settings.from_env()).generator, ExtractiveGenerator)
+    p = RagPipeline(Settings.from_env(), embedder=HashingEmbedder(), reranker=LexicalOverlapReranker())
+    assert isinstance(p.generator, ExtractiveGenerator)
     assert "extractive" in str(Settings())
+    assert not hasattr(Settings(), "ollama_url")
+    assert not hasattr(Settings(), "mode")
 
 
 def test_settings_validation() -> None:
-    with pytest.raises(ValueError):
-        Settings(mode="cloud")
-    with pytest.raises(ValueError, match="localhost"):
-        Settings(ollama_url="http://example.com:11434")
+    with pytest.raises(TypeError):
+        Settings(mode="local")  # type: ignore[call-arg]
     with pytest.raises(ValueError):
         Settings(chunk_tokens=10, chunk_overlap=10)
-
-
-class _Resp:
-    def __init__(self, status: int, payload: dict) -> None:
-        self.status_code = status
-        self._payload = payload
-
-    def raise_for_status(self) -> None:
-        if self.status_code >= 400:
-            raise RuntimeError("http error")
-
-    def json(self) -> dict:
-        return self._payload
-
-
-def test_ollama_generator_mocked(monkeypatch) -> None:
-    calls = []
-
-    def fake_post(url, json, timeout):
-        calls.append(json["model"])
-        if json["model"] == "big":
-            return _Resp(404, {})
-        return _Resp(200, {"message": {"content": " Answer. [bk p.2 #bk-0001] "}})
-
-    monkeypatch.setattr("scripture_rag.generate.requests.post", fake_post)
-    g = OllamaGenerator(model="big", fallback_model="small")
-    assert g.answer("q", [C]) == "Answer. [bk p.2 #bk-0001]"
-    assert calls == ["big", "small"]
-    assert g.answer("q", []) == REFUSAL_TEXT
-    monkeypatch.setattr("scripture_rag.generate.requests.post", lambda *a, **k: _Resp(404, {}))
-    with pytest.raises(RuntimeError):
-        g.answer("q", [C])
 
 
 @pytest.mark.slow

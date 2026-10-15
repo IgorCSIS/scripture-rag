@@ -12,7 +12,7 @@ from .chunker import Chunk, Chunker
 from .config import REFUSAL_TEXT, Settings
 from .embed import Embedder, make_embedder
 from .gate import GatePolicy, IdfTable, support
-from .generate import ExtractiveGenerator, Generator, OllamaGenerator
+from .generate import ExtractiveGenerator, Generator
 from .hybrid import HybridRetriever
 from .index import BruteForceIndex
 from .ingest import Document
@@ -68,7 +68,7 @@ class RagPipeline:
     reranker : Reranker or None
         Override the configured reranker.
     generator : Generator or None
-        Override the generator chosen by ``settings.mode``.
+        Override the extractive generator.
     """
 
     def __init__(
@@ -83,12 +83,7 @@ class RagPipeline:
         s = self.settings
         self.embedder = embedder or make_embedder(s.embed_model)
         self.reranker = reranker or make_reranker(s.rerank_model)
-        if generator is not None:
-            self.generator = generator
-        elif s.mode == "local":
-            self.generator = OllamaGenerator(s.ollama_url, s.ollama_model, s.ollama_fallback_model)
-        else:
-            self.generator = ExtractiveGenerator()
+        self.generator = generator or ExtractiveGenerator()
         self.chunker = Chunker(s.chunk_tokens, s.chunk_overlap)
         self.vectors = BruteForceIndex()
         self.bm25 = BM25Index(s.bm25_k1)
@@ -104,7 +99,7 @@ class RagPipeline:
 
     def __str__(self) -> str:
         """Return a short summary."""
-        return f"RagPipeline(books={len(self.documents)}, chunks={len(self.chunks)}, mode={self.settings.mode})"
+        return f"RagPipeline(books={len(self.documents)}, chunks={len(self.chunks)})"
 
     def add_document(self, doc: Document, vectors: np.ndarray | None = None) -> int:
         """Chunk, embed and index a document.

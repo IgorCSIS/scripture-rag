@@ -256,7 +256,7 @@ def ask(question: str, books: list[str] | None = None) -> tuple[str, str]:
     """
     try:
         ans = PIPELINE.ask(question, set(books or []) or None)
-    except Exception as exc:  # for example Ollama not running
+    except Exception as exc:  # for example a model download failure
         return f"Error: {escape_for_display(str(exc))}", ""
     return escape_for_display(ans.text), sources_md(ans)
 

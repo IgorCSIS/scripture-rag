@@ -23,7 +23,7 @@ def get_pipeline() -> RagPipeline:
         Pipeline without an LLM.
     """
     base = Settings.from_env()
-    return RagPipeline(Settings(mode="extractive", embed_model=base.embed_model, rerank_model=base.rerank_model,
+    return RagPipeline(Settings(embed_model=base.embed_model, rerank_model=base.rerank_model,
                                 refusal_threshold=base.refusal_threshold))
 
 

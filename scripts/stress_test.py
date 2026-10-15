@@ -285,7 +285,7 @@ def to_markdown(card: dict[str, Any], calib: dict[str, Any], settings: Settings,
     """
     lines = ["# PDF stress test results", "",
              f"Embedder `{settings.embed_model}`, reranker `{settings.rerank_model}`, chunks "
-             f"{settings.chunk_tokens}/{settings.chunk_overlap}, mode `{settings.mode}`, calibrated threshold "
+             f"{settings.chunk_tokens}/{settings.chunk_overlap}, extractive, calibrated threshold "
              f"**{calib['threshold']}** (balanced accuracy {calib['balanced_accuracy_calibration']:.3f} on "
              f"{calib['n_calibration']} calibration items).", "", "## Corpus", ""]
     lines += [f"- `{e['book_id']}`: {e['url']} (possible-copyright-status: "
