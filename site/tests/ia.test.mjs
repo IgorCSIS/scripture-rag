@@ -52,9 +52,10 @@ test("search caches results", async () => {
   assert.deepEqual(a, b);
 });
 
-test("chooseFile prefers a PDF under the cap, falls back to text", () => {
-  assert.equal(ia.chooseFile([{ name: "a.pdf", size: "10" }, { name: "a_djvu.txt", size: "5" }]).kind, "pdf");
-  assert.equal(ia.chooseFile([{ name: "a.pdf", size: String(80e6) }, { name: "a_djvu.txt", size: "5" }]).kind, "txt");
+test("chooseFile prefers the CORS-enabled OCR text, falls back to a PDF under the cap", () => {
+  assert.equal(ia.chooseFile([{ name: "a.pdf", size: "10" }, { name: "a_djvu.txt", size: "5" }]).kind, "txt");
+  assert.equal(ia.chooseFile([{ name: "a.pdf", size: "10" }, { name: "a_djvu.txt", size: String(80e6) }]).kind, "pdf");
+  assert.equal(ia.chooseFile([{ name: "a.pdf", size: String(80e6) }]), null);
   assert.equal(ia.chooseFile([{ name: "a.epub" }]), null);
 });
 

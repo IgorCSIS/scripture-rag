@@ -2,7 +2,7 @@
 // Endpoints (all send Access-Control-Allow-Origin: *):
 //   https://archive.org/advancedsearch.php   search, O(1) requests, O(r) parse for r rows
 //   https://archive.org/metadata/{id}        files, sizes, license fields
-//   https://archive.org/download/{id}/{file} PDF or _djvu.txt bytes (redirects to a CORS enabled node)
+//   https://archive.org/download/{id}/{file} _djvu.txt (CORS enabled) or, if no OCR text, PDF bytes
 import * as core from "./core.js";
 
 export const SEARCH_URL = "https://archive.org/advancedsearch.php";
@@ -93,11 +93,13 @@ export async function search(fetcher, cache, words, filters = {}, { ttlMs = 3600
 }
 
 /** Choose a file: PDF under the size cap, else the OCR text (_djvu.txt) as a fallback. */
+// archive.org serves _djvu.txt with CORS headers but most item PDFs without them, so a browser
+// fetch of the PDF fails. Prefer the OCR text of the same scan; use the PDF only when there is none.
 export function chooseFile(files, maxBytes = MAX_BYTES) {
-  const pdf = files.find((f) => /\.pdf$/i.test(f.name) && Number(f.size || 0) <= maxBytes);
-  if (pdf) return { name: pdf.name, kind: "pdf", size: Number(pdf.size || 0) };
   const txt = files.find((f) => /_djvu\.txt$/i.test(f.name) && Number(f.size || 0) <= maxBytes);
   if (txt) return { name: txt.name, kind: "txt", size: Number(txt.size || 0) };
+  const pdf = files.find((f) => /\.pdf$/i.test(f.name) && Number(f.size || 0) <= maxBytes);
+  if (pdf) return { name: pdf.name, kind: "pdf", size: Number(pdf.size || 0) };
   return null;
 }
 
