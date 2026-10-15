@@ -460,6 +460,11 @@ def evaluate(name: str, cfg: Config, corpus, items, models, cache, snippets, per
     return res, rows, runs
 
 
+def _jsonable(o: Any) -> Any:
+    """numpy scalars to Python for json.dumps."""
+    return o.item() if hasattr(o, "item") else str(o)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--quick", action="store_true")
@@ -524,7 +529,7 @@ def main() -> None:
     steps.append(res)
     out = {"items": len(items), "dropped": [d["id"] for d in dropped], "language_detection_accuracy": lang_acc,
            "final_config": cfg.__dict__, "final_policy": res["policy"], "steps": steps, "final_rows": best_rows}
-    (EVAL / "ablation.json").write_text(json.dumps(out, indent=2, ensure_ascii=False, default=lambda o: o.item() if hasattr(o, "item") else str(o)), encoding="utf-8")
+    (EVAL / "ablation.json").write_text(json.dumps(out, indent=2, ensure_ascii=False, default=_jsonable), encoding="utf-8")
     print("FINAL", cfg.label(), res["policy"], flush=True)
 
 
