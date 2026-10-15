@@ -1,0 +1,176 @@
+[
+ {
+  "variant": "BM25 k1=1.2 b=0.75 + RRF k=10",
+  "policy": {
+   "t": {
+    "en": 0.18,
+    "pt": 0.04,
+    "es": 0.34
+   },
+   "s_min": 0.3
+  },
+  "tune": {
+   "n": 110,
+   "answer_accuracy": 0.729,
+   "acc_en": 0.78,
+   "acc_pt": 1.0,
+   "acc_es": 0.364,
+   "refusal_recall": 1.0,
+   "refusal_precision": 0.839,
+   "adversarial_answered": 0,
+   "unsupported_answers": 7,
+   "trick_pass": 0.833,
+   "injection_pass": 0.0,
+   "answered": 54
+  },
+  "dev": {
+   "n": 175,
+   "answer_accuracy": 0.695,
+   "acc_en": 0.814,
+   "acc_pt": 0.659,
+   "acc_es": 0.614,
+   "refusal_recall": 1.0,
+   "refusal_precision": 0.595,
+   "adversarial_answered": 0,
+   "unsupported_answers": 10,
+   "trick_pass": NaN,
+   "injection_pass": NaN,
+   "answered": 101
+  },
+  "select": {
+   "n": 285,
+   "answer_accuracy": 0.705,
+   "acc_en": 0.798,
+   "acc_pt": 0.706,
+   "acc_es": 0.564,
+   "refusal_recall": 1.0,
+   "refusal_precision": 0.7,
+   "adversarial_answered": 0,
+   "unsupported_answers": 17,
+   "trick_pass": 0.833,
+   "injection_pass": 0.0,
+   "answered": 155
+  },
+  "objective": [
+   0,
+   1.0543,
+   1.0
+  ]
+ },
+ {
+  "variant": "BM25 k1=1.2 b=0.75 + RRF k=20",
+  "policy": {
+   "t": {
+    "en": 0.18,
+    "pt": 0.04,
+    "es": 0.34
+   },
+   "s_min": 0.3
+  },
+  "tune": {
+   "n": 110,
+   "answer_accuracy": 0.729,
+   "acc_en": 0.78,
+   "acc_pt": 1.0,
+   "acc_es": 0.364,
+   "refusal_recall": 1.0,
+   "refusal_precision": 0.839,
+   "adversarial_answered": 0,
+   "unsupported_answers": 7,
+   "trick_pass": 0.833,
+   "injection_pass": 0.0,
+   "answered": 54
+  },
+  "dev": {
+   "n": 175,
+   "answer_accuracy": 0.702,
+   "acc_en": 0.814,
+   "acc_pt": 0.682,
+   "acc_es": 0.614,
+   "refusal_recall": 1.0,
+   "refusal_precision": 0.603,
+   "adversarial_answered": 0,
+   "unsupported_answers": 10,
+   "trick_pass": NaN,
+   "injection_pass": NaN,
+   "answered": 102
+  },
+  "select": {
+   "n": 285,
+   "answer_accuracy": 0.711,
+   "acc_en": 0.798,
+   "acc_pt": 0.725,
+   "acc_es": 0.564,
+   "refusal_recall": 1.0,
+   "refusal_precision": 0.705,
+   "adversarial_answered": 0,
+   "unsupported_answers": 17,
+   "trick_pass": 0.833,
+   "injection_pass": 0.0,
+   "answered": 156
+  },
+  "objective": [
+   0,
+   1.0667,
+   1.0
+  ]
+ },
+ {
+  "variant": "BM25 k1=1.2 + RRF k=20 + support also on the original query",
+  "policy": {
+   "t": {
+    "en": 0.18,
+    "pt": 0.04,
+    "es": 0.34
+   },
+   "s_min": 0.3
+  },
+  "tune": {
+   "n": 110,
+   "answer_accuracy": 0.729,
+   "acc_en": 0.78,
+   "acc_pt": 1.0,
+   "acc_es": 0.364,
+   "refusal_recall": 1.0,
+   "refusal_precision": 0.839,
+   "adversarial_answered": 0,
+   "unsupported_answers": 7,
+   "trick_pass": 0.833,
+   "injection_pass": 0.0,
+   "answered": 54
+  },
+  "dev": {
+   "n": 175,
+   "answer_accuracy": 0.702,
+   "acc_en": 0.814,
+   "acc_pt": 0.682,
+   "acc_es": 0.614,
+   "refusal_recall": 1.0,
+   "refusal_precision": 0.603,
+   "adversarial_answered": 0,
+   "unsupported_answers": 10,
+   "trick_pass": NaN,
+   "injection_pass": NaN,
+   "answered": 102
+  },
+  "select": {
+   "n": 285,
+   "answer_accuracy": 0.711,
+   "acc_en": 0.798,
+   "acc_pt": 0.725,
+   "acc_es": 0.564,
+   "refusal_recall": 1.0,
+   "refusal_precision": 0.705,
+   "adversarial_answered": 0,
+   "unsupported_answers": 17,
+   "trick_pass": 0.833,
+   "injection_pass": 0.0,
+   "answered": 156
+  },
+  "objective": [
+   0,
+   1.0667,
+   1.0
+  ]
+ }
+]

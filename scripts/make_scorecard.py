@@ -31,17 +31,20 @@ def main() -> None:
     cur = json.loads((EVAL / "ablation.json").read_text(encoding="utf-8"))
     prev = json.loads((EVAL / "ablation_prev.json").read_text(encoding="utf-8"))
     final = next(s for s in cur["steps"] if s["config"] == cur["final_label"] and s["policy"] == cur["final_policy"])
-    before = prev["steps"][-1]
+    before = next((st for st in prev["steps"] if st["config"] == prev["final_label"]
+                   and st["policy"] == prev["final_policy"]), prev["steps"][-1])
     b, a = before["heldout"], final["heldout"]
     lines = [
         "# Scorecard",
         "",
         f"Eval set [eval_set.jsonl](eval_set.jsonl), strict split: every choice is made on the **tune** split "
-        f"({final['tune']['n']} items) and reported once on the **held-out** split ({a['n']} items). "
+        f"({final['tune']['n']} items) plus the synthetic **dev** set [dev_set.jsonl](dev_set.jsonl) "
+        f"({final['dev']['n'] if final.get('dev') else 0} items, scripts/build_dev_set.py) and reported once on the "
+        f"**held-out** split ({a['n']} items). "
         f"Dropped (gold not in the PDF OCR): {', '.join(cur['dropped'])}. "
         f"Language detection accuracy: {cur['language_detection_accuracy']:.3f}.",
         "",
-        "Reproduce: `python scripts/elite_eval.py --quick` then `python scripts/make_scorecard.py`. "
+        "Reproduce: `python scripts/elite_eval.py --quick --final` then `python scripts/make_scorecard.py`. "
         "Raw data: [ablation.json](ablation.json); previous run: [ablation_prev.json](ablation_prev.json).",
         "",
         "Unsupported answers = answers to adversarial items plus answers whose cited passages do not hold the "
@@ -63,6 +66,9 @@ def main() -> None:
               f"Current: `{final['config']}`, policy `{json.dumps(final['policy'])}`.", "",
               "## All steps, tune split (selection data)", ""]
     lines += table([(s["step"], s["tune"]) for s in cur["steps"]])
+    if all(st.get("dev") for st in cur["steps"]):
+        lines += ["", "## All steps, synthetic dev set (selection data)", ""]
+        lines += table([(st["step"], st["dev"]) for st in cur["steps"]])
     lines += ["", "## All steps, held-out split (reported, never used for selection)", ""]
     lines += table([(s["step"], s["heldout"]) for s in cur["steps"]])
     notes = EVAL / "scorecard_notes.md"
