@@ -55,6 +55,47 @@ def with_entity_filter(runs, chunks):
     return out
 
 
+_NLI: dict = {}
+
+
+def nli_probs(premises: list[str], hypothesis: str) -> list[float]:
+    """Entailment probability of the hypothesis given each premise (cached on disk)."""
+    cache = _NLI.setdefault("cache", ee.DiskCache("nli"))
+    keys = [ee.h(NLI_MODEL, p, hypothesis) for p in premises]
+    miss = [i for i, k in enumerate(keys) if cache.get(k) is None]
+    if miss:
+        if "m" not in _NLI:
+            from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+            _NLI["t"] = AutoTokenizer.from_pretrained(NLI_MODEL)
+            _NLI["m"] = AutoModelForSequenceClassification.from_pretrained(NLI_MODEL).eval()
+        import torch
+
+        tok, m = _NLI["t"], _NLI["m"]
+        ent = m.config.label2id.get("entailment", 0)
+        with torch.no_grad():
+            enc = tok([premises[i] for i in miss], [hypothesis] * len(miss), truncation=True, padding=True,
+                      return_tensors="pt", max_length=256)
+            p = torch.softmax(m(**enc).logits, -1)[:, ent].tolist()
+        for i, v in zip(miss, p):
+            cache.put(keys[i], v)
+        cache.save()
+    return [cache.get(k) for k in keys]
+
+
+NLI_MODEL = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+
+
+def nli_filter(runs, chunks, tau):
+    """Keep ranked passages 1-3 whose NLI entailment of 'This passage answers: <question>' is >= tau."""
+    out = []
+    for r in runs:
+        top = r["ranked"][:3]
+        probs = nli_probs([chunks[i].text for i, _, _ in top], f"This passage answers the question: {r['q_en']}")
+        out.append({**r, "ranked": [x for x, p in zip(top, probs) if p >= tau]})
+    return out
+
+
 def scored(name, items, runs, chunks, snippets):
     pol = ee.tune(items, runs, chunks, snippets, True, True)
     rows = ee.grade(items, runs, chunks, pol, snippets)
@@ -63,7 +104,7 @@ def scored(name, items, runs, chunks, snippets):
         res[sp] = ee.card([r for r in rows if r["split"] == sp])
     res["select"] = ee.card([r for r in rows if r["split"] in ee.SELECT])
     res["objective"] = list(ee.objective(res["select"]))
-    print(json.dumps({k: res[k] for k in ("variant", "policy", "objective")}), "\n  tune", res["tune"],
+    print(json.dumps({k: res[k] for k in ("variant", "policy", "objective")}, default=ee._jsonable), "\n  tune", res["tune"],
           "\n  dev ", res["dev"], flush=True)
     return res, rows
 
@@ -87,6 +128,14 @@ def main() -> None:
     chunks = cache[(base.chunking, base.normalize, base.bm25_k1, base.bm25_b)][0]
     if "base" in only:
         results.append(scored("current shipped config, gate re-tuned on tune+dev", items, runs, chunks, snippets)[0])
+    if "tuneonly" in only:
+        sel, ee.SELECT = ee.SELECT, ("tune",)
+        results.append(scored("current shipped config, gate tuned on tune only", items, runs, chunks, snippets)[0])
+        ee.SELECT = sel
+    if "nli" in only:
+        for tau in (0.05, 0.2, 0.5):
+            results.append(scored(f"+ NLI entailment filter (mDeBERTa, top 3, p >= {tau})", items,
+                                  nli_filter(runs, chunks, tau), chunks, snippets)[0])
     if "entity" in only:
         results.append(scored("+ key name/number filter on ranked passages", items,
                               with_entity_filter(runs, chunks), chunks, snippets)[0])
@@ -103,6 +152,16 @@ def main() -> None:
                 cfg = replace(base, bm25_k1=k1, bm25_b=b)
                 r2 = ee.run_config(cfg, corpus, items, models, cache)
                 results.append(scored(f"BM25 k1={k1} b={b}", items, r2, chunks, snippets)[0])
+    if "combo" in only:
+        for k in (10, 20):
+            cfg = replace(base, bm25_k1=1.2, rrf_k=k)
+            r2 = ee.run_config(cfg, corpus, items, models, cache)
+            results.append(scored(f"BM25 k1=1.2 b=0.75 + RRF k={k}", items, r2, chunks, snippets)[0])
+    if "supo" in only:
+        cfg = replace(base, bm25_k1=1.2, rrf_k=20, support_original=True)
+        r2 = ee.run_config(cfg, corpus, items, models, cache)
+        results.append(scored("BM25 k1=1.2 + RRF k=20 + support also on the original query", items, r2, chunks,
+                              snippets)[0])
     if "diag" in only:
         pol = ee.tune(items, runs, chunks, snippets, True, True)
         rows = ee.grade(items, runs, chunks, pol, snippets)
@@ -114,7 +173,7 @@ def main() -> None:
                              "answered": row["answered"], "top": row["top"], "support": row["support"],
                              "ranked": [(chunks[i].ref or chunks[i].chunk_id, round(s, 3), round(sp, 2))
                                         for i, s, sp in r["ranked"]]})
-        (ee.EVAL / "round2_pt_misses.json").write_text(json.dumps(diag, indent=1, ensure_ascii=False), encoding="utf-8")
+        (ee.EVAL / "round2_pt_misses.json").write_text(json.dumps(diag, indent=1, ensure_ascii=False, default=ee._jsonable), encoding="utf-8")
         print(f"{len(diag)} PT misses written")
     models.save()
     if results:

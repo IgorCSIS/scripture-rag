@@ -1,0 +1,762 @@
+[
+ {
+  "id": "D03-pt",
+  "q": "Quantos anos viveu Matusalém?",
+  "q_en": "Quantos anos viveu Matusalém?",
+  "gold": [
+   "Genesis 5:27"
+  ],
+  "answered": false,
+  "top": 0.9903,
+  "support": 0.0,
+  "ranked": [
+   [
+    "Genesis 5:22-27",
+    0.99,
+    0.0
+   ],
+   [
+    "Genesis 5:27-30",
+    0.877,
+    0.0
+   ],
+   [
+    "Deuteronomy 34:6-9",
+    0.396,
+    0.0
+   ],
+   [
+    "Sura 94:10-12",
+    0.305,
+    0.0
+   ],
+   [
+    "Genesis 5:17-22",
+    0.275,
+    0.0
+   ]
+  ]
+ },
+ {
+  "id": "D08-pt",
+  "q": "O que aconteceu com a mulher de Ló quando olhou para trás?",
+  "q_en": "What happened to Lot's wife when she looked back?",
+  "gold": [
+   "Genesis 19:26"
+  ],
+  "answered": false,
+  "top": 0.5052,
+  "support": 0.284,
+  "ranked": [
+   [
+    "Genesis 19:13-15",
+    0.505,
+    0.28
+   ],
+   [
+    "Genesis 12:4-6",
+    0.36,
+    0.28
+   ],
+   [
+    "koran_rodwell-n0666",
+    0.301,
+    0.4
+   ],
+   [
+    "Genesis 19:25-28",
+    0.25,
+    0.55
+   ],
+   [
+    "Sura 29:25-27",
+    0.232,
+    0.4
+   ]
+  ]
+ },
+ {
+  "id": "D12-pt",
+  "q": "O que Jacó viu chegando até o céu em seu sonho?",
+  "q_en": "What did Jacob see coming to heaven in his dream?",
+  "gold": [
+   "Genesis 28:12"
+  ],
+  "answered": false,
+  "top": 0.4337,
+  "support": 0.395,
+  "ranked": [
+   [
+    "Genesis 28:11-13",
+    0.434,
+    0.4
+   ],
+   [
+    "Genesis 42:1",
+    0.158,
+    0.2
+   ],
+   [
+    "Numbers 24:16-18",
+    0.121,
+    0.32
+   ],
+   [
+    "Sura 11:38-40",
+    0.088,
+    0.0
+   ],
+   [
+    "koran_rodwell-n0547",
+    0.087,
+    0.12
+   ]
+  ]
+ },
+ {
+  "id": "D14-pt",
+  "q": "Que novo nome Jacó recebeu depois de lutar?",
+  "q_en": "What new name did Jacob get after the fight?",
+  "gold": [
+   "Genesis 32:28"
+  ],
+  "answered": false,
+  "top": 0.508,
+  "support": 0.292,
+  "ranked": [
+   [
+    "Genesis 32:25-28",
+    0.508,
+    0.29
+   ],
+   [
+    "Genesis 32:28-30",
+    0.215,
+    0.39
+   ],
+   [
+    "Genesis 35:8-10",
+    0.124,
+    0.29
+   ],
+   [
+    "Genesis 30:6-9",
+    0.101,
+    0.29
+   ],
+   [
+    "Genesis 30:23-26",
+    0.073,
+    0.29
+   ]
+  ]
+ },
+ {
+  "id": "D18-pt",
+  "q": "O que Moisés viu queimando sem se consumir?",
+  "q_en": "What did Moses see burning without consuming himself?",
+  "gold": [
+   "Exodus 3:2"
+  ],
+  "answered": false,
+  "top": 0.584,
+  "support": 0.277,
+  "ranked": [
+   [
+    "Leviticus 8:16-19",
+    0.584,
+    0.28
+   ],
+   [
+    "Leviticus 10:16-17",
+    0.468,
+    0.11
+   ],
+   [
+    "Leviticus 9:10-13",
+    0.342,
+    0.28
+   ],
+   [
+    "Exodus 3:1-3",
+    0.294,
+    0.43
+   ],
+   [
+    "Numbers 11:2-3",
+    0.239,
+    0.37
+   ]
+  ]
+ },
+ {
+  "id": "D22-pt",
+  "q": "Quanto tempo Moisés ficou no monte?",
+  "q_en": "How long did Moses stay on the mountain?",
+  "gold": [
+   "Exodus 24:18"
+  ],
+  "answered": false,
+  "top": 0.948,
+  "support": 0.347,
+  "ranked": [
+   [
+    "Exodus 24:16-18",
+    0.948,
+    0.35
+   ],
+   [
+    "Exodus 24:14-16",
+    0.8,
+    0.35
+   ],
+   [
+    "Numbers 10:33-35",
+    0.252,
+    0.35
+   ],
+   [
+    "Exodus 19:13-16",
+    0.239,
+    0.62
+   ],
+   [
+    "koran_rodwell-n0778",
+    0.091,
+    0.35
+   ]
+  ]
+ },
+ {
+  "id": "D24-pt",
+  "q": "O que se fazia com o bode sobre o qual caiu a sorte para ser bode emissário?",
+  "q_en": "What was done with the goat on which luck fell to be an emissary goat?",
+  "gold": [
+   "Leviticus 16:10"
+  ],
+  "answered": false,
+  "top": 0.7025,
+  "support": 0.327,
+  "ranked": [
+   [
+    "Leviticus 16:8-11",
+    0.702,
+    0.33
+   ],
+   [
+    "Leviticus 16:21-22",
+    0.013,
+    0.18
+   ],
+   [
+    "Leviticus 16:18-20",
+    0.01,
+    0.18
+   ],
+   [
+    "Leviticus 16:22-24",
+    0.01,
+    0.18
+   ],
+   [
+    "Leviticus 16:20-21",
+    0.009,
+    0.18
+   ]
+  ]
+ },
+ {
+  "id": "D25-pt",
+  "q": "Quem devemos amar como a nós mesmos?",
+  "q_en": "Who should we love as ourselves?",
+  "gold": [
+   "Leviticus 19:18"
+  ],
+  "answered": true,
+  "top": 0.086,
+  "support": 0.78,
+  "ranked": [
+   [
+    "Sura 76:23-28",
+    0.086,
+    0.78
+   ],
+   [
+    "koran_rodwell-n0210",
+    0.062,
+    0.78
+   ],
+   [
+    "Genesis 34:22-24",
+    0.058,
+    0.0
+   ],
+   [
+    "Sura 7:179-183",
+    0.051,
+    0.0
+   ],
+   [
+    "Sura 11:126-129",
+    0.048,
+    0.22
+   ]
+  ]
+ },
+ {
+  "id": "D29-pt",
+  "q": "O homem não vive só de quê?",
+  "q_en": "The man doesn't just live from what?",
+  "gold": [
+   "Deuteronomy 8:3"
+  ],
+  "answered": false,
+  "top": 0.6572,
+  "support": 0.305,
+  "ranked": [
+   [
+    "Deuteronomy 8:2-3",
+    0.657,
+    0.3
+   ],
+   [
+    "Deuteronomy 8:3-5",
+    0.56,
+    0.3
+   ],
+   [
+    "Genesis 3:22-24",
+    0.088,
+    0.3
+   ],
+   [
+    "Deuteronomy 19:3-5",
+    0.072,
+    0.3
+   ],
+   [
+    "Leviticus 18:3-6",
+    0.032,
+    0.3
+   ]
+  ]
+ },
+ {
+  "id": "D36-pt",
+  "q": "Quais dois espias rasgaram as vestes quando o povo quis voltar?",
+  "q_en": "Which two spies tore their clothes when the people wanted to come back?",
+  "gold": [
+   "Numbers 14:6"
+  ],
+  "answered": false,
+  "top": 0.0352,
+  "support": 0.213,
+  "ranked": [
+   [
+    "Leviticus 16:24-26",
+    0.035,
+    0.21
+   ],
+   [
+    "Exodus 19:13-16",
+    0.02,
+    0.21
+   ],
+   [
+    "Leviticus 14:47-49",
+    0.016,
+    0.24
+   ],
+   [
+    "Genesis 49:10-13",
+    0.014,
+    0.21
+   ],
+   [
+    "Genesis 50:26",
+    0.014,
+    0.0
+   ]
+  ]
+ },
+ {
+  "id": "D38-pt",
+  "q": "Ao que o homem voltará, já que dele foi tirado?",
+  "q_en": "To what will the man return, since he was taken from him?",
+  "gold": [
+   "Genesis 3:19"
+  ],
+  "answered": true,
+  "top": 0.2029,
+  "support": 0.486,
+  "ranked": [
+   [
+    "Genesis 3:22-24",
+    0.203,
+    0.49
+   ],
+   [
+    "Leviticus 25:26-28",
+    0.123,
+    0.45
+   ],
+   [
+    "Sura 10:4-5",
+    0.118,
+    0.29
+   ],
+   [
+    "Leviticus 25:28-29",
+    0.07,
+    0.45
+   ],
+   [
+    "Genesis 2:22-25",
+    0.05,
+    0.41
+   ]
+  ]
+ },
+ {
+  "id": "D40-pt",
+  "q": "Quantos anos José tinha quando se apresentou ao Faraó?",
+  "q_en": "How old was Joseph when he presented himself to Pharaoh?",
+  "gold": [
+   "Genesis 41:46"
+  ],
+  "answered": true,
+  "top": 0.4905,
+  "support": 0.425,
+  "ranked": [
+   [
+    "Genesis 47:26-28",
+    0.49,
+    0.42
+   ],
+   [
+    "Genesis 41:12-14",
+    0.403,
+    0.62
+   ],
+   [
+    "Genesis 41:14-17",
+    0.38,
+    0.62
+   ],
+   [
+    "koran_rodwell-n0212",
+    0.162,
+    0.78
+   ],
+   [
+    "Genesis 50:4-7",
+    0.144,
+    0.42
+   ]
+  ]
+ },
+ {
+  "id": "D43-pt",
+  "q": "O que o Alcorão diz sobre a coação na religião?",
+  "q_en": "What does the Qur'an say about coercion in religion?",
+  "gold": [
+   "no compulsion"
+  ],
+  "answered": false,
+  "top": 0.2958,
+  "support": 0.065,
+  "ranked": [
+   [
+    "koran_rodwell-n1095",
+    0.296,
+    0.07
+   ],
+   [
+    "koran_rodwell-n0973",
+    0.099,
+    0.0
+   ],
+   [
+    "Sura 5:10-13",
+    0.097,
+    0.31
+   ],
+   [
+    "koran_rodwell-n0884",
+    0.095,
+    0.0
+   ],
+   [
+    "koran_rodwell-n1021",
+    0.084,
+    0.32
+   ]
+  ]
+ },
+ {
+  "id": "D46-pt",
+  "q": "O que Deus disse ao fogo em que Abraão foi lançado?",
+  "q_en": "What did God say to the fire in which Abraham was cast?",
+  "gold": [
+   "be thou cold"
+  ],
+  "answered": true,
+  "top": 0.9745,
+  "support": 0.689,
+  "ranked": [
+   [
+    "koran_rodwell-n0663",
+    0.974,
+    0.69
+   ],
+   [
+    "Sura 2:121-122",
+    0.939,
+    0.54
+   ],
+   [
+    "Genesis 22:7-9",
+    0.902,
+    0.54
+   ],
+   [
+    "Genesis 31:51-53",
+    0.761,
+    0.65
+   ],
+   [
+    "koran_rodwell-n0377",
+    0.751,
+    0.54
+   ]
+  ]
+ },
+ {
+  "id": "D48-pt",
+  "q": "O que Jacó temia que acontecesse a José se os irmãos o levassem?",
+  "q_en": "What did Jacob fear would happen to Joseph if his brothers took him?",
+  "gold": [
+   "the wolf devour him"
+  ],
+  "answered": true,
+  "top": 0.9805,
+  "support": 0.409,
+  "ranked": [
+   [
+    "Sura 12:72-71",
+    0.98,
+    0.41
+   ],
+   [
+    "koran_rodwell-n0591",
+    0.929,
+    0.54
+   ],
+   [
+    "Sura 12:71-72",
+    0.803,
+    0.54
+   ],
+   [
+    "koran_rodwell-n0589",
+    0.531,
+    0.3
+   ],
+   [
+    "Sura 12:89-92",
+    0.359,
+    0.26
+   ]
+  ]
+ },
+ {
+  "id": "D50-pt",
+  "q": "O que foi revelado à mãe de Moisés sobre o seu bebê?",
+  "q_en": "What was revealed to Moses' mother about her baby?",
+  "gold": [
+   "give him suck"
+  ],
+  "answered": false,
+  "top": 0.9513,
+  "support": 0.269,
+  "ranked": [
+   [
+    "Sura 75:8-10",
+    0.951,
+    0.27
+   ],
+   [
+    "koran_rodwell-n0621",
+    0.901,
+    0.27
+   ],
+   [
+    "Sura 75:10",
+    0.41,
+    0.27
+   ],
+   [
+    "Exodus 2:21-23",
+    0.166,
+    0.1
+   ],
+   [
+    "koran_rodwell-n0227",
+    0.154,
+    0.27
+   ]
+  ]
+ },
+ {
+  "id": "D51-pt",
+  "q": "Quais dois grandes luminares Deus fez?",
+  "q_en": "Quais dois grandes luminares Deus fez?",
+  "gold": [
+   "Genesis 1:16"
+  ],
+  "answered": false,
+  "top": 0.9838,
+  "support": 0.0,
+  "ranked": [
+   [
+    "Genesis 1:14-18",
+    0.984,
+    0.0
+   ],
+   [
+    "Genesis 44:15",
+    0.447,
+    0.0
+   ],
+   [
+    "Numbers 16:17-19",
+    0.259,
+    0.0
+   ],
+   [
+    "Exodus 24:10-12",
+    0.136,
+    0.0
+   ],
+   [
+    "Exodus 40:38",
+    0.122,
+    0.0
+   ]
+  ]
+ },
+ {
+  "id": "D56-pt",
+  "q": "Por quanto tempo a chuva caiu sobre a terra no dilúvio?",
+  "q_en": "How long did the rain fall on the earth in the flood?",
+  "gold": [
+   "Genesis 7:12"
+  ],
+  "answered": false,
+  "top": 0.31,
+  "support": 0.368,
+  "ranked": [
+   [
+    "Genesis 7:9-11",
+    0.31,
+    0.37
+   ],
+   [
+    "Genesis 7:3-6",
+    0.176,
+    0.59
+   ],
+   [
+    "Genesis 8:4-3",
+    0.049,
+    0.32
+   ],
+   [
+    "Genesis 7:15-18",
+    0.018,
+    0.37
+   ],
+   [
+    "Exodus 24:16-18",
+    0.015,
+    0.0
+   ]
+  ]
+ },
+ {
+  "id": "D69-pt",
+  "q": "O que os gibeonitas foram obrigados a ser para a congregação?",
+  "q_en": "What were the Gibeonites forced to be for the congregation?",
+  "gold": [
+   "Joshua 9:21"
+  ],
+  "answered": true,
+  "top": 0.0493,
+  "support": 0.443,
+  "ranked": [
+   [
+    "Joshua 9:1-4",
+    0.049,
+    0.44
+   ],
+   [
+    "Joshua 11:18-21",
+    0.031,
+    0.44
+   ],
+   [
+    "Joshua 10:6-8",
+    0.031,
+    0.44
+   ],
+   [
+    "Joshua 9:16-18",
+    0.024,
+    0.68
+   ],
+   [
+    "Joshua 10:5-6",
+    0.023,
+    0.44
+   ]
+  ]
+ },
+ {
+  "id": "D70-pt",
+  "q": "Quem saiu com o cântaro no ombro antes que o servo de Abraão terminasse de orar?",
+  "q_en": "Who went out with the song on his shoulder before Abraham's servant finished praying?",
+  "gold": [
+   "Genesis 24:15"
+  ],
+  "answered": false,
+  "top": 0.9115,
+  "support": 0.35,
+  "ranked": [
+   [
+    "Genesis 24:14-15",
+    0.911,
+    0.35
+   ],
+   [
+    "Genesis 24:15-17",
+    0.843,
+    0.43
+   ],
+   [
+    "Genesis 24:2-4",
+    0.096,
+    0.17
+   ],
+   [
+    "Genesis 24:2",
+    0.08,
+    0.17
+   ],
+   [
+    "Genesis 24:50-53",
+    0.064,
+    0.22
+   ]
+  ]
+ }
+]

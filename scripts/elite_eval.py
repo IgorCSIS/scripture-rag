@@ -297,6 +297,7 @@ class Config:
     bm25_k1: float = 1.5
     bm25_b: float = 0.75
     rrf_k: int = 60
+    support_original: bool = False
 
     def label(self) -> str:
         return (f"{self.chunking}|norm={int(self.normalize)}|mt={int(self.translate)}|exp={int(self.expand)}|"
@@ -304,7 +305,8 @@ class Config:
                 + "+".join(r.split('/')[-1] for r in (self.rerankers or (self.reranker,)))
                 + f"|k={self.candidates}|bmo={int(self.bm25_original)}"
                 + ("" if (self.bm25_k1, self.bm25_b, self.rrf_k) == (1.5, 0.75, 60)
-                   else f"|bm25={self.bm25_k1},{self.bm25_b}|rrf={self.rrf_k}"))
+                   else f"|bm25={self.bm25_k1},{self.bm25_b}|rrf={self.rrf_k}")
+                + ("|supo=1" if self.support_original else ""))
 
 
 def wrrf(lists: list[tuple[list[int], float]], k: int = 60) -> list[int]:
@@ -355,7 +357,12 @@ def run_config(cfg: Config, corpus: Corpus, items: list[dict[str, Any]], models:
         scores = [float(np.mean(v)) for v in zip(*per)]
         t3 = time.perf_counter()
         order = sorted(range(len(cand)), key=lambda j: -scores[j])[:5]
-        ranked = [(cand[j], float(scores[j]), support(q_en, index_texts[cand[j]], idf)) for j in order]
+        def sup(i: int) -> float:
+            v = support(q_en, index_texts[i], idf)
+            # MT can leave names or whole questions untranslated; also credit words of the original.
+            return max(v, support(q, index_texts[i], idf)) if cfg.support_original and q_en != q else v
+
+        ranked = [(cand[j], float(scores[j]), sup(cand[j])) for j in order]
         out.append({"lang": lang, "q_en": q_en, "ranked": ranked, "cand_texts": texts,
                     "t_translate": t1 - t0, "t_retrieve": t2 - t1, "t_rerank": t3 - t2})
     models.save()
@@ -563,6 +570,8 @@ def main() -> None:
         ("A11 + BM25 on the original PT/ES query", {"bm25_original": True}, True),
         ("A12 reranker ensemble mMiniLM + ms-marco-MiniLM-L-6 (English only; not shipped, see SCORECARD)",
          {"rerankers": (cfg.reranker, "cross-encoder/ms-marco-MiniLM-L-6-v2")}, False),
+        ("A13 + BM25 k1=1.2 (grid in round2.json)", {"bm25_k1": 1.2}, True),
+        ("A14 + RRF k=20 (grid in round2.json)", {"rrf_k": 20}, True),
     ]
     for name, change, may_select in later:
         r2, rows2, runs2 = evaluate(name, replace(cfg, **change), corpus, items, models, cache, snippets,
