@@ -55,7 +55,7 @@ Tune counts are small per language (PT 7, ES 11 answerable), so per-language thr
 | A7 reranker mmarco-mMiniLMv2-L12-H384-v1 | 136 | 0.663 | 0.692 | 0.588 | 0.615 | 1.000 | 0.548 | 0 | 4 | 0.833 |
 
 - Bigger embedders (multilingual-e5-base, bge-m3): +0.021 held-out accuracy but more wrong-evidence answers; not selected because the choice is made on tune, where they did not win.
-- bge-reranker-v2-m3: a CPU run (no GPU on this box) was still scoring candidates after more than 2.5 hours, so it is not in these numbers. Run the full script on a GPU to measure it.
+- bge-reranker-v2-m3 (full CPU run, dense weight 0.75): selected on tune, but held-out answer accuracy fell to 0.484 (EN 0.523, PT 0.294, ES 0.538) with 0 adversarial answered and 1 wrong-evidence answer; with per-language thresholds 0.526, with the support gate 0.495. Kept mMiniLM: higher held-out accuracy, and bge-reranker costs far more CPU time.
 - Embedder fine-tuning on the tune split: not done in this pass.
 
 ## Known gaps
