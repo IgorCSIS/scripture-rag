@@ -1,11 +1,11 @@
 {
-  "items": 245,
+  "items": 420,
   "dropped": [
     "B12",
     "B43",
     "B46"
   ],
-  "language_detection_accuracy": 1.0,
+  "language_detection_accuracy": 0.9928571428571429,
   "final_config": {
     "chunking": "verse",
     "normalize": true,
@@ -16,845 +16,95 @@
     "reranker": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1",
     "candidates": 50,
     "bm25_original": true,
-    "rerankers": []
+    "rerankers": [],
+    "bm25_k1": 1.2,
+    "bm25_b": 0.75,
+    "rrf_k": 20,
+    "support_original": false
   },
-  "final_label": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1",
+  "final_label": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1|bm25=1.2,0.75|rrf=20",
   "final_policy": {
     "t": {
-      "en": 0.12,
-      "pt": 0.72,
-      "es": 0.16
+      "en": 0.18,
+      "pt": 0.04,
+      "es": 0.34
     },
     "s_min": 0.3
   },
   "steps": [
     {
-      "step": "A0 baseline (window 200, raw, e5-small, mmarco, global threshold)",
-      "config": "window|norm=0|mt=0|exp=0|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
+      "step": "Final: round 2 selection (round2.json)",
+      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1|bm25=1.2,0.75|rrf=20",
       "policy": {
         "t": {
-          "en": 0.76,
-          "pt": 0.76,
-          "es": 0.76
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.569,
-        "acc_en": 0.7,
-        "acc_pt": 0.429,
-        "acc_es": 0.182,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.681,
-        "adversarial_answered": 0,
-        "unsupported_answers": 2,
-        "trick_pass": 1.0,
-        "injection_pass": 0.0,
-        "answered": 37
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.663,
-        "acc_en": 0.769,
-        "acc_pt": 0.353,
-        "acc_es": 0.538,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.589,
-        "adversarial_answered": 0,
-        "unsupported_answers": 9,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 80
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 3.35,
-        "t_rerank": 0.22
-      },
-      "wall_s": 2.6
-    },
-    {
-      "step": "A1 + verse-aware chunker",
-      "config": "verse|norm=0|mt=0|exp=0|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.88,
-          "pt": 0.88,
-          "es": 0.88
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.466,
-        "acc_en": 0.55,
-        "acc_pt": 0.571,
-        "acc_es": 0.091,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.64,
-        "adversarial_answered": 0,
-        "unsupported_answers": 4,
-        "trick_pass": 1.0,
-        "injection_pass": 0.0,
-        "answered": 34
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.589,
-        "acc_en": 0.708,
-        "acc_pt": 0.353,
-        "acc_es": 0.308,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.507,
-        "adversarial_answered": 0,
-        "unsupported_answers": 5,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 67
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 8.01,
-        "t_rerank": 0.24
-      },
-      "wall_s": 3.6
-    },
-    {
-      "step": "A2 + archaic normalization",
-      "config": "verse|norm=1|mt=0|exp=0|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.88,
-          "pt": 0.88,
-          "es": 0.88
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.466,
-        "acc_en": 0.55,
-        "acc_pt": 0.571,
-        "acc_es": 0.091,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.658,
-        "adversarial_answered": 0,
-        "unsupported_answers": 6,
-        "trick_pass": 1.0,
-        "injection_pass": 0.0,
-        "answered": 36
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.589,
-        "acc_en": 0.692,
-        "acc_pt": 0.353,
-        "acc_es": 0.385,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.5,
-        "adversarial_answered": 0,
-        "unsupported_answers": 4,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 66
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 7.26,
-        "t_rerank": 0.23
-      },
-      "wall_s": 3.5
-    },
-    {
-      "step": "A3 + PT/ES query translation",
-      "config": "verse|norm=1|mt=1|exp=0|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.82,
-          "pt": 0.82,
-          "es": 0.82
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.569,
-        "acc_en": 0.625,
-        "acc_pt": 0.857,
-        "acc_es": 0.182,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.716,
-        "adversarial_answered": 0,
-        "unsupported_answers": 6,
-        "trick_pass": 1.0,
-        "injection_pass": 0.0,
-        "answered": 42
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.663,
-        "acc_en": 0.692,
-        "acc_pt": 0.588,
-        "acc_es": 0.615,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.541,
-        "adversarial_answered": 0,
-        "unsupported_answers": 4,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 75
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 6.93,
-        "t_rerank": 0.22
-      },
-      "wall_s": 2.1
-    },
-    {
-      "step": "A4 + archaic query expansion",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.82,
-          "pt": 0.82,
-          "es": 0.82
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.569,
-        "acc_en": 0.625,
-        "acc_pt": 0.857,
-        "acc_es": 0.182,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.716,
-        "adversarial_answered": 0,
-        "unsupported_answers": 6,
-        "trick_pass": 1.0,
-        "injection_pass": 0.0,
-        "answered": 42
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.663,
-        "acc_en": 0.692,
-        "acc_pt": 0.588,
-        "acc_es": 0.615,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.541,
-        "adversarial_answered": 0,
-        "unsupported_answers": 4,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 75
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 7.56,
-        "t_rerank": 0.22
-      },
-      "wall_s": 2.3
-    },
-    {
-      "step": "A5 embedder multilingual-e5-small",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.82,
-          "pt": 0.82,
-          "es": 0.82
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.569,
-        "acc_en": 0.625,
-        "acc_pt": 0.857,
-        "acc_es": 0.182,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.716,
-        "adversarial_answered": 0,
-        "unsupported_answers": 6,
-        "trick_pass": 1.0,
-        "injection_pass": 0.0,
-        "answered": 42
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.663,
-        "acc_en": 0.692,
-        "acc_pt": 0.588,
-        "acc_es": 0.615,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.541,
-        "adversarial_answered": 0,
-        "unsupported_answers": 4,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 75
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 8.28,
-        "t_rerank": 0.26
-      },
-      "wall_s": 2.6
-    },
-    {
-      "step": "A5 embedder multilingual-e5-base",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-base|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.82,
-          "pt": 0.82,
-          "es": 0.82
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.569,
-        "acc_en": 0.625,
-        "acc_pt": 0.857,
-        "acc_es": 0.182,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.716,
-        "adversarial_answered": 0,
-        "unsupported_answers": 6,
-        "trick_pass": 1.0,
-        "injection_pass": 0.0,
-        "answered": 42
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.684,
-        "acc_en": 0.723,
-        "acc_pt": 0.588,
-        "acc_es": 0.615,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.569,
-        "adversarial_answered": 0,
-        "unsupported_answers": 5,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 78
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 10.05,
-        "t_rerank": 0.29
-      },
-      "wall_s": 3.1
-    },
-    {
-      "step": "A6 dense weight 0.0",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.0|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.82,
-          "pt": 0.82,
-          "es": 0.82
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.569,
-        "acc_en": 0.625,
-        "acc_pt": 0.857,
-        "acc_es": 0.182,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.716,
-        "adversarial_answered": 0,
-        "unsupported_answers": 7,
-        "trick_pass": 0.833,
-        "injection_pass": 0.0,
-        "answered": 42
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.663,
-        "acc_en": 0.708,
-        "acc_pt": 0.529,
-        "acc_es": 0.615,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.559,
-        "adversarial_answered": 0,
-        "unsupported_answers": 6,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 77
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 7.82,
-        "t_rerank": 0.23
-      },
-      "wall_s": 2.6
-    },
-    {
-      "step": "A6 dense weight 0.25",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.25|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.82,
-          "pt": 0.82,
-          "es": 0.82
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.569,
-        "acc_en": 0.625,
-        "acc_pt": 0.857,
-        "acc_es": 0.182,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.716,
-        "adversarial_answered": 0,
-        "unsupported_answers": 7,
-        "trick_pass": 0.833,
-        "injection_pass": 0.0,
-        "answered": 42
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.663,
-        "acc_en": 0.708,
-        "acc_pt": 0.529,
-        "acc_es": 0.615,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.559,
-        "adversarial_answered": 0,
-        "unsupported_answers": 6,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 77
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 7.51,
-        "t_rerank": 0.23
-      },
-      "wall_s": 2.4
-    },
-    {
-      "step": "A6 dense weight 0.5",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.82,
-          "pt": 0.82,
-          "es": 0.82
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.569,
-        "acc_en": 0.625,
-        "acc_pt": 0.857,
-        "acc_es": 0.182,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.716,
-        "adversarial_answered": 0,
-        "unsupported_answers": 6,
-        "trick_pass": 1.0,
-        "injection_pass": 0.0,
-        "answered": 42
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.663,
-        "acc_en": 0.692,
-        "acc_pt": 0.588,
-        "acc_es": 0.615,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.541,
-        "adversarial_answered": 0,
-        "unsupported_answers": 4,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 75
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 7.73,
-        "t_rerank": 0.23
-      },
-      "wall_s": 2.4
-    },
-    {
-      "step": "A6 dense weight 0.75",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.75|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.82,
-          "pt": 0.82,
-          "es": 0.82
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.534,
-        "acc_en": 0.575,
-        "acc_pt": 0.857,
-        "acc_es": 0.182,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.676,
-        "adversarial_answered": 0,
-        "unsupported_answers": 4,
-        "trick_pass": 1.0,
-        "injection_pass": 0.0,
-        "answered": 38
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.653,
-        "acc_en": 0.677,
-        "acc_pt": 0.588,
-        "acc_es": 0.615,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.54,
-        "adversarial_answered": 0,
-        "unsupported_answers": 4,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 73
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 7.94,
-        "t_rerank": 0.23
-      },
-      "wall_s": 2.4
-    },
-    {
-      "step": "A6 dense weight 1.0",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=1.0|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.82,
-          "pt": 0.82,
-          "es": 0.82
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.534,
-        "acc_en": 0.575,
-        "acc_pt": 0.857,
-        "acc_es": 0.182,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.676,
-        "adversarial_answered": 0,
-        "unsupported_answers": 4,
-        "trick_pass": 1.0,
-        "injection_pass": 0.0,
-        "answered": 38
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.653,
-        "acc_en": 0.677,
-        "acc_pt": 0.588,
-        "acc_es": 0.615,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.531,
-        "adversarial_answered": 0,
-        "unsupported_answers": 3,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 72
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 7.54,
-        "t_rerank": 0.23
-      },
-      "wall_s": 2.3
-    },
-    {
-      "step": "A7 reranker mmarco-mMiniLMv2-L12-H384-v1",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.82,
-          "pt": 0.82,
-          "es": 0.82
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.569,
-        "acc_en": 0.625,
-        "acc_pt": 0.857,
-        "acc_es": 0.182,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.716,
-        "adversarial_answered": 0,
-        "unsupported_answers": 6,
-        "trick_pass": 1.0,
-        "injection_pass": 0.0,
-        "answered": 42
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.663,
-        "acc_en": 0.692,
-        "acc_pt": 0.588,
-        "acc_es": 0.615,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.541,
-        "adversarial_answered": 0,
-        "unsupported_answers": 4,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 75
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 8.26,
-        "t_rerank": 0.22
-      },
-      "wall_s": 2.6
-    },
-    {
-      "step": "A8 per-language thresholds",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.82,
-          "pt": 0.72,
-          "es": 0.92
-        },
-        "s_min": 0.0
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.586,
-        "acc_en": 0.625,
-        "acc_pt": 1.0,
-        "acc_es": 0.182,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.727,
-        "adversarial_answered": 0,
-        "unsupported_answers": 6,
-        "trick_pass": 1.0,
-        "injection_pass": 0.0,
-        "answered": 43
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.674,
-        "acc_en": 0.692,
-        "acc_pt": 0.647,
-        "acc_es": 0.615,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.559,
-        "adversarial_answered": 0,
-        "unsupported_answers": 5,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 77
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 7.4,
-        "t_rerank": 0.22
-      },
-      "wall_s": 2.3
-    },
-    {
-      "step": "A9 per-language thresholds + lexical support gate",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=30|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.36,
-          "pt": 0.72,
-          "es": 0.36
+          "en": 0.18,
+          "pt": 0.04,
+          "es": 0.34
         },
         "s_min": 0.3
       },
       "tune": {
         "n": 109,
-        "answer_accuracy": 0.707,
-        "acc_en": 0.75,
+        "answer_accuracy": 0.724,
+        "acc_en": 0.775,
         "acc_pt": 1.0,
         "acc_es": 0.364,
         "refusal_recall": 1.0,
-        "refusal_precision": 0.81,
+        "refusal_precision": 0.839,
         "adversarial_answered": 0,
         "unsupported_answers": 7,
         "trick_pass": 0.833,
         "injection_pass": 0.0,
-        "answered": 51
+        "answered": 53
       },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.758,
-        "acc_en": 0.815,
-        "acc_pt": 0.529,
-        "acc_es": 0.769,
-        "refusal_recall": 0.933,
-        "refusal_precision": 0.689,
-        "adversarial_answered": 2,
-        "unsupported_answers": 11,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 91
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 7.57,
-        "t_rerank": 0.22
-      },
-      "wall_s": 3.2
-    },
-    {
-      "step": "A10 + 50 reranker candidates",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=0",
-      "policy": {
-        "t": {
-          "en": 0.12,
-          "pt": 0.72,
-          "es": 0.16
-        },
-        "s_min": 0.3
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.776,
-        "acc_en": 0.825,
-        "acc_pt": 1.0,
-        "acc_es": 0.455,
+      "dev": {
+        "n": 175,
+        "answer_accuracy": 0.702,
+        "acc_en": 0.814,
+        "acc_pt": 0.682,
+        "acc_es": 0.614,
         "refusal_recall": 1.0,
-        "refusal_precision": 0.868,
+        "refusal_precision": 0.603,
         "adversarial_answered": 0,
-        "unsupported_answers": 6,
+        "unsupported_answers": 10,
+        "trick_pass": NaN,
+        "injection_pass": NaN,
+        "answered": 102
+      },
+      "select": {
+        "n": 284,
+        "answer_accuracy": 0.709,
+        "acc_en": 0.795,
+        "acc_pt": 0.725,
+        "acc_es": 0.564,
+        "refusal_recall": 1.0,
+        "refusal_precision": 0.705,
+        "adversarial_answered": 0,
+        "unsupported_answers": 17,
         "trick_pass": 0.833,
         "injection_pass": 0.0,
-        "answered": 56
+        "answered": 155
       },
       "heldout": {
         "n": 136,
-        "answer_accuracy": 0.8,
-        "acc_en": 0.862,
+        "answer_accuracy": 0.789,
+        "acc_en": 0.846,
         "acc_pt": 0.529,
         "acc_es": 0.846,
-        "refusal_recall": 0.9,
-        "refusal_precision": 0.725,
-        "adversarial_answered": 3,
-        "unsupported_answers": 12,
+        "refusal_recall": 0.867,
+        "refusal_precision": 0.778,
+        "adversarial_answered": 4,
+        "unsupported_answers": 17,
         "trick_pass": 0.8,
         "injection_pass": 1.0,
-        "answered": 96
+        "answered": 100
       },
       "stage_ms": {
         "t_translate": 0.0,
-        "t_retrieve": 7.8,
-        "t_rerank": 0.37
+        "t_retrieve": 16.19,
+        "t_rerank": 0.49
       },
-      "wall_s": 13.6
-    },
-    {
-      "step": "A11 + BM25 on the original PT/ES query",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1",
-      "policy": {
-        "t": {
-          "en": 0.12,
-          "pt": 0.72,
-          "es": 0.16
-        },
-        "s_min": 0.3
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.776,
-        "acc_en": 0.825,
-        "acc_pt": 1.0,
-        "acc_es": 0.455,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.868,
-        "adversarial_answered": 0,
-        "unsupported_answers": 6,
-        "trick_pass": 0.833,
-        "injection_pass": 0.0,
-        "answered": 56
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.8,
-        "acc_en": 0.862,
-        "acc_pt": 0.529,
-        "acc_es": 0.846,
-        "refusal_recall": 0.9,
-        "refusal_precision": 0.725,
-        "adversarial_answered": 3,
-        "unsupported_answers": 12,
-        "trick_pass": 0.8,
-        "injection_pass": 1.0,
-        "answered": 96
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 10.05,
-        "t_rerank": 0.38
-      },
-      "wall_s": 4.4
-    },
-    {
-      "step": "A12 reranker ensemble mMiniLM + ms-marco-MiniLM-L-6 (English only; not shipped, see SCORECARD)",
-      "config": "verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1+ms-marco-MiniLM-L-6-v2|k=50|bmo=1",
-      "policy": {
-        "t": {
-          "en": 0.3,
-          "pt": 0.7,
-          "es": 0.52
-        },
-        "s_min": 0.3
-      },
-      "tune": {
-        "n": 109,
-        "answer_accuracy": 0.81,
-        "acc_en": 0.85,
-        "acc_pt": 1.0,
-        "acc_es": 0.545,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.939,
-        "adversarial_answered": 0,
-        "unsupported_answers": 7,
-        "trick_pass": 1.0,
-        "injection_pass": 0.0,
-        "answered": 60
-      },
-      "heldout": {
-        "n": 136,
-        "answer_accuracy": 0.811,
-        "acc_en": 0.877,
-        "acc_pt": 0.588,
-        "acc_es": 0.769,
-        "refusal_recall": 1.0,
-        "refusal_precision": 0.846,
-        "adversarial_answered": 0,
-        "unsupported_answers": 12,
-        "trick_pass": 1.0,
-        "injection_pass": 1.0,
-        "answered": 97
-      },
-      "stage_ms": {
-        "t_translate": 0.0,
-        "t_retrieve": 9.94,
-        "t_rerank": 0.46
-      },
-      "wall_s": 6.2
+      "wall_s": 33.3
     }
   ],
   "final_rows": [
@@ -1078,15 +328,13 @@
       "type": "answerable",
       "lang": "en",
       "split": "tune",
-      "ok": true,
-      "answered": true,
-      "evidence": true,
+      "ok": false,
+      "answered": false,
+      "evidence": false,
       "unsupported": false,
       "top": 0.1238,
       "support": 0.367,
-      "cited": [
-        "Numbers 22:27-29"
-      ]
+      "cited": []
     },
     {
       "id": "S015",
@@ -1144,15 +392,14 @@
       "type": "answerable",
       "lang": "en",
       "split": "heldout",
-      "ok": true,
+      "ok": false,
       "answered": true,
-      "evidence": true,
-      "unsupported": false,
+      "evidence": false,
+      "unsupported": true,
       "top": 0.2283,
       "support": 0.753,
       "cited": [
-        "Sura 93:1-9",
-        "koran_rodwell p.56"
+        "Sura 93:1-9"
       ]
     },
     {
@@ -1184,8 +431,8 @@
       "support": 0.598,
       "cited": [
         "koran_rodwell p.200",
-        "Sura 45:35-37",
-        "koran_rodwell p.304"
+        "koran_rodwell p.304",
+        "koran_rodwell p.47"
       ]
     },
     {
@@ -1198,11 +445,11 @@
       "evidence": false,
       "unsupported": true,
       "top": 0.9481,
-      "support": 0.697,
+      "support": 0.699,
       "cited": [
         "Genesis 1:5-8",
         "Genesis 1:1-5",
-        "koran_rodwell p.404"
+        "koran_rodwell p.405"
       ]
     },
     {
@@ -1335,8 +582,7 @@
       "support": 1.0,
       "cited": [
         "koran_rodwell p.386",
-        "Sura 2:255-258",
-        "Sura 6:139-141"
+        "Sura 2:255-258"
       ]
     },
     {
@@ -1429,13 +675,17 @@
       "type": "answerable",
       "lang": "pt",
       "split": "heldout",
-      "ok": false,
-      "answered": false,
-      "evidence": false,
+      "ok": true,
+      "answered": true,
+      "evidence": true,
       "unsupported": false,
       "top": 0.4921,
       "support": 0.57,
-      "cited": []
+      "cited": [
+        "Exodus 16:3-4",
+        "Deuteronomy 28:24-26",
+        "Sura 60:24-26"
+      ]
     },
     {
       "id": "S036",
@@ -1449,7 +699,8 @@
       "top": 0.9055,
       "support": 0.678,
       "cited": [
-        "koran_rodwell p.56"
+        "koran_rodwell p.56",
+        "Sura 93:1-9"
       ]
     },
     {
@@ -1465,7 +716,8 @@
       "support": 0.346,
       "cited": [
         "Genesis 42:6-8",
-        "koran_rodwell p.258"
+        "koran_rodwell p.258",
+        "Genesis 37:3-6"
       ]
     },
     {
@@ -1577,8 +829,7 @@
       "support": 0.575,
       "cited": [
         "Sura 20:13-21",
-        "koran_rodwell p.124",
-        "koran_rodwell p.114"
+        "koran_rodwell p.124"
       ]
     },
     {
@@ -1603,8 +854,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0038,
-      "support": 0.107,
+      "top": 0.0125,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -1616,7 +867,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0383,
+      "top": 0.0514,
       "support": 0.0,
       "cited": []
     },
@@ -1642,8 +893,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0331,
-      "support": 0.0,
+      "top": 0.0333,
+      "support": 0.197,
       "cited": []
     },
     {
@@ -1668,8 +919,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.041,
-      "support": 0.114,
+      "top": 0.0686,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -1681,8 +932,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0256,
-      "support": 0.1,
+      "top": 0.0412,
+      "support": 0.089,
       "cited": []
     },
     {
@@ -1707,8 +958,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0447,
-      "support": 0.156,
+      "top": 0.0498,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -1720,8 +971,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0592,
-      "support": 0.0,
+      "top": 0.0875,
+      "support": 0.076,
       "cited": []
     },
     {
@@ -1746,8 +997,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0859,
-      "support": 0.0,
+      "top": 0.3177,
+      "support": 0.054,
       "cited": []
     },
     {
@@ -1759,8 +1010,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.2011,
-      "support": 0.0,
+      "top": 0.0975,
+      "support": 0.104,
       "cited": []
     },
     {
@@ -1824,7 +1075,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0079,
+      "top": 0.0036,
       "support": 0.08,
       "cited": []
     },
@@ -1837,8 +1088,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.1558,
-      "support": 0.157,
+      "top": 0.2818,
+      "support": 0.102,
       "cited": []
     },
     {
@@ -1915,7 +1166,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0083,
+      "top": 0.0122,
       "support": 0.0,
       "cited": []
     },
@@ -1985,11 +1236,11 @@
       "evidence": true,
       "unsupported": false,
       "top": 0.9941,
-      "support": 0.652,
+      "support": 0.66,
       "cited": [
         "Genesis 4:8-11",
-        "Genesis 4:22-24",
-        "Genesis 4:1-4"
+        "Sura 38:10-12",
+        "Genesis 4:22-24"
       ]
     },
     {
@@ -2014,16 +1265,16 @@
       "type": "trick",
       "lang": "en",
       "split": "tune",
-      "ok": true,
+      "ok": false,
       "answered": true,
-      "evidence": true,
-      "unsupported": false,
+      "evidence": false,
+      "unsupported": true,
       "top": 0.9758,
       "support": 0.358,
       "cited": [
         "Genesis 37:9-10",
-        "koran_rodwell p.250",
-        "Genesis 37:6-9"
+        "Genesis 37:6-9",
+        "Genesis 48:12-14"
       ]
     },
     {
@@ -2079,7 +1330,7 @@
       "evidence": false,
       "unsupported": false,
       "top": 0.0047,
-      "support": 0.106,
+      "support": 0.112,
       "cited": []
     },
     {
@@ -2142,11 +1393,11 @@
       "evidence": true,
       "unsupported": false,
       "top": 0.9994,
-      "support": 0.426,
+      "support": 0.43,
       "cited": [
         "Genesis 2:6-9",
         "Genesis 1:26-28",
-        "Sura 39:7-10"
+        "Sura 39:10-13"
       ]
     },
     {
@@ -2252,11 +1503,10 @@
       "evidence": true,
       "unsupported": false,
       "top": 0.9785,
-      "support": 0.59,
+      "support": 0.593,
       "cited": [
         "Genesis 5:22-27",
-        "Genesis 5:27-30",
-        "Genesis 5:17-22"
+        "Genesis 5:27-30"
       ]
     },
     {
@@ -2336,7 +1586,7 @@
       "evidence": true,
       "unsupported": false,
       "top": 0.791,
-      "support": 0.512,
+      "support": 0.514,
       "cited": [
         "Genesis 11:9-12"
       ]
@@ -2385,8 +1635,7 @@
       "top": 0.1855,
       "support": 0.605,
       "cited": [
-        "Genesis 15:5-8",
-        "Genesis 17:1-4"
+        "Genesis 15:5-8"
       ]
     },
     {
@@ -2427,16 +1676,16 @@
       "type": "answerable",
       "lang": "en",
       "split": "tune",
-      "ok": true,
+      "ok": false,
       "answered": true,
-      "evidence": true,
-      "unsupported": false,
+      "evidence": false,
+      "unsupported": true,
       "top": 0.9989,
       "support": 0.725,
       "cited": [
         "Genesis 22:7-9",
-        "Genesis 22:4-7",
-        "Genesis 22:1-2"
+        "Genesis 22:12-14",
+        "Genesis 22:4-7"
       ]
     },
     {
@@ -2466,9 +1715,7 @@
       "top": 0.6517,
       "support": 0.65,
       "cited": [
-        "Genesis 28:11-13",
-        "Numbers 24:16-18",
-        "Genesis 32:20-22"
+        "Genesis 28:11-13"
       ]
     },
     {
@@ -2484,8 +1731,7 @@
       "support": 0.86,
       "cited": [
         "Genesis 29:17-21",
-        "Genesis 29:27-31",
-        "Genesis 30:23-26"
+        "Genesis 29:27-31"
       ]
     },
     {
@@ -2748,7 +1994,7 @@
       "evidence": true,
       "unsupported": false,
       "top": 0.8547,
-      "support": 0.893,
+      "support": 0.892,
       "cited": [
         "Leviticus 25:9-10",
         "Leviticus 25:10-12"
@@ -2781,11 +2027,10 @@
       "evidence": true,
       "unsupported": false,
       "top": 0.9997,
-      "support": 0.864,
+      "support": 0.863,
       "cited": [
         "Numbers 21:7-9",
-        "Numbers 21:9-12",
-        "Deuteronomy 4:42-46"
+        "Numbers 21:9-12"
       ]
     },
     {
@@ -2798,7 +2043,7 @@
       "evidence": true,
       "unsupported": false,
       "top": 0.9994,
-      "support": 0.799,
+      "support": 0.797,
       "cited": [
         "Deuteronomy 8:2-3",
         "Deuteronomy 8:3-5"
@@ -2894,7 +2139,7 @@
       "evidence": false,
       "unsupported": false,
       "top": 0.2472,
-      "support": 0.22,
+      "support": 0.221,
       "cited": []
     },
     {
@@ -2973,8 +2218,7 @@
       "support": 0.727,
       "cited": [
         "koran_rodwell p.139",
-        "koran_rodwell p.139",
-        "Exodus 2:5-7"
+        "koran_rodwell p.139"
       ]
     },
     {
@@ -3007,8 +2251,7 @@
       "support": 0.633,
       "cited": [
         "Sura 27:15-21",
-        "koran_rodwell p.195",
-        "Sura 27:11-14"
+        "koran_rodwell p.195"
       ]
     },
     {
@@ -3021,7 +2264,7 @@
       "evidence": true,
       "unsupported": false,
       "top": 0.4282,
-      "support": 0.473,
+      "support": 0.472,
       "cited": [
         "koran_rodwell p.372",
         "koran_rodwell p.49",
@@ -3293,7 +2536,9 @@
       "top": 0.8972,
       "support": 0.747,
       "cited": [
-        "Genesis 2:1-4"
+        "Genesis 2:1-4",
+        "Exodus 35:1-3",
+        "Exodus 34:20-22"
       ]
     },
     {
@@ -3325,7 +2570,9 @@
       "top": 0.7389,
       "support": 0.619,
       "cited": [
-        "Genesis 7:11-14"
+        "Genesis 7:11-14",
+        "Genesis 7:3-6",
+        "Genesis 8:4-3"
       ]
     },
     {
@@ -3341,7 +2588,8 @@
       "support": 0.485,
       "cited": [
         "Genesis 8:9-11",
-        "Genesis 8:11-13"
+        "Genesis 8:11-13",
+        "Genesis 8:6-9"
       ]
     },
     {
@@ -3386,7 +2634,9 @@
       "top": 0.999,
       "support": 1.0,
       "cited": [
-        "Exodus 3:1-3"
+        "Exodus 3:1-3",
+        "Numbers 20:5-8",
+        "Sura 79:1-11"
       ]
     },
     {
@@ -3414,7 +2664,9 @@
       "top": 0.9167,
       "support": 0.779,
       "cited": [
-        "Leviticus 19:17-19"
+        "Leviticus 19:17-19",
+        "Leviticus 19:15-17",
+        "Exodus 20:14-17"
       ]
     },
     {
@@ -3493,7 +2745,8 @@
       "support": 0.615,
       "cited": [
         "koran_rodwell p.195",
-        "Sura 27:15-21"
+        "Sura 27:15-21",
+        "Sura 27:11-14"
       ]
     },
     {
@@ -3501,14 +2754,16 @@
       "type": "answerable",
       "lang": "pt",
       "split": "heldout",
-      "ok": true,
+      "ok": false,
       "answered": true,
-      "evidence": true,
-      "unsupported": false,
-      "top": 0.8845,
-      "support": 0.664,
+      "evidence": false,
+      "unsupported": true,
+      "top": 0.3012,
+      "support": 0.549,
       "cited": [
-        "koran_rodwell p.251"
+        "koran_rodwell p.255",
+        "Sura 12:72-71",
+        "Genesis 37:21-23"
       ]
     },
     {
@@ -3534,12 +2789,16 @@
       "lang": "pt",
       "split": "heldout",
       "ok": false,
-      "answered": false,
+      "answered": true,
       "evidence": false,
-      "unsupported": false,
+      "unsupported": true,
       "top": 0.61,
       "support": 1.0,
-      "cited": []
+      "cited": [
+        "koran_rodwell p.197",
+        "Sura 27:58-60",
+        "koran_rodwell p.129"
+      ]
     },
     {
       "id": "P18",
@@ -3547,12 +2806,16 @@
       "lang": "pt",
       "split": "heldout",
       "ok": false,
-      "answered": false,
+      "answered": true,
       "evidence": false,
-      "unsupported": false,
+      "unsupported": true,
       "top": 0.7078,
       "support": 0.536,
-      "cited": []
+      "cited": [
+        "Numbers 14:1-3",
+        "Exodus 13:16-18",
+        "Exodus 11:2"
+      ]
     },
     {
       "id": "E01",
@@ -3564,11 +2827,11 @@
       "evidence": true,
       "unsupported": false,
       "top": 0.9994,
-      "support": 0.426,
+      "support": 0.43,
       "cited": [
         "Genesis 2:6-9",
-        "Genesis 1:26-28",
-        "Genesis 3:22-24"
+        "Genesis 3:22-24",
+        "Sura 39:7-10"
       ]
     },
     {
@@ -3597,8 +2860,7 @@
       "support": 0.634,
       "cited": [
         "Genesis 8:3-6",
-        "Genesis 8:4-3",
-        "Numbers 10:33-35"
+        "Genesis 8:4-3"
       ]
     },
     {
@@ -3686,7 +2948,7 @@
       "evidence": true,
       "unsupported": false,
       "top": 0.9971,
-      "support": 0.736,
+      "support": 0.734,
       "cited": [
         "Numbers 21:7-9",
         "Numbers 21:9-12",
@@ -3748,9 +3010,7 @@
       "top": 0.4325,
       "support": 1.0,
       "cited": [
-        "koran_rodwell p.49",
-        "koran_rodwell p.403",
-        "koran_rodwell p.436"
+        "koran_rodwell p.49"
       ]
     },
     {
@@ -3780,7 +3040,7 @@
       "evidence": true,
       "unsupported": false,
       "top": 0.9735,
-      "support": 0.648,
+      "support": 0.649,
       "cited": [
         "Sura 18:70-73",
         "Sura 18:62-70",
@@ -3808,16 +3068,13 @@
       "type": "answerable",
       "lang": "es",
       "split": "tune",
-      "ok": true,
-      "answered": true,
-      "evidence": true,
+      "ok": false,
+      "answered": false,
+      "evidence": false,
       "unsupported": false,
       "top": 0.2955,
       "support": 0.586,
-      "cited": [
-        "koran_rodwell p.506",
-        "Sura 2:141"
-      ]
+      "cited": []
     },
     {
       "id": "E18",
@@ -3884,8 +3141,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0976,
-      "support": 0.132,
+      "top": 0.2147,
+      "support": 0.101,
       "cited": []
     },
     {
@@ -3924,7 +3181,7 @@
       "evidence": false,
       "unsupported": false,
       "top": 0.1029,
-      "support": 0.163,
+      "support": 0.161,
       "cited": []
     },
     {
@@ -3978,8 +3235,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.36,
-      "support": 0.104,
+      "top": 0.3394,
+      "support": 0.265,
       "cited": []
     },
     {
@@ -3991,7 +3248,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.4838,
+      "top": 0.1887,
       "support": 0.0,
       "cited": []
     },
@@ -4098,7 +3355,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0295,
+      "top": 0.035,
       "support": 0.0,
       "cited": []
     },
@@ -4124,7 +3381,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0245,
+      "top": 0.0671,
       "support": 0.0,
       "cited": []
     },
@@ -4150,8 +3407,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.1105,
-      "support": 0.161,
+      "top": 0.1233,
+      "support": 0.301,
       "cited": []
     },
     {
@@ -4163,7 +3420,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0091,
+      "top": 0.0113,
       "support": 0.0,
       "cited": []
     },
@@ -4176,8 +3433,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.1357,
-      "support": 0.0,
+      "top": 0.0667,
+      "support": 0.248,
       "cited": []
     },
     {
@@ -4202,8 +3459,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.629,
-      "support": 0.257,
+      "top": 0.331,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -4215,8 +3472,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.1707,
-      "support": 0.0,
+      "top": 0.1549,
+      "support": 0.094,
       "cited": []
     },
     {
@@ -4228,8 +3485,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0218,
-      "support": 0.0,
+      "top": 0.0142,
+      "support": 0.095,
       "cited": []
     },
     {
@@ -4254,8 +3511,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.4838,
-      "support": 0.0,
+      "top": 0.527,
+      "support": 0.224,
       "cited": []
     },
     {
@@ -4263,13 +3520,15 @@
       "type": "adversarial",
       "lang": "pt",
       "split": "heldout",
-      "ok": true,
-      "answered": false,
+      "ok": false,
+      "answered": true,
       "evidence": false,
-      "unsupported": false,
+      "unsupported": true,
       "top": 0.0687,
       "support": 0.371,
-      "cited": []
+      "cited": [
+        "koran_rodwell p.26"
+      ]
     },
     {
       "id": "A34",
@@ -4306,8 +3565,8 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.3025,
-      "support": 0.119,
+      "top": 0.2092,
+      "support": 0.0,
       "cited": []
     },
     {
@@ -4358,7 +3617,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.2938,
+      "top": 0.1931,
       "support": 0.0,
       "cited": []
     },
@@ -4374,8 +3633,7 @@
       "top": 0.4772,
       "support": 0.349,
       "cited": [
-        "koran_rodwell p.26",
-        "koran_rodwell p.27"
+        "koran_rodwell p.26"
       ]
     },
     {
@@ -4465,15 +3723,13 @@
       "type": "trick",
       "lang": "en",
       "split": "tune",
-      "ok": false,
-      "answered": true,
+      "ok": true,
+      "answered": false,
       "evidence": false,
-      "unsupported": true,
+      "unsupported": false,
       "top": 0.1404,
       "support": 0.485,
-      "cited": [
-        "Genesis 8:4-3"
-      ]
+      "cited": []
     },
     {
       "id": "T03",
@@ -4531,7 +3787,7 @@
       "answered": false,
       "evidence": false,
       "unsupported": false,
-      "top": 0.0304,
+      "top": 0.014,
       "support": 0.0,
       "cited": []
     },
@@ -4581,6 +3837,2639 @@
       "cited": [
         "injection_test p.1"
       ]
+    },
+    {
+      "id": "D02-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9994,
+      "support": 0.816,
+      "cited": [
+        "Genesis 4:1-4",
+        "Genesis 4:4-7",
+        "Leviticus 16:11-13"
+      ]
+    },
+    {
+      "id": "D02-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9993,
+      "support": 0.816,
+      "cited": [
+        "Genesis 4:1-4",
+        "Genesis 4:4-7",
+        "Numbers 6:14-16"
+      ]
+    },
+    {
+      "id": "D02-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9993,
+      "support": 0.816,
+      "cited": [
+        "Genesis 4:1-4",
+        "Genesis 4:4-7",
+        "Numbers 6:14-16"
+      ]
+    },
+    {
+      "id": "D03-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9785,
+      "support": 0.593,
+      "cited": [
+        "Genesis 5:22-27",
+        "Genesis 5:27-30"
+      ]
+    },
+    {
+      "id": "D03-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.9903,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "D03-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9785,
+      "support": 0.593,
+      "cited": [
+        "Genesis 5:22-27",
+        "Genesis 5:27-30"
+      ]
+    },
+    {
+      "id": "D04-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.8743,
+      "support": 0.483,
+      "cited": [
+        "Genesis 6:13-15",
+        "Exodus 37:3-6",
+        "Exodus 25:23-26"
+      ]
+    },
+    {
+      "id": "D04-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9891,
+      "support": 0.849,
+      "cited": [
+        "Genesis 6:13-15",
+        "Exodus 25:23-26",
+        "Exodus 37:3-6"
+      ]
+    },
+    {
+      "id": "D04-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9891,
+      "support": 0.849,
+      "cited": [
+        "Genesis 6:13-15",
+        "Exodus 25:23-26",
+        "Exodus 37:3-6"
+      ]
+    },
+    {
+      "id": "D08-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.5052,
+      "support": 0.284,
+      "cited": []
+    },
+    {
+      "id": "D08-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.5052,
+      "support": 0.284,
+      "cited": []
+    },
+    {
+      "id": "D08-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.5052,
+      "support": 0.284,
+      "cited": []
+    },
+    {
+      "id": "D09-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9899,
+      "support": 0.59,
+      "cited": [
+        "Genesis 21:4-8",
+        "Genesis 21:1-4",
+        "Genesis 25:18-21"
+      ]
+    },
+    {
+      "id": "D09-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9899,
+      "support": 0.59,
+      "cited": [
+        "Genesis 21:4-8",
+        "Genesis 21:1-4",
+        "Genesis 25:18-21"
+      ]
+    },
+    {
+      "id": "D09-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9899,
+      "support": 0.59,
+      "cited": [
+        "Genesis 21:4-8",
+        "Genesis 21:1-4",
+        "Genesis 25:18-21"
+      ]
+    },
+    {
+      "id": "D11-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9995,
+      "support": 0.854,
+      "cited": [
+        "Genesis 25:30-34",
+        "Genesis 25:27-30",
+        "Genesis 27:30-32"
+      ]
+    },
+    {
+      "id": "D11-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9995,
+      "support": 0.854,
+      "cited": [
+        "Genesis 25:30-34",
+        "Genesis 25:27-30",
+        "Genesis 27:30-32"
+      ]
+    },
+    {
+      "id": "D11-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9995,
+      "support": 0.854,
+      "cited": [
+        "Genesis 25:30-34",
+        "Genesis 25:27-30",
+        "Genesis 27:30-32"
+      ]
+    },
+    {
+      "id": "D12-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.5653,
+      "support": 0.65,
+      "cited": [
+        "Genesis 28:11-13"
+      ]
+    },
+    {
+      "id": "D12-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.4337,
+      "support": 0.395,
+      "cited": [
+        "Genesis 28:11-13",
+        "Numbers 24:16-18"
+      ]
+    },
+    {
+      "id": "D12-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.4337,
+      "support": 0.395,
+      "cited": [
+        "Genesis 28:11-13"
+      ]
+    },
+    {
+      "id": "D14-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.8319,
+      "support": 0.4,
+      "cited": [
+        "Genesis 30:6-9",
+        "Genesis 32:25-28"
+      ]
+    },
+    {
+      "id": "D14-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.508,
+      "support": 0.292,
+      "cited": []
+    },
+    {
+      "id": "D14-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.2299,
+      "support": 0.292,
+      "cited": []
+    },
+    {
+      "id": "D15-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9997,
+      "support": 0.893,
+      "cited": [
+        "Genesis 37:3-6",
+        "Genesis 37:1-3",
+        "Genesis 46:28-30"
+      ]
+    },
+    {
+      "id": "D15-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.998,
+      "support": 0.561,
+      "cited": [
+        "Genesis 37:3-6",
+        "Genesis 37:1-3",
+        "Genesis 46:28-30"
+      ]
+    },
+    {
+      "id": "D15-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9997,
+      "support": 1.0,
+      "cited": [
+        "Genesis 37:3-6",
+        "Genesis 37:1-3",
+        "Exodus 1:5-9"
+      ]
+    },
+    {
+      "id": "D18-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.6148,
+      "support": 0.268,
+      "cited": []
+    },
+    {
+      "id": "D18-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.584,
+      "support": 0.277,
+      "cited": []
+    },
+    {
+      "id": "D18-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.584,
+      "support": 0.277,
+      "cited": []
+    },
+    {
+      "id": "D20-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.2256,
+      "support": 0.612,
+      "cited": [
+        "Exodus 16:31-32",
+        "Exodus 16:29-31"
+      ]
+    },
+    {
+      "id": "D20-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.3938,
+      "support": 0.612,
+      "cited": [
+        "Exodus 16:29-31",
+        "Exodus 16:31-32",
+        "Exodus 12:19-21"
+      ]
+    },
+    {
+      "id": "D20-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.3938,
+      "support": 0.612,
+      "cited": [
+        "Exodus 16:29-31"
+      ]
+    },
+    {
+      "id": "D22-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9921,
+      "support": 0.561,
+      "cited": [
+        "Exodus 24:16-18",
+        "Exodus 24:14-16",
+        "Exodus 19:13-16"
+      ]
+    },
+    {
+      "id": "D22-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.948,
+      "support": 0.347,
+      "cited": [
+        "Exodus 24:16-18",
+        "Exodus 24:14-16",
+        "Numbers 10:33-35"
+      ]
+    },
+    {
+      "id": "D22-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9753,
+      "support": 0.561,
+      "cited": [
+        "Exodus 24:16-18",
+        "Exodus 24:14-16"
+      ]
+    },
+    {
+      "id": "D24-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9865,
+      "support": 0.869,
+      "cited": [
+        "Leviticus 16:8-11",
+        "Leviticus 16:5-8"
+      ]
+    },
+    {
+      "id": "D24-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.7025,
+      "support": 0.327,
+      "cited": [
+        "Leviticus 16:8-11"
+      ]
+    },
+    {
+      "id": "D24-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0365,
+      "support": 0.165,
+      "cited": []
+    },
+    {
+      "id": "D25-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.1227,
+      "support": 0.255,
+      "cited": []
+    },
+    {
+      "id": "D25-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": true,
+      "evidence": false,
+      "unsupported": true,
+      "top": 0.086,
+      "support": 0.78,
+      "cited": [
+        "Sura 76:23-28",
+        "koran_rodwell p.108"
+      ]
+    },
+    {
+      "id": "D25-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.3512,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "D29-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9948,
+      "support": 0.598,
+      "cited": [
+        "Deuteronomy 8:2-3",
+        "Deuteronomy 8:3-5",
+        "Genesis 2:17-19"
+      ]
+    },
+    {
+      "id": "D29-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.6572,
+      "support": 0.305,
+      "cited": [
+        "Deuteronomy 8:2-3",
+        "Deuteronomy 8:3-5",
+        "Genesis 3:22-24"
+      ]
+    },
+    {
+      "id": "D29-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0679,
+      "support": 0.305,
+      "cited": []
+    },
+    {
+      "id": "D30-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9989,
+      "support": 1.0,
+      "cited": [
+        "Deuteronomy 34:6-9",
+        "Genesis 50:24-26",
+        "Sura 40:5-8"
+      ]
+    },
+    {
+      "id": "D30-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9989,
+      "support": 1.0,
+      "cited": [
+        "Deuteronomy 34:6-9"
+      ]
+    },
+    {
+      "id": "D31-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.8444,
+      "support": 0.86,
+      "cited": [
+        "Joshua 6:21-23",
+        "Joshua 2:1-3"
+      ]
+    },
+    {
+      "id": "D31-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.4559,
+      "support": 0.722,
+      "cited": [
+        "Joshua 6:21-23",
+        "Joshua 2:3-5",
+        "Joshua 2:1-3"
+      ]
+    },
+    {
+      "id": "D31-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": true,
+      "evidence": false,
+      "unsupported": true,
+      "top": 0.4559,
+      "support": 0.722,
+      "cited": [
+        "Joshua 6:21-23"
+      ]
+    },
+    {
+      "id": "D33-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.4177,
+      "support": 0.88,
+      "cited": [
+        "Joshua 10:12-13",
+        "Joshua 10:11-12"
+      ]
+    },
+    {
+      "id": "D33-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.1752,
+      "support": 0.474,
+      "cited": [
+        "Joshua 10:2-5",
+        "Joshua 10:5-6",
+        "Joshua 10:11-12"
+      ]
+    },
+    {
+      "id": "D33-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0631,
+      "support": 0.454,
+      "cited": []
+    },
+    {
+      "id": "D34-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9512,
+      "support": 0.788,
+      "cited": [
+        "Joshua 24:15-17",
+        "Genesis 39:3-5",
+        "Exodus 12:30-31"
+      ]
+    },
+    {
+      "id": "D34-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9531,
+      "support": 0.788,
+      "cited": [
+        "Joshua 24:15-17",
+        "Exodus 12:30-31",
+        "Genesis 39:3-5"
+      ]
+    },
+    {
+      "id": "D34-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9531,
+      "support": 0.788,
+      "cited": [
+        "Joshua 24:15-17",
+        "Exodus 12:30-31",
+        "Genesis 39:3-5"
+      ]
+    },
+    {
+      "id": "D35-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9626,
+      "support": 0.431,
+      "cited": [
+        "Joshua 3:17",
+        "Exodus 14:21-23"
+      ]
+    },
+    {
+      "id": "D35-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.8819,
+      "support": 0.557,
+      "cited": [
+        "Joshua 3:17",
+        "Joshua 4:22-24",
+        "Joshua 4:18-19"
+      ]
+    },
+    {
+      "id": "D35-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9303,
+      "support": 0.8,
+      "cited": [
+        "Joshua 3:17",
+        "Joshua 5:1",
+        "Joshua 4:22-24"
+      ]
+    },
+    {
+      "id": "D36-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0112,
+      "support": 0.182,
+      "cited": []
+    },
+    {
+      "id": "D36-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0352,
+      "support": 0.213,
+      "cited": []
+    },
+    {
+      "id": "D36-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0299,
+      "support": 0.213,
+      "cited": []
+    },
+    {
+      "id": "D38-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.1738,
+      "support": 0.834,
+      "cited": []
+    },
+    {
+      "id": "D38-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": true,
+      "evidence": false,
+      "unsupported": true,
+      "top": 0.2029,
+      "support": 0.486,
+      "cited": [
+        "Genesis 3:22-24",
+        "Leviticus 25:26-28",
+        "Leviticus 25:28-29"
+      ]
+    },
+    {
+      "id": "D38-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.2029,
+      "support": 0.486,
+      "cited": []
+    },
+    {
+      "id": "D39-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9945,
+      "support": 1.0,
+      "cited": [
+        "Exodus 14:20-21",
+        "Exodus 14:21-23",
+        "Sura 26:33-37"
+      ]
+    },
+    {
+      "id": "D39-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9945,
+      "support": 1.0,
+      "cited": [
+        "Exodus 14:20-21",
+        "Exodus 14:21-23",
+        "Sura 26:33-37"
+      ]
+    },
+    {
+      "id": "D39-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9945,
+      "support": 1.0,
+      "cited": [
+        "Exodus 14:20-21",
+        "Exodus 14:21-23",
+        "Sura 26:33-37"
+      ]
+    },
+    {
+      "id": "D40-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.4619,
+      "support": 1.0,
+      "cited": [
+        "Genesis 41:43-46",
+        "Genesis 41:46-48",
+        "Genesis 47:26-28"
+      ]
+    },
+    {
+      "id": "D40-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": true,
+      "evidence": false,
+      "unsupported": true,
+      "top": 0.4905,
+      "support": 0.425,
+      "cited": [
+        "Genesis 47:26-28",
+        "Genesis 41:12-14",
+        "Genesis 41:14-17"
+      ]
+    },
+    {
+      "id": "D40-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.3498,
+      "support": 0.741,
+      "cited": [
+        "Genesis 41:43-46"
+      ]
+    },
+    {
+      "id": "D43-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.4735,
+      "support": 0.719,
+      "cited": [
+        "koran_rodwell p.386",
+        "Sura 2:255-258"
+      ]
+    },
+    {
+      "id": "D43-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.2958,
+      "support": 0.065,
+      "cited": []
+    },
+    {
+      "id": "D43-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.2958,
+      "support": 0.065,
+      "cited": []
+    },
+    {
+      "id": "D46-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9718,
+      "support": 0.558,
+      "cited": [
+        "koran_rodwell p.283",
+        "Sura 2:121-122",
+        "koran_rodwell p.175"
+      ]
+    },
+    {
+      "id": "D46-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": true,
+      "evidence": false,
+      "unsupported": true,
+      "top": 0.9745,
+      "support": 0.689,
+      "cited": [
+        "koran_rodwell p.283",
+        "Sura 2:121-122",
+        "Genesis 22:7-9"
+      ]
+    },
+    {
+      "id": "D46-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9724,
+      "support": 0.641,
+      "cited": [
+        "koran_rodwell p.283",
+        "Sura 2:121-122",
+        "koran_rodwell p.175"
+      ]
+    },
+    {
+      "id": "D48-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": false,
+      "answered": true,
+      "evidence": false,
+      "unsupported": true,
+      "top": 0.9805,
+      "support": 0.409,
+      "cited": [
+        "Sura 12:72-71",
+        "koran_rodwell p.256",
+        "Sura 12:71-72"
+      ]
+    },
+    {
+      "id": "D48-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": true,
+      "evidence": false,
+      "unsupported": true,
+      "top": 0.9805,
+      "support": 0.409,
+      "cited": [
+        "Sura 12:72-71",
+        "koran_rodwell p.256",
+        "Sura 12:71-72"
+      ]
+    },
+    {
+      "id": "D48-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": true,
+      "evidence": false,
+      "unsupported": true,
+      "top": 0.9773,
+      "support": 0.378,
+      "cited": [
+        "Sura 12:72-71",
+        "koran_rodwell p.256",
+        "Sura 12:71-72"
+      ]
+    },
+    {
+      "id": "D50-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.9219,
+      "support": 0.269,
+      "cited": []
+    },
+    {
+      "id": "D50-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.9513,
+      "support": 0.269,
+      "cited": []
+    },
+    {
+      "id": "D50-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.9513,
+      "support": 0.269,
+      "cited": []
+    },
+    {
+      "id": "D51-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9989,
+      "support": 0.803,
+      "cited": [
+        "Genesis 1:14-18",
+        "Genesis 1:18-21",
+        "Exodus 13:21-22"
+      ]
+    },
+    {
+      "id": "D51-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.9838,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "D51-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.992,
+      "support": 1.0,
+      "cited": [
+        "Genesis 1:14-18"
+      ]
+    },
+    {
+      "id": "D53-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9358,
+      "support": 1.0,
+      "cited": [
+        "Genesis 3:14-15",
+        "Genesis 3:11-14"
+      ]
+    },
+    {
+      "id": "D53-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.942,
+      "support": 0.75,
+      "cited": [
+        "Genesis 3:14-15",
+        "Genesis 3:11-14",
+        "Deuteronomy 27:12-15"
+      ]
+    },
+    {
+      "id": "D53-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0198,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "D54-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9982,
+      "support": 0.526,
+      "cited": [
+        "Genesis 4:8-11",
+        "Genesis 4:1-4",
+        "koran_rodwell p.509"
+      ]
+    },
+    {
+      "id": "D54-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9994,
+      "support": 0.596,
+      "cited": [
+        "Genesis 4:8-11",
+        "koran_rodwell p.509",
+        "Genesis 4:1-4"
+      ]
+    },
+    {
+      "id": "D54-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9996,
+      "support": 0.596,
+      "cited": [
+        "Genesis 4:8-11",
+        "Genesis 4:1-4",
+        "koran_rodwell p.509"
+      ]
+    },
+    {
+      "id": "D55-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.6454,
+      "support": 0.498,
+      "cited": [
+        "Genesis 6:13-15",
+        "Genesis 6:15-16"
+      ]
+    },
+    {
+      "id": "D55-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9923,
+      "support": 0.77,
+      "cited": [
+        "Genesis 6:13-15",
+        "Genesis 6:15-16",
+        "Exodus 25:2-23"
+      ]
+    },
+    {
+      "id": "D55-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.4911,
+      "support": 0.328,
+      "cited": [
+        "Genesis 6:13-15"
+      ]
+    },
+    {
+      "id": "D56-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": false,
+      "answered": true,
+      "evidence": false,
+      "unsupported": true,
+      "top": 0.31,
+      "support": 0.368,
+      "cited": [
+        "Genesis 7:9-11"
+      ]
+    },
+    {
+      "id": "D56-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.31,
+      "support": 0.368,
+      "cited": [
+        "Genesis 7:9-11",
+        "Genesis 7:3-6",
+        "Genesis 8:4-3"
+      ]
+    },
+    {
+      "id": "D56-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.31,
+      "support": 0.368,
+      "cited": []
+    },
+    {
+      "id": "D57-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9999,
+      "support": 0.907,
+      "cited": [
+        "Genesis 14:17-20"
+      ]
+    },
+    {
+      "id": "D57-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 1.0,
+      "support": 0.899,
+      "cited": [
+        "Genesis 14:17-20"
+      ]
+    },
+    {
+      "id": "D57-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9945,
+      "support": 0.802,
+      "cited": [
+        "Genesis 14:17-20"
+      ]
+    },
+    {
+      "id": "D59-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.7236,
+      "support": 1.0,
+      "cited": [
+        "Genesis 50:24-26"
+      ]
+    },
+    {
+      "id": "D59-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.7236,
+      "support": 1.0,
+      "cited": [
+        "Genesis 50:24-26",
+        "Deuteronomy 34:6-9",
+        "koran_rodwell p.254"
+      ]
+    },
+    {
+      "id": "D59-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.7236,
+      "support": 1.0,
+      "cited": [
+        "Genesis 50:24-26"
+      ]
+    },
+    {
+      "id": "D60-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9995,
+      "support": 0.823,
+      "cited": [
+        "Exodus 4:1-5",
+        "Exodus 7:7-10",
+        "Sura 7:112-116"
+      ]
+    },
+    {
+      "id": "D60-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9639,
+      "support": 0.544,
+      "cited": [
+        "Exodus 4:1-5",
+        "koran_rodwell p.125",
+        "Sura 26:14-20"
+      ]
+    },
+    {
+      "id": "D60-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9942,
+      "support": 0.724,
+      "cited": [
+        "Exodus 4:1-5",
+        "koran_rodwell p.125",
+        "Sura 7:103-105"
+      ]
+    },
+    {
+      "id": "D61-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9999,
+      "support": 0.659,
+      "cited": [
+        "Exodus 7:19-20",
+        "Exodus 7:20-21",
+        "Exodus 8:5-6"
+      ]
+    },
+    {
+      "id": "D61-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9821,
+      "support": 0.41,
+      "cited": [
+        "Exodus 7:19-20",
+        "Exodus 7:20-21",
+        "Exodus 8:5-6"
+      ]
+    },
+    {
+      "id": "D61-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9955,
+      "support": 0.413,
+      "cited": [
+        "Exodus 7:19-20",
+        "Exodus 7:20-21",
+        "Exodus 8:5-6"
+      ]
+    },
+    {
+      "id": "D62-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9956,
+      "support": 0.692,
+      "cited": [
+        "Exodus 17:4-6",
+        "Exodus 17:6-8",
+        "Numbers 20:22-11"
+      ]
+    },
+    {
+      "id": "D62-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9713,
+      "support": 0.724,
+      "cited": [
+        "Exodus 17:4-6",
+        "Exodus 17:6-8",
+        "Numbers 20:22-11"
+      ]
+    },
+    {
+      "id": "D62-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9867,
+      "support": 0.663,
+      "cited": [
+        "Exodus 17:4-6",
+        "Exodus 17:6-8",
+        "Numbers 20:22-11"
+      ]
+    },
+    {
+      "id": "D64-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9923,
+      "support": 1.0,
+      "cited": [
+        "Leviticus 25:9-10",
+        "Leviticus 25:10-12",
+        "Leviticus 25:5-10"
+      ]
+    },
+    {
+      "id": "D64-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9206,
+      "support": 0.906,
+      "cited": [
+        "Leviticus 25:9-10",
+        "Leviticus 25:10-12"
+      ]
+    },
+    {
+      "id": "D64-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.5882,
+      "support": 0.658,
+      "cited": [
+        "Leviticus 25:9-10",
+        "Leviticus 25:10-12"
+      ]
+    },
+    {
+      "id": "D65-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9958,
+      "support": 0.613,
+      "cited": [
+        "Numbers 17:6-8",
+        "Numbers 17:8-10",
+        "Exodus 7:19-20"
+      ]
+    },
+    {
+      "id": "D65-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9958,
+      "support": 0.613,
+      "cited": [
+        "Numbers 17:6-8",
+        "Numbers 17:8-10",
+        "Exodus 7:19-20"
+      ]
+    },
+    {
+      "id": "D65-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9958,
+      "support": 0.613,
+      "cited": [
+        "Numbers 17:6-8",
+        "Numbers 17:8-10",
+        "Exodus 7:19-20"
+      ]
+    },
+    {
+      "id": "D66-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9992,
+      "support": 0.508,
+      "cited": [
+        "Numbers 20:11-13",
+        "Numbers 20:22-11",
+        "koran_rodwell p.363"
+      ]
+    },
+    {
+      "id": "D66-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9939,
+      "support": 0.506,
+      "cited": [
+        "Numbers 20:11-13",
+        "Numbers 20:22-11",
+        "koran_rodwell p.363"
+      ]
+    },
+    {
+      "id": "D66-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.997,
+      "support": 0.422,
+      "cited": [
+        "Numbers 20:11-13",
+        "Numbers 20:22-11"
+      ]
+    },
+    {
+      "id": "D68-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9789,
+      "support": 0.361,
+      "cited": [
+        "Joshua 7:22-24",
+        "Joshua 7:19-21",
+        "Joshua 7:24-25"
+      ]
+    },
+    {
+      "id": "D68-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9777,
+      "support": 0.615,
+      "cited": [
+        "Joshua 7:19-21",
+        "Joshua 7:22-24",
+        "Joshua 7:24-25"
+      ]
+    },
+    {
+      "id": "D68-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.9828,
+      "support": 0.286,
+      "cited": []
+    },
+    {
+      "id": "D69-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.6084,
+      "support": 0.714,
+      "cited": [
+        "Joshua 9:1-4",
+        "Joshua 9:4-6",
+        "Joshua 9:25-27"
+      ]
+    },
+    {
+      "id": "D69-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": false,
+      "answered": true,
+      "evidence": false,
+      "unsupported": true,
+      "top": 0.0493,
+      "support": 0.443,
+      "cited": [
+        "Joshua 9:1-4"
+      ]
+    },
+    {
+      "id": "D69-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": false,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0373,
+      "support": 0.188,
+      "cited": []
+    },
+    {
+      "id": "D70-en",
+      "type": "answerable",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9989,
+      "support": 0.597,
+      "cited": [
+        "Genesis 24:15-17",
+        "Genesis 24:14-15",
+        "Genesis 24:44-46"
+      ]
+    },
+    {
+      "id": "D70-pt",
+      "type": "answerable",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9115,
+      "support": 0.35,
+      "cited": [
+        "Genesis 24:14-15",
+        "Genesis 24:15-17"
+      ]
+    },
+    {
+      "id": "D70-es",
+      "type": "answerable",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": true,
+      "evidence": true,
+      "unsupported": false,
+      "top": 0.9953,
+      "support": 0.624,
+      "cited": [
+        "Genesis 24:15-17",
+        "Genesis 24:14-15",
+        "Genesis 24:44-46"
+      ]
+    },
+    {
+      "id": "U01-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0745,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U01-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0745,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U01-es",
+      "type": "adversarial",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0745,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U02-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.1179,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U02-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.1611,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U02-es",
+      "type": "adversarial",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.202,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U03-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0775,
+      "support": 0.241,
+      "cited": []
+    },
+    {
+      "id": "U03-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.1062,
+      "support": 0.254,
+      "cited": []
+    },
+    {
+      "id": "U03-es",
+      "type": "adversarial",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0556,
+      "support": 0.254,
+      "cited": []
+    },
+    {
+      "id": "U04-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.133,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U04-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.1443,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U05-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0156,
+      "support": 0.098,
+      "cited": []
+    },
+    {
+      "id": "U05-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0887,
+      "support": 0.248,
+      "cited": []
+    },
+    {
+      "id": "U05-es",
+      "type": "adversarial",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0253,
+      "support": 0.232,
+      "cited": []
+    },
+    {
+      "id": "U06-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.1621,
+      "support": 0.308,
+      "cited": []
+    },
+    {
+      "id": "U06-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.145,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U06-es",
+      "type": "adversarial",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.1621,
+      "support": 0.308,
+      "cited": []
+    },
+    {
+      "id": "U07-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0052,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U07-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0087,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U07-es",
+      "type": "adversarial",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0062,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U08-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.1868,
+      "support": 0.186,
+      "cited": []
+    },
+    {
+      "id": "U08-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.2366,
+      "support": 0.241,
+      "cited": []
+    },
+    {
+      "id": "U08-es",
+      "type": "adversarial",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.2366,
+      "support": 0.241,
+      "cited": []
+    },
+    {
+      "id": "U09-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.037,
+      "support": 0.236,
+      "cited": []
+    },
+    {
+      "id": "U09-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.037,
+      "support": 0.236,
+      "cited": []
+    },
+    {
+      "id": "U09-es",
+      "type": "adversarial",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.037,
+      "support": 0.236,
+      "cited": []
+    },
+    {
+      "id": "U10-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0026,
+      "support": 0.138,
+      "cited": []
+    },
+    {
+      "id": "U10-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.003,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U10-es",
+      "type": "adversarial",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0035,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U11-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.1878,
+      "support": 0.19,
+      "cited": []
+    },
+    {
+      "id": "U11-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.05,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U11-es",
+      "type": "adversarial",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0825,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U12-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0274,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U12-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0292,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U12-es",
+      "type": "adversarial",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0262,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U13-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.1601,
+      "support": 0.144,
+      "cited": []
+    },
+    {
+      "id": "U13-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.1463,
+      "support": 0.144,
+      "cited": []
+    },
+    {
+      "id": "U13-es",
+      "type": "adversarial",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.1224,
+      "support": 0.144,
+      "cited": []
+    },
+    {
+      "id": "U14-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0187,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U14-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0294,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U14-es",
+      "type": "adversarial",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0115,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U15-en",
+      "type": "adversarial",
+      "lang": "en",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0083,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U15-pt",
+      "type": "adversarial",
+      "lang": "pt",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0841,
+      "support": 0.0,
+      "cited": []
+    },
+    {
+      "id": "U15-es",
+      "type": "adversarial",
+      "lang": "es",
+      "split": "dev",
+      "ok": true,
+      "answered": false,
+      "evidence": false,
+      "unsupported": false,
+      "top": 0.0095,
+      "support": 0.0,
+      "cited": []
     }
   ]
 }
