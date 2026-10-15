@@ -298,6 +298,7 @@ class Config:
     bm25_b: float = 0.75
     rrf_k: int = 60
     support_original: bool = False
+    portuguese: bool = True  # False: PT questions get the unsupported-language message (launch default)
 
     def label(self) -> str:
         return (f"{self.chunking}|norm={int(self.normalize)}|mt={int(self.translate)}|exp={int(self.expand)}|"
@@ -306,7 +307,8 @@ class Config:
                 + f"|k={self.candidates}|bmo={int(self.bm25_original)}"
                 + ("" if (self.bm25_k1, self.bm25_b, self.rrf_k) == (1.5, 0.75, 60)
                    else f"|bm25={self.bm25_k1},{self.bm25_b}|rrf={self.rrf_k}")
-                + ("|supo=1" if self.support_original else ""))
+                + ("|supo=1" if self.support_original else "")
+                + ("" if self.portuguese else "|pt=0"))
 
 
 def wrrf(lists: list[tuple[list[int], float]], k: int = 60) -> list[int]:
@@ -338,6 +340,10 @@ def run_config(cfg: Config, corpus: Corpus, items: list[dict[str, Any]], models:
     for it in items:
         q = clean_query(it["question"])
         lang = detect_language(q)
+        if lang == "pt" and not cfg.portuguese:
+            out.append({"lang": lang, "q_en": q, "ranked": [], "cand_texts": [], "unsupported_language": True,
+                        "t_translate": 0.0, "t_retrieve": 0.0, "t_rerank": 0.0})
+            continue
         t0 = time.perf_counter()
         q_en = models.translate(q) if cfg.translate and lang != "en" else q
         t1 = time.perf_counter()
@@ -403,7 +409,9 @@ def grade(items: list[dict[str, Any]], runs: list[dict[str, Any]], chunks: list[
         unsupported = answered and (it["type"] in REFUSE_TYPES or (it["type"] in {"answerable", "trick"} and not ev))
         rows.append({"id": it["id"], "type": it["type"], "lang": it["lang"], "split": it["split"], "ok": ok,
                      "answered": answered, "evidence": ev, "unsupported": unsupported, "top": round(top[1], 4),
-                     "support": round(top[2], 3), "cited": [c.ref or f"{c.book_id} p.{c.page_start}" for c in ctx]})
+                     "support": round(top[2], 3),
+                     "unsupported_language": bool(r.get("unsupported_language")),
+                     "cited": [c.ref or f"{c.book_id} p.{c.page_start}" for c in ctx]})
     return rows
 
 
@@ -474,7 +482,10 @@ def evaluate(name: str, cfg: Config, corpus, items, models, cache, snippets, per
     runs = run_config(cfg, corpus, items, models, cache)
     chunks = cache[(cfg.chunking, cfg.normalize, cfg.bm25_k1, cfg.bm25_b)][0]
     pol = policy or tune(items, runs, chunks, snippets, per_lang, use_support)
-    rows = grade(items, runs, chunks, pol, snippets)
+    all_rows = grade(items, runs, chunks, pol, snippets)
+    # With Portuguese off, PT-labelled items are excluded from scoring and listed; other items that the
+    # detector calls Portuguese stay in and count as refusals.
+    rows = all_rows if cfg.portuguese else [r for r in all_rows if r["lang"] != "pt"]
     res = {"step": name, "config": cfg.label(), "policy": {"t": pol.t, "s_min": pol.s_min},
            "tune": card([r for r in rows if r["split"] == "tune"]),
            "dev": card([r for r in rows if r["split"] == "dev"]),
@@ -483,11 +494,19 @@ def evaluate(name: str, cfg: Config, corpus, items, models, cache, snippets, per
            "stage_ms": {k: round(1000 * float(np.median([r[k] for r in runs])), 2)
                         for k in ("t_translate", "t_retrieve", "t_rerank")},
            "wall_s": round(time.perf_counter() - t0, 1)}
+    if not cfg.portuguese:
+        res["unsupported_language"] = {
+            sp: {"excluded_pt_items": [r["id"] for r in all_rows if r["lang"] == "pt" and r["split"] == sp],
+                 "pt_items_given_message": sum(r["unsupported_language"] for r in all_rows
+                                               if r["lang"] == "pt" and r["split"] == sp),
+                 "non_pt_items_detected_pt": [r["id"] for r in all_rows if r["lang"] != "pt"
+                                              and r["unsupported_language"] and r["split"] == sp]}
+            for sp in ("tune", "dev", "heldout")}
     print(json.dumps({k: res[k] for k in ("step", "config", "policy")}), flush=True)
     print("   tune   ", res["tune"], "\n   dev    ", res["dev"], flush=True)
     if SHOW_HELDOUT:
         print("   heldout", res["heldout"], flush=True)
-    return res, rows, runs
+    return res, all_rows, runs
 
 
 def _jsonable(o: Any) -> Any:

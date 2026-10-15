@@ -11,7 +11,7 @@ const tf = await import(process.env.TRANSFORMERS || "@huggingface/transformers")
 const name = process.argv[2] || "eval";
 const DIR = "data/cache/parity";
 const { chunks: pyChunks, index_texts: pyIndex, dim } = JSON.parse(readFileSync(`${DIR}/chunks.json`, "utf8"));
-const { policy, candidates, bm25, rrf_k: rrfK, items } = JSON.parse(readFileSync(`${DIR}/items_${name}.json`, "utf8"));
+const { policy, candidates, bm25, rrf_k: rrfK, portuguese, items } = JSON.parse(readFileSync(`${DIR}/items_${name}.json`, "utf8"));
 const buf = readFileSync(`${DIR}/pvec.f32`);
 const pyVec = new Float32Array(buf.buffer, buf.byteOffset, buf.length / 4);
 
@@ -57,7 +57,7 @@ const s = { set: name, n: items.length, models: MODELS, passage_cosine_min: cosM
   translation_identical: 0, translated: 0, by_split: {}, disagreements: [], ms: { translate: [], retrieve: [], rerank: [] } };
 for (const it of items) {
   const res = await rag.ragAnswer(it.question, index, { translate, rerank, embedQuery: async (t) => (await embed([t], true))[0] },
-    { thresholds: policy.t, minSupport: policy.s_min, candidates, rrfK: rrfK ?? 60, defaultThreshold: policy.t.en });
+    { thresholds: policy.t, minSupport: policy.s_min, candidates, rrfK: rrfK ?? 60, defaultThreshold: policy.t.en, portuguese: portuguese ?? true });
   if (res.trace) {
     for (const k of Object.keys(s.ms)) s.ms[k].push(res.trace.ms[k]);
     if (it.lang !== "en" && res.lang !== "en") { s.translated++; if (res.trace.qEn === it.q_en) s.translation_identical++; }

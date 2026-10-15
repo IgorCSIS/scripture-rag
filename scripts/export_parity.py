@@ -71,11 +71,13 @@ def main() -> None:
                     "q_en": r["q_en"], "qvecs": qvecs, "rerank": scores,
                     "py": {"ranked": [[chunks[i].chunk_id, s, sp] for i, s, sp in r["ranked"]],
                            "answered": row["answered"],
+                           "unsupported_language": bool(r.get("unsupported_language")),
                            "context": [chunks[i].chunk_id for i, s, sp in r["ranked"]
                                        if s >= pol.t.get(lang, pol.t.get("en", 0.5)) and sp >= pol.s_min][:3]
                            if row["answered"] else []}})
     models.save()
     (OUT / f"items_{args.name}.json").write_text(json.dumps({"policy": {"t": pol.t, "s_min": pol.s_min},
+                                                             "portuguese": cfg.portuguese,
                                                              "candidates": cfg.candidates, "rrf_k": cfg.rrf_k,
                                                              "bm25": [cfg.bm25_k1, cfg.bm25_b], "items": out}),
                                                  encoding="utf-8")

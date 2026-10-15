@@ -18,6 +18,8 @@ COLS = [("n", "n"), ("answer_accuracy", "Answer acc"), ("acc_en", "EN"), ("acc_p
 
 
 def fmt(v: object) -> str:
+    if isinstance(v, float) and v != v:  # nan: no items (Portuguese excluded)
+        return "excluded"
     return f"{v:.3f}" if isinstance(v, float) else str(v)
 
 
@@ -51,7 +53,7 @@ def main() -> None:
         "Unsupported answers = answers to adversarial items plus answers whose cited passages do not hold the "
         "gold answer (wrong evidence). Citations are extractive quotes, so citation validity is 1.0 by construction.",
         "",
-        "## Held-out: round 1 final vs shipped (round 1 gate rollback with round 2 parity fixes)",
+        "## Held-out: round 1 final (EN, PT, ES) vs shipped (EN and ES; Portuguese unsupported)",
         "",
         "| Metric | Previous | Current | Target |",
         "|---|---|---|---|",
@@ -65,7 +67,20 @@ def main() -> None:
         lines.append(f"| {label} | {fmt(b[k])} | {fmt(a[k])} | {tgt} |")
     lines += ["", f"Previous: `{before['config']}`, policy `{json.dumps(before['policy'])}`.",
               f"Current: `{final['config']}`, policy `{json.dumps(final['policy'])}`.", "",
-              "## All steps, tune split (selection data)", ""]
+              ""]
+    ul = final.get("unsupported_language")
+    if ul:
+        lines += ["## Unsupported language: Portuguese", "",
+                  "Portuguese questions are not supported at launch. A question detected as Portuguese gets "
+                  "\"Portuguese questions are not supported yet; please ask in English or Spanish.\" with no "
+                  "translation or retrieval. PT-labelled items are excluded from every table above and below; "
+                  "non-PT items detected as Portuguese would stay in and count as refusals.", "",
+                  "| Split | PT items excluded | Given the message | Non-PT items detected as PT |",
+                  "|---|---|---|---|"]
+        lines += [f"| {sp} | {len(v['excluded_pt_items'])} | {v['pt_items_given_message']} | "
+                  f"{len(v['non_pt_items_detected_pt'])} |" for sp, v in ul.items()]
+        lines += ["", "Excluded held-out items: " + ", ".join(ul["heldout"]["excluded_pt_items"]) + ".", ""]
+    lines += ["## All steps, tune split (selection data)", ""]
     lines += table([(s["step"], s["tune"]) for s in cur["steps"]])
     if all(st.get("dev") for st in cur["steps"]):
         lines += ["", "## All steps, synthetic dev set (selection data)", ""]

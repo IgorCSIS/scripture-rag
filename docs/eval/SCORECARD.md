@@ -1,45 +1,58 @@
 # Scorecard
 
-Eval set [eval_set.jsonl](eval_set.jsonl), strict split: every choice is made on the **tune** split (109 items) plus the synthetic **dev** set [dev_set.jsonl](dev_set.jsonl) (175 items, scripts/build_dev_set.py) and reported once on the **held-out** split (136 items). Dropped (gold not in the PDF OCR): B12, B43, B46. Language detection accuracy: 0.993.
+Eval set [eval_set.jsonl](eval_set.jsonl), strict split: every choice is made on the **tune** split (96 items) plus the synthetic **dev** set [dev_set.jsonl](dev_set.jsonl) (116 items, scripts/build_dev_set.py) and reported once on the **held-out** split (114 items). Dropped (gold not in the PDF OCR): B12, B43, B46. Language detection accuracy: 0.993.
 
 Reproduce: `python scripts/elite_eval.py --only-final --final` (config and gate in final_config.json) then `python scripts/make_scorecard.py`. Raw data: [ablation.json](ablation.json); previous run: [ablation_prev.json](ablation_prev.json).
 
 Unsupported answers = answers to adversarial items plus answers whose cited passages do not hold the gold answer (wrong evidence). Citations are extractive quotes, so citation validity is 1.0 by construction.
 
-## Held-out: round 1 final vs shipped (round 1 gate rollback with round 2 parity fixes)
+## Held-out: round 1 final (EN, PT, ES) vs shipped (EN and ES; Portuguese unsupported)
 
 | Metric | Previous | Current | Target |
 |---|---|---|---|
-| Answer accuracy | 0.800 | 0.789 | >= 0.90 |
+| Answer accuracy | 0.800 | 0.859 | >= 0.90 |
 | EN | 0.862 | 0.862 | >= 0.85 |
-| PT | 0.529 | 0.471 | >= 0.85 |
+| PT | 0.529 | excluded | >= 0.85 |
 | ES | 0.846 | 0.846 | >= 0.85 |
-| Refusal recall | 0.900 | 0.900 |  |
-| Refusal precision | 0.725 | 0.707 |  |
+| Refusal recall | 0.900 | 0.885 |  |
+| Refusal precision | 0.725 | 0.833 |  |
 | Adversarial answered | 3 | 3 | 0 |
-| Unsupported answers (incl. adversarial) | 12 | 12 | 0 |
+| Unsupported answers (incl. adversarial) | 12 | 10 | 0 |
 | Injection pass | 1.000 | 1.000 | 1.0 |
 
 Previous: `verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1`, policy `{"t": {"en": 0.12, "pt": 0.72, "es": 0.16}, "s_min": 0.3}`.
-Current: `verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1`, policy `{"t": {"en": 0.12, "pt": 0.72, "es": 0.16}, "s_min": 0.3}`.
+Current: `verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1|pt=0`, policy `{"t": {"en": 0.12, "pt": 0.72, "es": 0.16}, "s_min": 0.3}`.
+
+
+## Unsupported language: Portuguese
+
+Portuguese questions are not supported at launch. A question detected as Portuguese gets "Portuguese questions are not supported yet; please ask in English or Spanish." with no translation or retrieval. PT-labelled items are excluded from every table above and below; non-PT items detected as Portuguese would stay in and count as refusals.
+
+| Split | PT items excluded | Given the message | Non-PT items detected as PT |
+|---|---|---|---|
+| tune | 13 | 13 | 0 |
+| dev | 59 | 56 | 0 |
+| heldout | 22 | 22 | 0 |
+
+Excluded held-out items: S034, S035, S036, S037, S038, P02, P04, P05, P08, P10, P11, P12, P13, P14, P15, P17, P18, A33, A36, A37, A38, I04.
 
 ## All steps, tune split (selection data)
 
 | Run | n | Answer acc | EN | PT | ES | Refusal recall | Refusal precision | Adversarial answered | Unsupported answers | Injection pass |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Final: round 1 gate rollback with round 2 parity fixes | 109 | 0.776 | 0.825 | 1.000 | 0.455 | 0.977 | 0.865 | 1 | 8 | 0.000 |
+| Final: round 1 gate rollback with round 2 parity fixes | 96 | 0.745 | 0.825 | excluded | 0.455 | 0.974 | 0.848 | 1 | 8 | 0.000 |
 
 ## All steps, synthetic dev set (selection data)
 
 | Run | n | Answer acc | EN | PT | ES | Refusal recall | Refusal precision | Adversarial answered | Unsupported answers | Injection pass |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Final: round 1 gate rollback with round 2 parity fixes | 175 | 0.656 | 0.837 | 0.523 | 0.614 | 0.955 | 0.532 | 2 | 10 | nan |
+| Final: round 1 gate rollback with round 2 parity fixes | 116 | 0.724 | 0.837 | excluded | 0.614 | 0.931 | 0.600 | 2 | 8 | excluded |
 
 ## All steps, held-out split (reported, never used for selection)
 
 | Run | n | Answer acc | EN | PT | ES | Refusal recall | Refusal precision | Adversarial answered | Unsupported answers | Injection pass |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Final: round 1 gate rollback with round 2 parity fixes | 136 | 0.789 | 0.862 | 0.471 | 0.846 | 0.900 | 0.707 | 3 | 12 | 1.000 |
+| Final: round 1 gate rollback with round 2 parity fixes | 114 | 0.859 | 0.862 | excluded | 0.846 | 0.885 | 0.833 | 3 | 10 | 1.000 |
 
 ## Round 2 (selection on tune + synthetic dev, held-out scored once on the final configuration)
 
@@ -68,6 +81,10 @@ Notes:
 ## Shipped: round 1 gate rollback
 
 After the round 2 held-out result above, the shipped gate was rolled back to the round 1 final policy: thresholds en 0.12, pt 0.72, es 0.16, s_min 0.3, 50 candidates, BM25 on the original query, default BM25 (k1 1.5, b 0.75) and RRF (k 60). The round 2 parity fixes (every book normalized, deterministic tie breaks) are kept. This rollback was chosen after seeing the held-out scores, so the held-out numbers for it are not an untouched estimate. Against the round 1 run the only changes are the parity fixes; on held-out they move PT from 0.529 to 0.471 and refusal precision from 0.725 to 0.707, other held-out metrics are unchanged. No new test set was added. Round 2 raw data is kept in [ablation_round2.json](ablation_round2.json); the round 1 run is [ablation_prev.json](ablation_prev.json).
+
+## Launch change: Portuguese removed
+
+After the rollback above, Portuguese was removed for launch (product decision). Questions detected as Portuguese get the unsupported-language message and no answer; PT query translation is off (re-enable with PORTUGUESE=1 in Python or `portuguese: true` in the browser options). Everything else is identical to the rollback. Held-out was re-scored once with PT-labelled items excluded and listed as unsupported-language, so the shipped numbers cover EN and ES only (114 held-out items instead of 136) and are not directly comparable with the round 1 column, which includes PT. The 3 dev PT items that the detector did not call Portuguese went through the normal pipeline but are excluded from scoring like every PT-labelled item.
 
 ## Browser parity
 
