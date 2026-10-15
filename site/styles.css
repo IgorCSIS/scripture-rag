@@ -286,3 +286,16 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 var(--sp-4); }
 .ia-hit { display: grid; gap: .25rem; }
 .beta-badge { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; border: 1px solid currentColor; color: #9c4a00; background: #fff4e6; }
 [data-theme="dark"] .beta-badge { color: #ffc078; background: transparent; }
+.find-ia { margin-top: var(--sp-3); }
+@media (max-width: 899px) {
+  .tabs { flex-wrap: wrap; overflow-x: visible; }
+  .tabs [role="tab"] { flex: 1 1 auto; }
+}
+@media (max-width: 420px) {
+  .brand { font-size: var(--fs-md, 1rem); gap: 6px; }
+  .beta-badge { font-size: 0.6rem; padding: 1px 5px; }
+  .topbar-actions { gap: 0; }
+}
+@media (max-width: 420px) {
+  .brand > span:not(.beta-badge) { display: none; }
+}

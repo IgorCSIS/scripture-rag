@@ -575,6 +575,27 @@ function showTab(name) {
   document.dispatchEvent(new CustomEvent("srag:tab", { detail: name }));
 }
 
+// Open the Internet Archive tab and focus its search box (library button and top nav).
+function openArchive(e) {
+  if (e) e.preventDefault();
+  if (document.querySelector("#library-panel.open")) hideDrawer(false);
+  showTab("archive");
+  const focus = () => {
+    const q = document.getElementById("iaQuery");
+    if (!q) return false;
+    const tabs = document.getElementById("tab-archive").parentElement;
+    // The top bar and the floating ask bar both cover the top of the page once scrolled.
+    const sticky = ["topbar-inner", "askForm"].reduce((m, id) => {
+      const x = document.getElementById(id) || document.querySelector(`.${id}`);
+      return m + (x ? x.getBoundingClientRect().height : 0);
+    }, 0);
+    window.scrollTo({ top: window.scrollY + tabs.getBoundingClientRect().top - sticky - 8, behavior: "smooth" });
+    q.focus({ preventScroll: true });
+    return true;
+  };
+  if (!focus()) { let n = 0; const t = setInterval(() => { if (focus() || ++n > 50) clearInterval(t); }, 100); }
+}
+
 // ---------- Onboarding ----------
 function onboarding(force = false) {
   const dlg = $("onboard");
@@ -691,6 +712,8 @@ function wire() {
   const libPanel = $("library-panel");
   const openLib = () => { libPanel.classList.add("open"); $("scrim").hidden = false; showDrawer(libPanel, $("libraryToggle")); };
   $("libraryToggle").onclick = openLib;
+  $("findIA").onclick = openArchive;
+  $("navArchive").onclick = openArchive;
   $("libraryClose").onclick = () => hideDrawer();
   $("historyToggle").onclick = (e) => showDrawer($("history-drawer"), e.currentTarget);
   document.querySelectorAll("[data-close]").forEach((b) => { b.onclick = () => hideDrawer(); });

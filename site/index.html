@@ -21,7 +21,7 @@
   <div class="topbar-inner">
     <a class="brand" href="#top" aria-label="Scripture RAG home"><img src="assets/favicon.svg" alt="" width="32" height="32"><span>Scripture RAG</span><span class="beta-badge" title="Public beta">Beta</span></a>
     <nav class="mainnav" aria-label="Main">
-      <a href="#app">App</a><a href="#how">How it works</a><a href="#themes-about">Themes</a><a href="#bench">Benchmarks</a><a href="#privacy">Privacy</a><a href="https://github.com/IgorCSIS/scripture-rag" rel="noopener">GitHub</a>
+      <a href="#app">App</a><a href="#how">How it works</a><a href="#themes-about">Themes</a><a href="#panel-archive" id="navArchive">Internet Archive</a><a href="#bench">Benchmarks</a><a href="#privacy">Privacy</a><a href="https://github.com/IgorCSIS/scripture-rag" rel="noopener">GitHub</a>
     </nav>
     <div class="topbar-actions">
       <button class="icon-btn only-mobile" id="libraryToggle" aria-controls="library-panel" aria-expanded="false" aria-label="Open library">
@@ -73,6 +73,7 @@
           <span id="dropHelp" class="small muted">Drop files or click. Up to 10 files, 50 MB each.</span>
         </div>
         <input id="files" type="file" accept=".pdf,.txt,application/pdf,text/plain" multiple class="sr-only" tabindex="-1" aria-hidden="true">
+        <button id="findIA" class="btn primary block find-ia" type="button" aria-controls="panel-archive">Find books on Internet Archive</button>
         <button id="sample" class="btn ghost block" type="button">Add sample: Psalm 23 (KJV)</button>
         <div id="ingest" class="ingest" hidden>
           <div class="small"><span id="ingestLabel">Reading</span> <span id="ingestPct" class="muted"></span></div>
@@ -135,7 +136,7 @@
           <button role="tab" id="tab-themes" aria-controls="panel-themes" data-tab="themes">Theme map</button>
           <button role="tab" id="tab-similar" aria-controls="panel-similar" data-tab="similar">Similar</button>
           <button role="tab" id="tab-compare" aria-controls="panel-compare" data-tab="compare">Compare</button>
-          <button role="tab" id="tab-archive" aria-controls="panel-archive" data-tab="archive">Archive</button>
+          <button role="tab" id="tab-archive" aria-controls="panel-archive" data-tab="archive">Internet Archive</button>
         </div>
         <div id="panel-ask" class="tabpanel" role="tabpanel" aria-labelledby="tab-ask" tabindex="0">
           <div id="answer" class="answer" aria-live="polite" aria-busy="false"></div>

@@ -75,8 +75,9 @@ step("manifest table has 2 rows", (await page.locator("#manifestTable tbody tr")
 const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#manifestCsv")]);
 step("manifest CSV export downloads", /manifest\.csv$/.test(dl.suggestedFilename()));
 
-await page.click("#tab-archive");
-await page.waitForSelector("#iaQuery", { timeout: 10000 });
+await page.click("#findIA");
+await page.waitForFunction(() => document.activeElement?.id === "iaQuery", null, { timeout: 10000 });
+step("Find books on Internet Archive opens the tab and focuses search", !(await page.locator("#panel-archive").isHidden()));
 const filt = await page.evaluate(() => ["iaLang", "iaTrad", "iaSort", "iaCreator", "iaColl", "iaFrom", "iaTo", "iaPdf", "iaPd", "iaGroup", "iaRelated"].every((id) => document.getElementById(id)));
 step("archive filters, grouping and related controls mounted", filt);
 if (shots) await page.locator("#panel-archive").screenshot({ path: `${shots}/ia-panel.png` });
