@@ -22,8 +22,5 @@ Corpus: three tiny public-domain excerpts in `tests/fixtures/books` (7 pages tot
 
 These numbers only prove the harness and the gates work: the corpus is so small that every system saturates, so the ablation does not yet separate systems (FR-05 table is a placeholder until the real gold set exists).
 
-## Next
-1. Choose 2 to 3 demo books and confirm license evidence (`docs/DATA_SOURCES.md`).
-2. Write the 50 item gold set (30 answerable with page, 15 unanswerable, 5 adversarial) plus 5 PT and 5 ES items; Igor reviews.
-3. Run with `EMBED_MODEL=intfloat/multilingual-e5-small` and `RERANK_MODEL=cross-encoder/ms-marco-MiniLM-L-6-v2`, calibrate `REFUSAL_THRESHOLD` on the answerable/unanswerable split, and store it in `.env`.
-4. Optional RAGAS faithfulness with Ollama as evaluator (not implemented).
+## Real-book evaluation
+The real eval set (tune / held-out split plus a synthetic dev set), the shipped configuration and its held-out results are in [eval/SCORECARD.md](eval/SCORECARD.md). Stress and grounding runs of the previous configuration are in [eval/stress_results.md](eval/stress_results.md) and [eval/loaded_phase_results.md](eval/loaded_phase_results.md).

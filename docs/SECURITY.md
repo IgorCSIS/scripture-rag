@@ -11,12 +11,10 @@ Defensive controls only. Threat model: untrusted uploaded documents (malformed f
 - Uploads go to Gradio temp files with random names, removed when the session ends; Streamlit keeps bytes in memory only.
 
 ## Prompt injection
-- Context blocks are numbered, fenced (`<<<DATA ... DATA>>>`), fence markers inside text are broken up, and the system prompt labels them as untrusted data.
-- Retrieval gate refuses before any LLM call when relevance is low; the citation validator refuses when any sentence lacks a valid citation.
-- Extractive mode quotes text and never follows it. Test: `test_prompt_injection_does_not_change_behavior`.
+- There is no LLM or generation step: answers are quoted passages, so text inside a book can never be followed as an instruction. Test: `test_prompt_injection_does_not_change_behavior`.
+- Two gates refuse when relevance is low (per-language reranker threshold, lexical support >= 0.3); the citation validator refuses when any quote lacks a valid citation.
 
 ## Network
-- Ollama URL must resolve to localhost (`Settings` raises otherwise).
 - Internet Archive: identifier validated by regex; only `archive.org/metadata` and `archive.org/download` are called; license fields shown and explicit confirmation required.
 - Browser demo: strict Content-Security-Policy (scripts only from self and jsDelivr; `connect-src` limited to jsDelivr and Hugging Face for model files). No backend; nothing is uploaded.
 

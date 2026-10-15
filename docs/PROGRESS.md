@@ -11,3 +11,4 @@
 | 2026-10-14 | 6 Unsupervised | k-means + silhouette, PCA, TF-IDF labels, Plotly export, similar passages (Python and browser), BERTopic hook | Compare BERTopic vs k-means on real books | Needs real corpus |
 | 2026-10-14 | 7 Polish | README, website, logo, SVG diagrams | Screenshots/GIF with real books, enable Pages | Pages on a private repo needs a paid plan |
 | 2026-10-14 | 8 Library + docs | Role tags, compare mode, outlier flags, library manifest with benchmarks; README rebuilt with SVG diagrams and measured results; PRD FR-17 to FR-20; launch checklist | Final scorecard from eval worker; launch steps in docs/LAUNCH_CHECKLIST.md | Repo private; Pages not enabled |
+| 2026-10-14 | Final | Extractive only (generation option removed), verse chunks, archaic normalization, PT/ES translation, per-language gate plus support gate, browser parity, redrawn diagrams and logo | | See docs/eval/SCORECARD.md |

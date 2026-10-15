@@ -8,7 +8,6 @@ Sources searched on the build machine: `/workspace`, `/home/box/agent-data/share
 | Chunk lists, NumPy vector math (`index.py`, `embed.py`, `similar.py`) | CSIS 252 Module 3: Lists, Tuples, NumPy Arrays | `/workspace/csis252-group/modules/module-03-lists-numpy.txt` | Found |
 | Ingest queue of files, top-k selection (`index.top_k`, `site/js/core.js topK` min-heap) | CSIS 252 Module 5: Stacks and Queues | `/workspace/csis252-group/modules/module-05-stacks-queues.txt` | Found |
 | HNSW graph index, cross-book similarity graph (`FaissHNSWIndex`, `similar_passages`) | CSIS 252 Module 6: Graphs and Network Analysis | `/workspace/csis252-group/modules/module-06-graphs.txt` | Found |
-| Ollama local LLM, grounded prompting (`OllamaGenerator`, `build_prompt`) | CSIS 252 Module 9: LLMs, section 9.5 Running Local LLMs with Ollama | `/workspace/csis252-group/modules/module-09-llms.txt` | Found |
 | CI and Pages workflows, Makefile, eval harness | CSIS 252 Module 10: Automation and Integration | `/workspace/csis252-group/modules/module-10-automation.txt` | Found |
 | Dictionaries / hash maps (BM25 postings, RRF scores, chunk lookup) | CSIS 252 scope: dictionaries and hash tables | `/workspace/conventions/PROJECT_CONVENTIONS.md` | Found (scope list, no module file) |
 | Code style: docstrings with Parameters/Returns, `__str__`, private attributes | Appendix A | `/workspace/conventions/PROJECT_CONVENTIONS.md` | Found |
