@@ -35,3 +35,4 @@ ignore = ["B905"]
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["B", "E501"]
 "bench/*" = ["B023"]
+"tools/diagrams/*" = ["E501", "E702", "E741", "B007", "F841"]  # dense hand-tuned layout coordinates
