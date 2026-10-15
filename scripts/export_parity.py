@@ -76,7 +76,8 @@ def main() -> None:
                            if row["answered"] else []}})
     models.save()
     (OUT / f"items_{args.name}.json").write_text(json.dumps({"policy": {"t": pol.t, "s_min": pol.s_min},
-                                                             "candidates": cfg.candidates, "items": out}),
+                                                             "candidates": cfg.candidates, "rrf_k": cfg.rrf_k,
+                                                             "bm25": [cfg.bm25_k1, cfg.bm25_b], "items": out}),
                                                  encoding="utf-8")
     print(f"exported {len(out)} items to {OUT}")
 

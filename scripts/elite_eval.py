@@ -357,7 +357,7 @@ def run_config(cfg: Config, corpus: Corpus, items: list[dict[str, Any]], models:
         scores = [float(np.mean(v)) for v in zip(*per)]
         t3 = time.perf_counter()
         order = sorted(range(len(cand)), key=lambda j: -scores[j])[:5]
-        def sup(i: int) -> float:
+        def sup(i: int, q: str = q, q_en: str = q_en) -> float:
             v = support(q_en, index_texts[i], idf)
             # MT can leave names or whole questions untranslated; also credit words of the original.
             return max(v, support(q, index_texts[i], idf)) if cfg.support_original and q_en != q else v

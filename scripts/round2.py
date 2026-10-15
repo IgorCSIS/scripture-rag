@@ -104,7 +104,8 @@ def scored(name, items, runs, chunks, snippets):
         res[sp] = ee.card([r for r in rows if r["split"] == sp])
     res["select"] = ee.card([r for r in rows if r["split"] in ee.SELECT])
     res["objective"] = list(ee.objective(res["select"]))
-    print(json.dumps({k: res[k] for k in ("variant", "policy", "objective")}, default=ee._jsonable), "\n  tune", res["tune"],
+    head = json.dumps({k: res[k] for k in ("variant", "policy", "objective")}, default=ee._jsonable)
+    print(head, "\n  tune", res["tune"],
           "\n  dev ", res["dev"], flush=True)
     return res, rows
 
@@ -173,7 +174,8 @@ def main() -> None:
                              "answered": row["answered"], "top": row["top"], "support": row["support"],
                              "ranked": [(chunks[i].ref or chunks[i].chunk_id, round(s, 3), round(sp, 2))
                                         for i, s, sp in r["ranked"]]})
-        (ee.EVAL / "round2_pt_misses.json").write_text(json.dumps(diag, indent=1, ensure_ascii=False, default=ee._jsonable), encoding="utf-8")
+        text = json.dumps(diag, indent=1, ensure_ascii=False, default=ee._jsonable)
+        (ee.EVAL / "round2_pt_misses.json").write_text(text, encoding="utf-8")
         print(f"{len(diag)} PT misses written")
     models.save()
     if results:

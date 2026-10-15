@@ -81,6 +81,10 @@ class Settings:
         Per-language gate thresholds, ``en=0.3,pt=0.4``; others use ``refusal_threshold``.
     min_support : float
         Minimum lexical support of the best passage (0 disables the check).
+    bm25_k1 : float
+        BM25 term-frequency saturation (chosen on tune + dev, see docs/eval/round2.json).
+    rrf_k : int
+        Rank fusion constant in ``w / (rrf_k + rank)``.
     reference_path : str
         Numbered reference text used to align unnumbered Bible editions.
     """
@@ -106,6 +110,8 @@ class Settings:
     dense_weight: float = 0.5
     lang_thresholds: str = ""
     min_support: float = 0.0
+    bm25_k1: float = 1.2
+    rrf_k: int = 20
     reference_path: str = ""
     extra: dict[str, str] = field(default_factory=dict)
 

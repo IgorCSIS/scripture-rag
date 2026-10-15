@@ -91,7 +91,7 @@ class RagPipeline:
             self.generator = ExtractiveGenerator()
         self.chunker = Chunker(s.chunk_tokens, s.chunk_overlap)
         self.vectors = BruteForceIndex()
-        self.bm25 = BM25Index()
+        self.bm25 = BM25Index(s.bm25_k1)
         self.retriever = HybridRetriever(self.embedder, self.vectors, self.bm25)
         self.validator = CitationValidator()
         self.documents: dict[str, Document] = {}
@@ -197,7 +197,7 @@ class RagPipeline:
         scores: dict[str, float] = {}
         for ids, w in lists:
             for r, cid in enumerate(ids, 1):
-                scores[cid] = scores.get(cid, 0.0) + w / (60 + r)
+                scores[cid] = scores.get(cid, 0.0) + w / (s.rrf_k + r)
         return [c for c, _ in sorted(scores.items(), key=lambda kv: -kv[1])][:k]
 
     def embeddings(self, books: set[str] | None = None) -> tuple[list[str], np.ndarray]:

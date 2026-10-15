@@ -13,7 +13,9 @@ export const DEFAULTS = Object.freeze({
   minSupport: 0.3,
   candidates: 50,
   denseWeight: 0.5,
-  rrfK: 60,
+  rrfK: 20,
+  bm25K1: 1.2,
+  bm25B: 0.75,
   topRanked: 5,
   topContext: 3,
   rerankWindow: 60,
@@ -443,7 +445,7 @@ export function weightedRrf(lists, k = DEFAULTS.rrfK) {
  * and the support check; the display text and the reranker see the original.
  */
 export class RagIndex {
-  constructor(normalizer = null) { this.norm = normalizer; this.chunks = []; this.indexText = []; this.vecs = []; this.bm25 = new BM25Okapi(); this.idfTable = null; this.byId = new Map(); }
+  constructor(normalizer = null, { k1 = DEFAULTS.bm25K1, b = DEFAULTS.bm25B } = {}) { this.norm = normalizer; this.chunks = []; this.indexText = []; this.vecs = []; this.bm25 = new BM25Okapi({ k1, b }); this.idfTable = null; this.byId = new Map(); }
   indexTextFor(chunk) { return chunk.indexText ?? (this.norm ? this.norm.text(chunk.text) : chunk.text); }
   add(chunks, vecs) {
     const texts = chunks.map((c) => this.indexTextFor(c));

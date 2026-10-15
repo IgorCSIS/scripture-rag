@@ -30,15 +30,15 @@ const jsIndex = pyChunks.map((c) => norm.text(c[2]));
 const indexMatch = jsIndex.filter((t, i) => t === pyIndex[i]).length;
 
 // 3. Retrieval, rerank and gate on the Python chunks with Python vectors and model outputs.
-const index = new rag.RagIndex(null);
-index.add(pyChunks.map(([chunkId, bookId, text, pageStart, pageEnd, r], i) => ({ chunkId, bookId, text, pageStart, pageEnd, ref: r, indexText: jsIndex[i] })),
-  pyChunks.map((_, i) => all.subarray(i * dim, (i + 1) * dim)));
 const report = { chunks: { python: pyChunks.length, browser: jsChunks.length, identical: chunkMatch, per_book: perBook },
   index_texts: { n: pyIndex.length, identical: indexMatch }, sets: {} };
 for (const name of names) {
   const f = `${DIR}/items_${name}.json`;
   if (!existsSync(f)) continue;
-  const { policy, candidates, items } = JSON.parse(readFileSync(f, "utf8"));
+  const { policy, candidates, bm25, rrf_k: rrfK, items } = JSON.parse(readFileSync(f, "utf8"));
+const index = new rag.RagIndex(null, bm25 ? { k1: bm25[0], b: bm25[1] } : {});
+  index.add(pyChunks.map(([chunkId, bookId, text, pageStart, pageEnd, r], i) => ({ chunkId, bookId, text, pageStart, pageEnd, ref: r, indexText: jsIndex[i] })),
+    pyChunks.map((_, i) => all.subarray(i * dim, (i + 1) * dim)));
   const s = { n: items.length, decision_agree: 0, context_agree: 0, top_agree: 0, lang_agree: 0, missing_scores: 0, max_score_diff: 0, max_support_diff: 0, disagreements: [] };
   for (const it of items) {
     let missing = 0;
@@ -47,7 +47,7 @@ for (const name of names) {
       embedQuery: async (t) => Float32Array.from(it.qvecs[t]),
       rerankPassages: async (_q, texts) => texts.map((t) => { if (!(t in it.rerank)) { missing++; return 0; } return it.rerank[t]; }),
     };
-    const res = await rag.ragAnswer(it.question, index, models, { thresholds: policy.t, minSupport: policy.s_min, candidates, defaultThreshold: policy.t.en });
+    const res = await rag.ragAnswer(it.question, index, models, { thresholds: policy.t, minSupport: policy.s_min, candidates, rrfK: rrfK ?? 60, defaultThreshold: policy.t.en });
     if (missing) s.missing_scores++;
     if (res.lang === it.lang) s.lang_agree++;
     const answered = !res.refused;
