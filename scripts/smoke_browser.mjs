@@ -44,6 +44,11 @@ await page.click("#askBtn");
 await page.waitForSelector("#answer .refusal", { timeout: 15000 });
 step("unsupported question abstains", true);
 
+await page.fill("#ask", "Quem é o meu pastor? O Senhor não me deixa faltar nada?");
+await page.click("#askBtn");
+await page.waitForFunction(() => document.querySelector("#answer")?.textContent.includes("Portuguese questions are not supported yet"), null, { timeout: 15000 });
+step("Portuguese question gets the unsupported-language message", (await page.locator("#answer .chip").count()) === 0);
+
 await page.fill("#ask", "Who is my shepherd?");
 await page.click("#tab-compare");
 await page.selectOption("#compareBy", "role");
