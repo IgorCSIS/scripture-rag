@@ -56,10 +56,16 @@ def test_refusal_gate(pipeline: RagPipeline) -> None:
 
 
 def test_refusal_threshold_boundary(settings: Settings) -> None:
-    strict = Settings(chunk_tokens=40, chunk_overlap=8, refusal_threshold=1.01)
+    strict = Settings(chunk_tokens=40, chunk_overlap=8, refusal_threshold=1.01, lang_thresholds="")
     p = RagPipeline(strict, embedder=HashingEmbedder(), reranker=LexicalOverlapReranker())
     p.add_document(load_path(FIXTURES / "books" / "kjv_sample.txt"))
     assert p.ask("Who is my shepherd?").refused
+
+
+def test_shipped_gate_defaults() -> None:
+    s = Settings()
+    assert s.thresholds() == {"en": 0.12, "pt": 0.72, "es": 0.16}
+    assert (s.min_support, s.candidates_k, s.bm25_k1, s.rrf_k) == (0.3, 50, 1.5, 60)
 
 
 def test_empty_pipeline_refuses(settings: Settings) -> None:

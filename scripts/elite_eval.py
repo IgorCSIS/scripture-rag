@@ -468,11 +468,12 @@ def tune(items, runs, chunks, snippets, per_lang: bool, use_support: bool) -> Po
     return best[1]
 
 
-def evaluate(name: str, cfg: Config, corpus, items, models, cache, snippets, per_lang=False, use_support=False):
+def evaluate(name: str, cfg: Config, corpus, items, models, cache, snippets, per_lang=False, use_support=False,
+             policy: Policy | None = None):
     t0 = time.perf_counter()
     runs = run_config(cfg, corpus, items, models, cache)
     chunks = cache[(cfg.chunking, cfg.normalize, cfg.bm25_k1, cfg.bm25_b)][0]
-    pol = tune(items, runs, chunks, snippets, per_lang, use_support)
+    pol = policy or tune(items, runs, chunks, snippets, per_lang, use_support)
     rows = grade(items, runs, chunks, pol, snippets)
     res = {"step": name, "config": cfg.label(), "policy": {"t": pol.t, "s_min": pol.s_min},
            "tune": card([r for r in rows if r["split"] == "tune"]),
@@ -500,7 +501,7 @@ def main() -> None:
     ap.add_argument("--final", action="store_true", help="also score the held-out split (do this once)")
     ap.add_argument("--no-dev", action="store_true", help="select on the tune split only")
     ap.add_argument("--only-final", action="store_true",
-                    help="score only the configuration in docs/eval/final_config.json (selected in round2.json)")
+                    help="score only the configuration and gate policy in docs/eval/final_config.json")
     args = ap.parse_args()
     global SHOW_HELDOUT, SELECT
     SHOW_HELDOUT = args.final
@@ -527,9 +528,13 @@ def main() -> None:
     if args.only_final:
         fc = json.loads((EVAL / "final_config.json").read_text(encoding="utf-8"))
         fc["rerankers"] = tuple(fc.get("rerankers") or ())
+        fixed = fc.pop("policy", None)
         cfg = Config(**fc)
-        res, best_rows, _ = evaluate("Final: round 2 selection (round2.json)", cfg, corpus, items, models, cache,
-                                     snippets, per_lang=True, use_support=True)
+        pol = Policy(fixed["t"], fixed["s_min"]) if fixed else None
+        name = ("Final: round 1 gate rollback with round 2 parity fixes" if fixed
+                else "Final: round 2 selection (round2.json)")
+        res, best_rows, _ = evaluate(name, cfg, corpus, items, models, cache,
+                                     snippets, per_lang=True, use_support=True, policy=pol)
         out = {"items": len(items), "dropped": [d["id"] for d in dropped], "language_detection_accuracy": lang_acc,
                "final_config": cfg.__dict__, "final_label": cfg.label(), "final_policy": res["policy"],
                "steps": [res], "final_rows": best_rows}

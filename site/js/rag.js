@@ -6,15 +6,15 @@
 
 export const REFUSAL_TEXT = "I could not find this in the loaded texts.";
 
-/** Shipped defaults, tuned on the tune split plus the synthetic dev set (docs/eval/SCORECARD.md). */
+/** Shipped defaults: the round 1 final gate (tune split), BM25 k1 1.5 and RRF k 60 (docs/eval/SCORECARD.md). */
 export const DEFAULTS = Object.freeze({
-  thresholds: Object.freeze({ en: 0.18, pt: 0.04, es: 0.34 }),
+  thresholds: Object.freeze({ en: 0.12, pt: 0.72, es: 0.16 }),
   defaultThreshold: 0.5,
   minSupport: 0.3,
   candidates: 50,
   denseWeight: 0.5,
-  rrfK: 20,
-  bm25K1: 1.2,
+  rrfK: 60,
+  bm25K1: 1.5,
   bm25B: 0.75,
   topRanked: 5,
   topContext: 3,

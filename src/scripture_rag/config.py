@@ -94,10 +94,10 @@ class Settings:
     translate: bool = False
     expand: bool = False
     dense_weight: float = 0.5
-    lang_thresholds: str = ""
-    min_support: float = 0.0
-    bm25_k1: float = 1.2
-    rrf_k: int = 20
+    lang_thresholds: str = "en=0.12,pt=0.72,es=0.16"
+    min_support: float = 0.3
+    bm25_k1: float = 1.5
+    rrf_k: int = 60
     reference_path: str = ""
     extra: dict[str, str] = field(default_factory=dict)
 
@@ -142,7 +142,7 @@ class Settings:
             translate=_env("TRANSLATE", "0") == "1",
             expand=_env("EXPAND", "0") == "1",
             dense_weight=float(_env("DENSE_WEIGHT", str(d["dense_weight"].default))),
-            lang_thresholds=_env("LANG_THRESHOLDS", ""),
+            lang_thresholds=_env("LANG_THRESHOLDS", d["lang_thresholds"].default),
             min_support=float(_env("MIN_SUPPORT", str(d["min_support"].default))),
             reference_path=_env("REFERENCE_PATH", ""),
         )

@@ -9,8 +9,16 @@
  "candidates": 50,
  "bm25_original": true,
  "rerankers": [],
- "bm25_k1": 1.2,
- "rrf_k": 20,
+ "bm25_k1": 1.5,
+ "rrf_k": 60,
  "bm25_b": 0.75,
- "support_original": false
+ "support_original": false,
+ "policy": {
+  "t": {
+   "en": 0.12,
+   "pt": 0.72,
+   "es": 0.16
+  },
+  "s_min": 0.3
+ }
 }
