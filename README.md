@@ -253,9 +253,9 @@ From the strict tune / held-out run of [docs/eval/eval_set.jsonl](docs/eval/eval
 |---|---|
 | Items | 245 scored (109 tune, 136 held-out); numbers below are held-out |
 | Recall@10 hybrid + rerank | not reported by the ablation; accuracy is graded on cited evidence instead |
-| Answer accuracy (en / pt / es) | 0.800 (0.862 / 0.529 / 0.846); target 0.90, not met |
+| Answer accuracy (en / pt / es) | 0.789 (0.846 / 0.529 / 0.846); target 0.90, not met |
 | Citation validity | 1.0 |
-| Refusal recall / precision | 0.900 / 0.725; 3 adversarial answered, 9 wrong-evidence answers; injection pass 1.000 |
+| Refusal recall / precision | 0.867 / 0.778; 4 adversarial answered, 13 wrong-evidence answers; injection pass 1.000 |
 | Latency p50 / p95 | 1,972 ms p50 end to end on CPU (first stress run); the ablation reuses cached model outputs, so it does not time stages; p95 not recorded |
 
 ## Limitations

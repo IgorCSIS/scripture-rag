@@ -1,29 +1,27 @@
-## Experiments in this pass (tune split, 109 items)
+## Round 2 (selection on tune + synthetic dev, held-out scored once on the final configuration)
 
-All numbers below are tune split only; they were used for selection. Retrieval recall R@k = share of answerable tune items with a gold passage in the top k after reranking.
+Raw data: [round2.json](round2.json) (every variant below re-tunes the per-language thresholds and support on tune + dev), PT misses: [round2_pt_misses.json](round2_pt_misses.json).
 
-| Variant | R@1 | R@5 | Tune acc (in-sample thresholds) | Unsupported |
-|---|---|---|---|---|
-| 30 candidates (previous) | 0.655 | 0.845 | 0.707 | 7 |
-| 50 candidates | 0.638 | 0.897 | 0.776 | 6 |
-| 80 candidates + BM25 on original query | 0.621 | 0.879 | 0.759 | 7 |
-| 120 candidates + BM25 on original query | 0.638 | 0.879 | 0.638 | 6 |
-| 30 candidates + BM25 on original query | 0.672 | 0.862 | 0.724 | 7 |
-| 30 candidates, rerank max(original, translated) | 0.603 | 0.845 | 0.707 | 7 |
-| 50 + BM25 orig, reranker ms-marco-MiniLM-L-6-v2 (English) | 0.741 | 0.862 | 0.793 | 10 |
-| 50 + BM25 orig, reranker ms-marco-MiniLM-L-12-v2 (English) | 0.724 | 0.879 | 0.741 | 11 |
-| 50 + BM25 orig, mean of mMiniLM and ms-marco L-6 | | | 0.810 | 7 |
+Base for round 2 was the round 1 final retrieval with two parity fixes that the browser needs: every book is normalized (as in RagPipeline), and ties in top-k and in the verse aligner break by index. On tune + dev that base scored tune 0.729, dev 0.641 (dev PT 0.545), 14 unsupported, objective 1.0323 (from the round 2 run log; round2.json holds the rows on top of the final BM25/RRF).
 
-Leave-one-out on tune (thresholds re-tuned without the held-out tune item), 50 candidates + BM25 on original query:
+| Experiment | Tune acc | Dev acc | Dev PT | Unsupported (tune + dev) | Adversarial answered | Objective | Shipped |
+|---|---|---|---|---|---|---|---|
+| Gate tuned on tune only (round 1 practice) | 0.729 | 0.603 | 0.523 | 16 | 1 | (not comparable) | no |
+| Gate re-tuned on tune + dev | 0.729 | 0.641 | 0.545 | 14 | 0 | 1.0323 | yes |
+| + BM25 k1=1.2 (grid k1 0.9 to 2.0, b 0.3 to 0.9) | 0.729 | 0.695 | 0.682 | 18 | 0 | 1.0343 | yes |
+| + RRF k=20 (grid 10, 20, 30, 60, 100) | 0.729 | 0.702 | 0.682 | 17 | 0 | 1.0667 | yes |
+| + key name/number filter on ranked passages | 0.712 | 0.634 | 0.636 | 20 | 0 | 0.9043 | no |
+| + NLI filter, mDeBERTa-v3-base-xnli (MIT), top 3, p >= 0.2 | 0.729 | 0.573 | 0.455 | 11 | 0 | 0.9990 | no |
+| + NLI filter, p >= 0.5 | 0.695 | 0.565 | 0.455 | 9 | 0 | 1.0090 | no |
+| + support also on the untranslated query | 0.729 | 0.702 | 0.682 | 17 | 0 | 1.0667 | no (no change) |
 
-| Gate | mMiniLM acc / unsupported / adversarial answered | Ensemble acc / unsupported / adversarial answered |
-|---|---|---|
-| Per-language thresholds + support (current gate) | 0.724 / 7 / 1 | 0.759 / 8 / 1 |
-| Learned logistic confidence over top-10 scores, support, language (p >= 0.5) | 0.741 / 5 / 0 | 0.776 / 6 / 1 |
+Notes:
 
-Decisions:
+- NLI removes wrong-evidence answers (17 to 9) but costs more correct answers than it saves, so it was not shipped and its browser latency was not measured.
+- Dense search on the untranslated query was already part of the pipeline (both the original and translated query are embedded). PT diagnosis: in 2 of 20 dev PT misses MarianMT returned the Portuguese question unchanged; most other misses have the right verse ranked first but lexical support just under 0.3 after paraphrasing translation. No better Apache/MIT PT to EN Marian checkpoint was found on the Hub, so the translator is unchanged.
+- No learned or fine-tuned component was shipped this round (embedder fine-tuning skipped), so the out-of-corpus guard was not triggered.
+- Held-out went from 0.800 to 0.789 and unsupported answers from 12 to 17: the dev-informed gate (PT threshold 0.04, i.e. the support check alone) did not transfer to held-out. Reported as measured; held-out was not used to change anything.
 
-- Kept: 50 reranker candidates, BM25 list on the original PT/ES query, query cleaning that strips role tags and instruction preambles (fixes I02). No new model, no extra download.
-- Not shipped: the reranker ensemble won on tune, but ms-marco-MiniLM-L-6-v2 is English only. Users can load any Internet Archive book, including PT/ES texts, and no out-of-corpus check was run, so it is reported as A12 and not selected.
-- Not shipped: the learned confidence gate. Its LOO gain on 109 items is small (one or two items) and it was not checked on out-of-corpus books.
-- Not done: embedder fine-tuning on synthetic queries, NLI entailment verifier, doc2query expansion, BM25 k1/b and RRF k grids. PT stays at 0.529 held-out; PT tune has only 7 answerable items, so PT choices are close to unconstrained by data.
+## Browser parity
+
+The browser pipeline ([site/js/rag.js](../../site/js/rag.js)) is a port of the Python one with the same defaults. [parity.json](parity.json): same chunks (6538/6538), same index texts, and identical answer/refuse decisions and citations on all 248 eval items and 175 dev items when fed the Python model outputs. [parity_models.json](parity_models.json): with the browser models themselves (transformers.js ONNX, run in Node) decisions agree on the eval set as listed there; differences come from beam-search translation and float noise. CI runs a committed replay fixture (site/tests/parity.test.mjs).

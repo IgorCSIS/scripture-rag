@@ -1,8 +1,8 @@
 # Scorecard
 
-Eval set [eval_set.jsonl](eval_set.jsonl), strict split: every choice is made on the **tune** split (109 items) and reported once on the **held-out** split (136 items). Dropped (gold not in the PDF OCR): B12, B43, B46. Language detection accuracy: 1.000.
+Eval set [eval_set.jsonl](eval_set.jsonl), strict split: every choice is made on the **tune** split (109 items) plus the synthetic **dev** set [dev_set.jsonl](dev_set.jsonl) (175 items, scripts/build_dev_set.py) and reported once on the **held-out** split (136 items). Dropped (gold not in the PDF OCR): B12, B43, B46. Language detection accuracy: 0.993.
 
-Reproduce: `python scripts/elite_eval.py --quick` then `python scripts/make_scorecard.py`. Raw data: [ablation.json](ablation.json); previous run: [ablation_prev.json](ablation_prev.json).
+Reproduce: `python scripts/elite_eval.py --quick --final` then `python scripts/make_scorecard.py`. Raw data: [ablation.json](ablation.json); previous run: [ablation_prev.json](ablation_prev.json).
 
 Unsupported answers = answers to adversarial items plus answers whose cited passages do not hold the gold answer (wrong evidence). Citations are extractive quotes, so citation validity is 1.0 by construction.
 
@@ -10,92 +10,62 @@ Unsupported answers = answers to adversarial items plus answers whose cited pass
 
 | Metric | Previous | Current | Target |
 |---|---|---|---|
-| Answer accuracy | 0.758 | 0.800 | >= 0.90 |
-| EN | 0.815 | 0.862 | >= 0.85 |
+| Answer accuracy | 0.800 | 0.789 | >= 0.90 |
+| EN | 0.862 | 0.846 | >= 0.85 |
 | PT | 0.529 | 0.529 | >= 0.85 |
-| ES | 0.769 | 0.846 | >= 0.85 |
-| Refusal recall | 0.933 | 0.900 |  |
-| Refusal precision | 0.696 | 0.725 |  |
-| Adversarial answered | 2 | 3 | 0 |
-| Unsupported answers (incl. adversarial) | 11 | 12 | 0 |
-| Injection pass | 0.833 | 1.000 | 1.0 |
+| ES | 0.846 | 0.846 | >= 0.85 |
+| Refusal recall | 0.900 | 0.867 |  |
+| Refusal precision | 0.725 | 0.778 |  |
+| Adversarial answered | 3 | 4 | 0 |
+| Unsupported answers (incl. adversarial) | 12 | 17 | 0 |
+| Injection pass | 1.000 | 1.000 | 1.0 |
 
-Previous: `verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1`, policy `{"t": {"en": 0.36, "pt": 0.72, "es": 0.36}, "s_min": 0.3}`.
-Current: `verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1`, policy `{"t": {"en": 0.12, "pt": 0.72, "es": 0.16}, "s_min": 0.3}`.
+Previous: `verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1`, policy `{"t": {"en": 0.12, "pt": 0.72, "es": 0.16}, "s_min": 0.3}`.
+Current: `verse|norm=1|mt=1|exp=1|multilingual-e5-small|w=0.5|mmarco-mMiniLMv2-L12-H384-v1|k=50|bmo=1|bm25=1.2,0.75|rrf=20`, policy `{"t": {"en": 0.18, "pt": 0.04, "es": 0.34}, "s_min": 0.3}`.
 
 ## All steps, tune split (selection data)
 
 | Run | n | Answer acc | EN | PT | ES | Refusal recall | Refusal precision | Adversarial answered | Unsupported answers | Injection pass |
 |---|---|---|---|---|---|---|---|---|---|---|
-| A0 baseline (window 200, raw, e5-small, mmarco, global threshold) | 109 | 0.569 | 0.700 | 0.429 | 0.182 | 1.000 | 0.681 | 0 | 2 | 0.000 |
-| A1 + verse-aware chunker | 109 | 0.466 | 0.550 | 0.571 | 0.091 | 1.000 | 0.640 | 0 | 4 | 0.000 |
-| A2 + archaic normalization | 109 | 0.466 | 0.550 | 0.571 | 0.091 | 1.000 | 0.658 | 0 | 6 | 0.000 |
-| A3 + PT/ES query translation | 109 | 0.569 | 0.625 | 0.857 | 0.182 | 1.000 | 0.716 | 0 | 6 | 0.000 |
-| A4 + archaic query expansion | 109 | 0.569 | 0.625 | 0.857 | 0.182 | 1.000 | 0.716 | 0 | 6 | 0.000 |
-| A5 embedder multilingual-e5-small | 109 | 0.569 | 0.625 | 0.857 | 0.182 | 1.000 | 0.716 | 0 | 6 | 0.000 |
-| A5 embedder multilingual-e5-base | 109 | 0.569 | 0.625 | 0.857 | 0.182 | 1.000 | 0.716 | 0 | 6 | 0.000 |
-| A6 dense weight 0.0 | 109 | 0.569 | 0.625 | 0.857 | 0.182 | 1.000 | 0.716 | 0 | 7 | 0.000 |
-| A6 dense weight 0.25 | 109 | 0.569 | 0.625 | 0.857 | 0.182 | 1.000 | 0.716 | 0 | 7 | 0.000 |
-| A6 dense weight 0.5 | 109 | 0.569 | 0.625 | 0.857 | 0.182 | 1.000 | 0.716 | 0 | 6 | 0.000 |
-| A6 dense weight 0.75 | 109 | 0.534 | 0.575 | 0.857 | 0.182 | 1.000 | 0.676 | 0 | 4 | 0.000 |
-| A6 dense weight 1.0 | 109 | 0.534 | 0.575 | 0.857 | 0.182 | 1.000 | 0.676 | 0 | 4 | 0.000 |
-| A7 reranker mmarco-mMiniLMv2-L12-H384-v1 | 109 | 0.569 | 0.625 | 0.857 | 0.182 | 1.000 | 0.716 | 0 | 6 | 0.000 |
-| A8 per-language thresholds | 109 | 0.586 | 0.625 | 1.000 | 0.182 | 1.000 | 0.727 | 0 | 6 | 0.000 |
-| A9 per-language thresholds + lexical support gate | 109 | 0.707 | 0.750 | 1.000 | 0.364 | 1.000 | 0.810 | 0 | 7 | 0.000 |
-| A10 + 50 reranker candidates | 109 | 0.776 | 0.825 | 1.000 | 0.455 | 1.000 | 0.868 | 0 | 6 | 0.000 |
-| A11 + BM25 on the original PT/ES query | 109 | 0.776 | 0.825 | 1.000 | 0.455 | 1.000 | 0.868 | 0 | 6 | 0.000 |
-| A12 reranker ensemble mMiniLM + ms-marco-MiniLM-L-6 (English only; not shipped, see SCORECARD) | 109 | 0.810 | 0.850 | 1.000 | 0.545 | 1.000 | 0.939 | 0 | 7 | 0.000 |
+| Final: round 2 selection (round2.json) | 109 | 0.724 | 0.775 | 1.000 | 0.364 | 1.000 | 0.839 | 0 | 7 | 0.000 |
+
+## All steps, synthetic dev set (selection data)
+
+| Run | n | Answer acc | EN | PT | ES | Refusal recall | Refusal precision | Adversarial answered | Unsupported answers | Injection pass |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Final: round 2 selection (round2.json) | 175 | 0.702 | 0.814 | 0.682 | 0.614 | 1.000 | 0.603 | 0 | 10 | nan |
 
 ## All steps, held-out split (reported, never used for selection)
 
 | Run | n | Answer acc | EN | PT | ES | Refusal recall | Refusal precision | Adversarial answered | Unsupported answers | Injection pass |
 |---|---|---|---|---|---|---|---|---|---|---|
-| A0 baseline (window 200, raw, e5-small, mmarco, global threshold) | 136 | 0.663 | 0.769 | 0.353 | 0.538 | 1.000 | 0.589 | 0 | 9 | 1.000 |
-| A1 + verse-aware chunker | 136 | 0.589 | 0.708 | 0.353 | 0.308 | 1.000 | 0.507 | 0 | 5 | 1.000 |
-| A2 + archaic normalization | 136 | 0.589 | 0.692 | 0.353 | 0.385 | 1.000 | 0.500 | 0 | 4 | 1.000 |
-| A3 + PT/ES query translation | 136 | 0.663 | 0.692 | 0.588 | 0.615 | 1.000 | 0.541 | 0 | 4 | 1.000 |
-| A4 + archaic query expansion | 136 | 0.663 | 0.692 | 0.588 | 0.615 | 1.000 | 0.541 | 0 | 4 | 1.000 |
-| A5 embedder multilingual-e5-small | 136 | 0.663 | 0.692 | 0.588 | 0.615 | 1.000 | 0.541 | 0 | 4 | 1.000 |
-| A5 embedder multilingual-e5-base | 136 | 0.684 | 0.723 | 0.588 | 0.615 | 1.000 | 0.569 | 0 | 5 | 1.000 |
-| A6 dense weight 0.0 | 136 | 0.663 | 0.708 | 0.529 | 0.615 | 1.000 | 0.559 | 0 | 6 | 1.000 |
-| A6 dense weight 0.25 | 136 | 0.663 | 0.708 | 0.529 | 0.615 | 1.000 | 0.559 | 0 | 6 | 1.000 |
-| A6 dense weight 0.5 | 136 | 0.663 | 0.692 | 0.588 | 0.615 | 1.000 | 0.541 | 0 | 4 | 1.000 |
-| A6 dense weight 0.75 | 136 | 0.653 | 0.677 | 0.588 | 0.615 | 1.000 | 0.540 | 0 | 4 | 1.000 |
-| A6 dense weight 1.0 | 136 | 0.653 | 0.677 | 0.588 | 0.615 | 1.000 | 0.531 | 0 | 3 | 1.000 |
-| A7 reranker mmarco-mMiniLMv2-L12-H384-v1 | 136 | 0.663 | 0.692 | 0.588 | 0.615 | 1.000 | 0.541 | 0 | 4 | 1.000 |
-| A8 per-language thresholds | 136 | 0.674 | 0.692 | 0.647 | 0.615 | 1.000 | 0.559 | 0 | 5 | 1.000 |
-| A9 per-language thresholds + lexical support gate | 136 | 0.758 | 0.815 | 0.529 | 0.769 | 0.933 | 0.689 | 2 | 11 | 1.000 |
-| A10 + 50 reranker candidates | 136 | 0.800 | 0.862 | 0.529 | 0.846 | 0.900 | 0.725 | 3 | 12 | 1.000 |
-| A11 + BM25 on the original PT/ES query | 136 | 0.800 | 0.862 | 0.529 | 0.846 | 0.900 | 0.725 | 3 | 12 | 1.000 |
-| A12 reranker ensemble mMiniLM + ms-marco-MiniLM-L-6 (English only; not shipped, see SCORECARD) | 136 | 0.811 | 0.877 | 0.588 | 0.769 | 1.000 | 0.846 | 0 | 12 | 1.000 |
+| Final: round 2 selection (round2.json) | 136 | 0.789 | 0.846 | 0.529 | 0.846 | 0.867 | 0.778 | 4 | 17 | 1.000 |
 
-## Experiments in this pass (tune split, 109 items)
+## Round 2 (selection on tune + synthetic dev, held-out scored once on the final configuration)
 
-All numbers below are tune split only; they were used for selection. Retrieval recall R@k = share of answerable tune items with a gold passage in the top k after reranking.
+Raw data: [round2.json](round2.json) (every variant below re-tunes the per-language thresholds and support on tune + dev), PT misses: [round2_pt_misses.json](round2_pt_misses.json).
 
-| Variant | R@1 | R@5 | Tune acc (in-sample thresholds) | Unsupported |
-|---|---|---|---|---|
-| 30 candidates (previous) | 0.655 | 0.845 | 0.707 | 7 |
-| 50 candidates | 0.638 | 0.897 | 0.776 | 6 |
-| 80 candidates + BM25 on original query | 0.621 | 0.879 | 0.759 | 7 |
-| 120 candidates + BM25 on original query | 0.638 | 0.879 | 0.638 | 6 |
-| 30 candidates + BM25 on original query | 0.672 | 0.862 | 0.724 | 7 |
-| 30 candidates, rerank max(original, translated) | 0.603 | 0.845 | 0.707 | 7 |
-| 50 + BM25 orig, reranker ms-marco-MiniLM-L-6-v2 (English) | 0.741 | 0.862 | 0.793 | 10 |
-| 50 + BM25 orig, reranker ms-marco-MiniLM-L-12-v2 (English) | 0.724 | 0.879 | 0.741 | 11 |
-| 50 + BM25 orig, mean of mMiniLM and ms-marco L-6 | | | 0.810 | 7 |
+Base for round 2 was the round 1 final retrieval with two parity fixes that the browser needs: every book is normalized (as in RagPipeline), and ties in top-k and in the verse aligner break by index. On tune + dev that base scored tune 0.729, dev 0.641 (dev PT 0.545), 14 unsupported, objective 1.0323 (from the round 2 run log; round2.json holds the rows on top of the final BM25/RRF).
 
-Leave-one-out on tune (thresholds re-tuned without the held-out tune item), 50 candidates + BM25 on original query:
+| Experiment | Tune acc | Dev acc | Dev PT | Unsupported (tune + dev) | Adversarial answered | Objective | Shipped |
+|---|---|---|---|---|---|---|---|
+| Gate tuned on tune only (round 1 practice) | 0.729 | 0.603 | 0.523 | 16 | 1 | (not comparable) | no |
+| Gate re-tuned on tune + dev | 0.729 | 0.641 | 0.545 | 14 | 0 | 1.0323 | yes |
+| + BM25 k1=1.2 (grid k1 0.9 to 2.0, b 0.3 to 0.9) | 0.729 | 0.695 | 0.682 | 18 | 0 | 1.0343 | yes |
+| + RRF k=20 (grid 10, 20, 30, 60, 100) | 0.729 | 0.702 | 0.682 | 17 | 0 | 1.0667 | yes |
+| + key name/number filter on ranked passages | 0.712 | 0.634 | 0.636 | 20 | 0 | 0.9043 | no |
+| + NLI filter, mDeBERTa-v3-base-xnli (MIT), top 3, p >= 0.2 | 0.729 | 0.573 | 0.455 | 11 | 0 | 0.9990 | no |
+| + NLI filter, p >= 0.5 | 0.695 | 0.565 | 0.455 | 9 | 0 | 1.0090 | no |
+| + support also on the untranslated query | 0.729 | 0.702 | 0.682 | 17 | 0 | 1.0667 | no (no change) |
 
-| Gate | mMiniLM acc / unsupported / adversarial answered | Ensemble acc / unsupported / adversarial answered |
-|---|---|---|
-| Per-language thresholds + support (current gate) | 0.724 / 7 / 1 | 0.759 / 8 / 1 |
-| Learned logistic confidence over top-10 scores, support, language (p >= 0.5) | 0.741 / 5 / 0 | 0.776 / 6 / 1 |
+Notes:
 
-Decisions:
+- NLI removes wrong-evidence answers (17 to 9) but costs more correct answers than it saves, so it was not shipped and its browser latency was not measured.
+- Dense search on the untranslated query was already part of the pipeline (both the original and translated query are embedded). PT diagnosis: in 2 of 20 dev PT misses MarianMT returned the Portuguese question unchanged; most other misses have the right verse ranked first but lexical support just under 0.3 after paraphrasing translation. No better Apache/MIT PT to EN Marian checkpoint was found on the Hub, so the translator is unchanged.
+- No learned or fine-tuned component was shipped this round (embedder fine-tuning skipped), so the out-of-corpus guard was not triggered.
+- Held-out went from 0.800 to 0.789 and unsupported answers from 12 to 17: the dev-informed gate (PT threshold 0.04, i.e. the support check alone) did not transfer to held-out. Reported as measured; held-out was not used to change anything.
 
-- Kept: 50 reranker candidates, BM25 list on the original PT/ES query, query cleaning that strips role tags and instruction preambles (fixes I02). No new model, no extra download.
-- Not shipped: the reranker ensemble won on tune, but ms-marco-MiniLM-L-6-v2 is English only. Users can load any Internet Archive book, including PT/ES texts, and no out-of-corpus check was run, so it is reported as A12 and not selected.
-- Not shipped: the learned confidence gate. Its LOO gain on 109 items is small (one or two items) and it was not checked on out-of-corpus books.
-- Not done: embedder fine-tuning on synthetic queries, NLI entailment verifier, doc2query expansion, BM25 k1/b and RRF k grids. PT stays at 0.529 held-out; PT tune has only 7 answerable items, so PT choices are close to unconstrained by data.
+## Browser parity
+
+The browser pipeline ([site/js/rag.js](../../site/js/rag.js)) is a port of the Python one with the same defaults. [parity.json](parity.json): same chunks (6538/6538), same index texts, and identical answer/refuse decisions and citations on all 248 eval items and 175 dev items when fed the Python model outputs. [parity_models.json](parity_models.json): with the browser models themselves (transformers.js ONNX, run in Node) decisions agree on the eval set as listed there; differences come from beam-search translation and float noise. CI runs a committed replay fixture (site/tests/parity.test.mjs).
 
